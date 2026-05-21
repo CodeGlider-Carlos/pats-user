@@ -1,0 +1,139 @@
+[
+    {
+        "name": "Generate Order Sale",
+        "date": "30\/04\/2026",
+        "hour": "16:12:31",
+        "request": {
+            "merchant": "0000000000087626",
+            "affiliation": "7016408",
+            "amount": 1,
+            "description": "Membresía PATS Mensual",
+            "quantity": 1,
+            "price": 1
+        },
+        "response": {
+            "responseCode": "S005",
+            "message": "Feenicia rechazó la operación con código: S005"
+        },
+        "result": "FAIL",
+        "elapsed_ms": 710,
+        "error": "Feenicia rechazó la operación con código: S005"
+    },
+    {
+        "name": "Signature Save",
+        "date": "30\/04\/2026",
+        "hour": "16:12:32",
+        "request": {
+            "affiliation": "7016408",
+            "orderId": null,
+            "amount": 1,
+            "transactionDate": 1777565552465,
+            "pan": "7758d55c831f7b03e4dc2df7a1ec5e3b31b1f7b7fb0a1828db40261ceaf71b4c",
+            "cardholderName": "68c46df296ad67337b4ba91981908db6",
+            "cvv2": "8e124b108b60c874064c0132e9a13470",
+            "expDate": "cfe82bed776509bda8a6b95be1e48ec2",
+            "userId": "pasaportesalud01",
+            "tip": "0.0"
+        },
+        "response": {
+            "responseCode": "400",
+            "message": "Feenicia HTTP error 400 en \/receipt\/signature\/save"
+        },
+        "result": "FAIL",
+        "elapsed_ms": 558,
+        "error": "Feenicia HTTP error 400 en \/receipt\/signature\/save"
+    },
+    {
+        "name": "Manual Save",
+        "date": "30\/04\/2026",
+        "hour": "16:12:33",
+        "request": {
+            "affiliation": "7016408",
+            "amount": 1,
+            "transactionDate": 1777565553024,
+            "pan": "7758d55c831f7b03e4dc2df7a1ec5e3b31b1f7b7fb0a1828db40261ceaf71b4c",
+            "cardholderName": "68c46df296ad67337b4ba91981908db6",
+            "cvv2": "8e124b108b60c874064c0132e9a13470",
+            "expDate": "cfe82bed776509bda8a6b95be1e48ec2",
+            "userId": "pasaportesalud01",
+            "tip": "0.0"
+        },
+        "response": {
+            "affiliation": "7016408",
+            "authnum": "554600",
+            "responseCode": "00",
+            "transactionId": 9631497,
+            "merchant": {
+                "name": "FEE SERTI",
+                "address": "Shakespeare 6 Piso 3 Nva An  ",
+                "id": "7016408"
+            },
+            "card": {
+                "product": "DEBIT",
+                "brand": "MasterCard",
+                "last4Digits": "3004",
+                "first6Digits": "543924"
+            },
+            "amount": 1,
+            "tip": 0,
+            "currency": {
+                "id": 484,
+                "description": "Mexican Pesos"
+            },
+            "issuerBank": {
+                "name": null,
+                "id": null
+            },
+            "acquirerBank": {
+                "name": "BANCO DEL BIENESTAR",
+                "id": null
+            },
+            "approved": true,
+            "folio": null,
+            "ReciboId": "a57b4571033fc55ca46625568875fd10",
+            "orderId": "8530485"
+        },
+        "result": "SUCCESS",
+        "elapsed_ms": 3627,
+        "error": null
+    },
+    {
+        "name": "Create Receipt",
+        "date": "30\/04\/2026",
+        "hour": "16:12:36",
+        "request": {
+            "OrderId": "8530485",
+            "TransactionId": 9631497,
+            "Total": 0,
+            "ReceiptDateTime": "0001-01-01T00:00:00",
+            "SendUrlByMail": false,
+            "Propina": 0
+        },
+        "response": {
+            "receiptId": "a57b4571033fc55ca46625568875fd10",
+            "responseCode": "00"
+        },
+        "result": "SUCCESS",
+        "elapsed_ms": 717,
+        "error": null
+    },
+    {
+        "name": "Send Receipt",
+        "date": "30\/04\/2026",
+        "hour": "16:12:37",
+        "request": {
+            "receiptId": "a57b4571033fc55ca46625568875fd10",
+            "Email": [
+                "b2eb4e20bdc8b861bc4519880f86b14930376732d029355ba9ed35b065d5b963"
+            ]
+        },
+        "response": {
+            "Base64Pdf": null,
+            "Url": null,
+            "responseCode": "00"
+        },
+        "result": "SUCCESS",
+        "elapsed_ms": 2356,
+        "error": null
+    }
+]

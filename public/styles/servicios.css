@@ -1,0 +1,452 @@
+/* ===========================
+           ESTILOS UNIFICADOS CON PASAPORTE
+           =========================== */
+
+:root {
+    --border: #e2e8f0;
+    --navy: #f8fafc;
+    --blue: #2563eb;
+    --cream: #1e3a5f;
+    --text: #1e293b;
+    --text-muted: #64748b;
+    --white: #ffffff;
+    --transition: 0.2s ease;
+    --radius-md: 8px;
+    --radius-lg: 16px;
+    --radius-sm: 6px;
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
+    --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.digi-container-seervicios {
+    display: block;
+    width: 100%;
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 0 24px;
+}
+
+/* Page Header */
+.digi-page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.digi-page-title {
+    font-family: "Syne", sans-serif;
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--cream);
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.digi-page-title__icon {
+    font-size: 2rem;
+    color: var(--blue);
+}
+
+.digi-page-subtitle {
+    font-family: "DM Sans", sans-serif;
+    font-size: 0.95rem;
+    color: var(--text-muted);
+    margin: 0.25rem 0 0 0;
+}
+
+.digi-page-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+/* Cards de servicios - Con colores originales */
+.digi-service-card {
+    display: block;
+    width: 100%;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    transition: all var(--transition);
+    text-decoration: none;
+    color: inherit;
+    height: 100%;
+    overflow: hidden;
+    position: relative;
+    min-height: 200px;
+}
+
+.digi-service-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-md);
+}
+
+.digi-service-card__content {
+    padding: 2rem 1.5rem;
+    text-align: center;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    position: relative;
+}
+
+.digi-service-card__icon {
+    font-size: 3.5rem;
+    margin-bottom: 1rem;
+    line-height: 1;
+}
+
+.digi-service-card__title {
+    font-family: "Syne", sans-serif;
+    font-size: 1.2rem;
+    font-weight: 700;
+    margin: 0 0 0.25rem 0;
+    color: inherit;
+}
+
+.digi-service-card__subtitle {
+    font-family: "DM Sans", sans-serif;
+    font-size: 0.9rem;
+    margin: 0;
+    opacity: 0.9;
+    color: inherit;
+}
+
+/* Botón flotante en esquina inferior derecha */
+.digi-service-card__btn {
+    position: absolute;
+    bottom: 12px;
+    right: 12px;
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.25);
+    backdrop-filter: blur(4px);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgb(0, 0, 0);
+    font-size: 1.3rem;
+    cursor: pointer;
+    transition: all var(--transition);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+    z-index: 10;
+}
+
+.digi-service-card__btn:hover {
+    background: rgba(255, 255, 255, 0.4);
+    transform: scale(1.1);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.25);
+}
+
+/* Badges - Unificados */
+.digi-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem 0.75rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    border-radius: 9999px;
+    font-family: "DM Sans", sans-serif;
+    line-height: 1.5;
+    white-space: nowrap;
+}
+
+.digi-badge--success {
+    background: #d1fae5 !important;
+    color: #065f46 !important;
+}
+
+.digi-badge--info {
+    background: #dbeafe !important;
+    color: #1e40af !important;
+}
+
+.digi-badge--warning {
+    background: #fef3c7 !important;
+    color: #92400e !important;
+}
+
+.digi-badge--danger {
+    background: #fee2e2 !important;
+    color: #991b1b !important;
+}
+
+/* Cards para modales */
+.digi-card {
+    display: block;
+    width: 100%;
+    background: var(--white);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-sm);
+}
+
+.digi-card__header {
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid var(--border);
+    background: linear-gradient(to right, var(--white), var(--navy));
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.digi-card__title {
+    font-family: "Syne", sans-serif;
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--cream);
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.digi-card__title i {
+    color: var(--blue);
+    font-size: 1.4rem;
+}
+
+.digi-card__body {
+    padding: 1.5rem;
+}
+
+.digi-card__footer {
+    padding: 1rem 1.5rem;
+    border-top: 1px solid var(--border);
+    background: var(--navy);
+}
+
+/* Grid para medicamentos */
+.digi-medicamentos-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+}
+
+@media (max-width: 768px) {
+    .digi-medicamentos-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.digi-medicamento-item {
+    background: var(--navy);
+    border-radius: var(--radius-md);
+    padding: 1rem;
+    border: 1px solid var(--border);
+}
+
+.digi-medicamento-item__title {
+    font-family: "Syne", sans-serif;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--cream);
+    margin-bottom: 0.25rem;
+}
+
+.digi-medicamento-item__price {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--blue);
+    margin-bottom: 0.75rem;
+}
+
+.digi-hospitales-list {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+}
+
+.digi-hospital-item {
+    background: var(--white);
+    border-radius: var(--radius-sm);
+    padding: 0.5rem;
+    border: 1px solid var(--border);
+    text-align: center;
+}
+
+.digi-hospital-item small {
+    display: block;
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: var(--text);
+    margin-bottom: 0.5rem;
+}
+
+/* Modal unificado */
+.digi-modal .modal-content {
+    border-radius: var(--radius-lg);
+    border: none;
+    box-shadow: var(--shadow-md);
+}
+
+.digi-modal .modal-header {
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid var(--border);
+    background: linear-gradient(to right, var(--white), var(--navy));
+}
+
+.digi-modal .modal-title {
+    font-family: "Syne", sans-serif;
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--cream);
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.digi-modal .modal-title i {
+    color: var(--blue);
+    font-size: 1.4rem;
+}
+
+.digi-modal .btn-close {
+    background: transparent;
+    border: none;
+    font-size: 1.2rem;
+    color: var(--text-muted);
+    cursor: pointer;
+}
+
+.digi-modal .modal-body {
+    padding: 1.5rem;
+}
+
+/* Form controls */
+.digi-input {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    font-family: "DM Sans", sans-serif;
+    font-size: 0.95rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    transition: all var(--transition);
+}
+
+.digi-input:focus {
+    outline: none;
+    border-color: var(--blue);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+/* Accordion para móvil */
+.digi-accordion-item {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    margin-bottom: 0.5rem;
+    overflow: hidden;
+}
+
+.digi-accordion-header {
+    padding: 1rem;
+    background: var(--navy);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.digi-accordion-header__title {
+    font-family: "Syne", sans-serif;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--cream);
+}
+
+.digi-accordion-header__price {
+    color: var(--blue);
+    font-weight: 600;
+}
+
+.digi-accordion-body {
+    padding: 1rem;
+    border-top: 1px solid var(--border);
+}
+
+/* Utilities */
+.mt-3 {
+    margin-top: 1rem;
+}
+.mt-4 {
+    margin-top: 1.5rem;
+}
+.mb-3 {
+    margin-bottom: 1rem;
+}
+.mb-4 {
+    margin-bottom: 1.5rem;
+}
+.d-none {
+    display: none;
+}
+.d-md-block {
+    display: none;
+}
+.d-md-none {
+    display: block;
+}
+
+@media (min-width: 768px) {
+    .d-md-block {
+        display: block;
+    }
+    .d-md-none {
+        display: none;
+    }
+}
+
+
+
+.digi-service-card__icon-container {
+    width: 150px;
+    height: 150px;
+    margin: 0 auto 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(194, 194, 194, 0.2);
+    border-radius: 50%;
+    padding: 15px;
+    transition: all var(--transition);
+}
+
+.digi-service-card:hover .digi-service-card__icon-container {
+    transform: scale(1.1);
+    background: rgba(255, 255, 255, 0.3);
+}
+
+.digi-service-card__icon-img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    filter: brightness(0) invert(1); /* Esto hace que el SVG sea blanco */
+}
+
+/* Si quieres mantener los colores originales de los SVG, usa esta clase alternativa */
+.digi-service-card__icon-img--original {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    /* Sin filter, mantiene colores originales */
+}
+
+/* Para cards con fondos oscuros, los SVG blancos se ven mejor */
+.digi-service-card__icon-img {
+    filter: brightness(0) invert(1);
+}
+
+/* Si algún SVG necesita mantener su color original, puedes agregar una clase específica */
+.digi-service-card__icon-img--color {
+    filter: none;
+}

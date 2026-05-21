@@ -1,0 +1,377 @@
+/* ===== MODERN CONTENT STYLES ===== */
+:root {
+    --modern-blue: #2563eb;
+    --modern-cream: #1e3a5f;
+    --modern-bg: #f8fafc;
+    --modern-card: #ffffff;
+    --modern-border: rgba(37, 99, 235, 0.12);
+    --modern-text: #1e3a5f;
+    --modern-text-muted: #6b85a8;
+    --modern-radius: 16px;
+    --modern-shadow: 0 4px 20px rgba(30, 58, 95, 0.08);
+}
+
+/* Contenedor principal modernizado */
+.main-panel {
+    background-color: var(--modern-bg) !important;
+}
+
+.content-wrapper {
+    padding: 2rem;
+    max-width: 1400px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+/* Cards modernas */
+.modern-card {
+    background: var(--modern-card);
+    border-radius: var(--modern-radius);
+    border: 1px solid var(--modern-border);
+    box-shadow: var(--modern-shadow);
+    transition: all 0.3s ease;
+    overflow: hidden;
+}
+
+.modern-card:hover {
+    box-shadow: 0 8px 30px rgba(30, 58, 95, 0.12);
+    transform: translateY(-2px);
+}
+
+.modern-card__header {
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid var(--modern-border);
+    background: linear-gradient(to right, #ffffff, #fafcff);
+}
+
+.modern-card__header h3,
+.modern-card__header h4 {
+    font-family: "Syne", sans-serif;
+    color: var(--modern-cream);
+    font-weight: 600;
+    margin: 0;
+}
+
+.modern-card__body {
+    padding: 1.5rem;
+}
+
+.modern-card__footer {
+    padding: 1rem 1.5rem;
+    border-top: 1px solid var(--modern-border);
+    background: #f8fafc;
+}
+
+/* Tablas modernas */
+.modern-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0 0.75rem;
+}
+
+.modern-table th {
+    font-family: "DM Sans", sans-serif;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--modern-text-muted);
+    padding: 0.75rem 1rem;
+    background: transparent;
+    border: none;
+}
+
+.modern-table td {
+    background: var(--modern-card);
+    padding: 1rem;
+    border: 1px solid var(--modern-border);
+    font-family: "DM Sans", sans-serif;
+    color: var(--modern-text);
+}
+
+.modern-table td:first-child {
+    border-radius: 12px 0 0 12px;
+}
+
+.modern-table td:last-child {
+    border-radius: 0 12px 12px 0;
+}
+
+/* Formularios modernos */
+.modern-input {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    font-family: "DM Sans", sans-serif;
+    border: 1px solid var(--modern-border);
+    border-radius: 10px;
+    transition: all 0.2s ease;
+    background: white;
+}
+
+.modern-input:focus {
+    outline: none;
+    border-color: var(--modern-blue);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.modern-label {
+    font-family: "DM Sans", sans-serif;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--modern-text);
+    margin-bottom: 0.5rem;
+    display: block;
+}
+
+/* Botones modernos */
+.modern-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.625rem 1.25rem;
+    font-family: "DM Sans", sans-serif;
+    font-weight: 500;
+    border-radius: 10px;
+    transition: all 0.2s ease;
+    border: 1px solid transparent;
+    cursor: pointer;
+}
+
+.modern-btn--primary {
+    background: var(--modern-blue);
+    color: white;
+}
+
+.modern-btn--primary:hover {
+    background: #1d4ed8;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+}
+
+.modern-btn--secondary {
+    background: #f1f5f9;
+    color: var(--modern-text);
+    border-color: var(--modern-border);
+}
+
+.modern-btn--secondary:hover {
+    background: #e2e8f0;
+}
+
+/* Badges modernos */
+.modern-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem 0.75rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    border-radius: 9999px;
+    font-family: "DM Sans", sans-serif;
+}
+
+.modern-badge--success {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.modern-badge--warning {
+    background: #fef9c3;
+    color: #854d0e;
+}
+
+.modern-badge--danger {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+.modern-badge--info {
+    background: #dbeafe;
+    color: #1e40af;
+}
+
+/* Grid mejorado */
+.modern-grid {
+    display: grid;
+    gap: 1.5rem;
+}
+
+@media (min-width: 768px) {
+    .modern-grid-2 {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .modern-grid-3 {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    .modern-grid-4 {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+/* Estadísticas / KPI Cards */
+.modern-stat {
+    background: var(--modern-card);
+    border-radius: var(--modern-radius);
+    padding: 1.5rem;
+    border: 1px solid var(--modern-border);
+    position: relative;
+    overflow: hidden;
+}
+
+.modern-stat::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--modern-blue), var(--modern-cream));
+}
+
+.modern-stat__icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    background: linear-gradient(
+        135deg,
+        rgba(37, 99, 235, 0.1),
+        rgba(30, 58, 95, 0.1)
+    );
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1rem;
+}
+
+.modern-stat__icon i {
+    font-size: 24px;
+    color: var(--modern-blue);
+}
+
+.modern-stat__label {
+    font-size: 0.875rem;
+    color: var(--modern-text-muted);
+    margin-bottom: 0.5rem;
+    font-family: "DM Sans", sans-serif;
+}
+
+.modern-stat__value {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--modern-text);
+    font-family: "Syne", sans-serif;
+}
+
+/* Calendario modernizado */
+#calendar {
+    background: var(--modern-card);
+    border-radius: var(--modern-radius);
+    padding: 1.5rem;
+    border: 1px solid var(--modern-border);
+}
+
+.fc-toolbar-title {
+    font-family: "Syne", sans-serif !important;
+    color: var(--modern-cream) !important;
+}
+
+.fc-button {
+    background: white !important;
+    border: 1px solid var(--modern-border) !important;
+    color: var(--modern-text) !important;
+    font-family: "DM Sans", sans-serif !important;
+    border-radius: 8px !important;
+    padding: 0.5rem 1rem !important;
+    transition: all 0.2s ease !important;
+}
+
+.fc-button:hover {
+    background: #f8fafc !important;
+    border-color: var(--modern-blue) !important;
+}
+
+.fc-button-primary:not(:disabled).fc-button-active {
+    background: var(--modern-blue) !important;
+    border-color: var(--modern-blue) !important;
+    color: white !important;
+}
+
+.fc-daygrid-day {
+    transition: background 0.2s ease;
+}
+
+.fc-daygrid-day:hover {
+    background: #f8fafc !important;
+}
+
+/* Tarjeta de crédito integrada con tus estilos */
+.credit-card {
+    width: 100%;
+    max-width: 340px;
+    height: 215px;
+    perspective: 1000px;
+    margin: 0 auto;
+}
+
+.card-face {
+    width: 100%;
+    height: 100%;
+    border-radius: 18px;
+    padding: 20px;
+    color: #fff;
+    position: absolute;
+    backface-visibility: hidden;
+    transition: transform 0.6s;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    background: linear-gradient(135deg, #1e3a5f, #2563eb);
+}
+
+.card-front.mastercard {
+    background: linear-gradient(135deg, #eb001b, #f79e1b);
+}
+
+.card-front.amex {
+    background: linear-gradient(135deg, #007cc3, #00a4e4);
+}
+
+.card-back {
+    background: linear-gradient(135deg, #343a40, #212529);
+    transform: rotateY(180deg);
+}
+
+.credit-card.flip .card-front {
+    transform: rotateY(180deg);
+}
+
+.credit-card.flip .card-back {
+    transform: rotateY(360deg);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .content-wrapper {
+        padding: 1rem;
+    }
+
+    .modern-card__header {
+        padding: 1rem;
+    }
+
+    .modern-card__body {
+        padding: 1rem;
+    }
+
+    .fc-toolbar {
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .modern-grid-2,
+    .modern-grid-3,
+    .modern-grid-4 {
+        grid-template-columns: 1fr;
+    }
+}

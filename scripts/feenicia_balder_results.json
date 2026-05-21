@@ -1,0 +1,713 @@
+[
+    {
+        "name": "Signup",
+        "description": "BALDER USER REGISTRATION",
+        "execComments": "To start the registration of new users. We need a user, mail and application token.",
+        "date": "30\/04\/2026",
+        "hour": "16:45:28",
+        "descriptionResult": "Success registration in Balder",
+        "result": "SUCCESS",
+        "request": {
+            "merchant": "0000000000087626",
+            "affiliation": "7016408",
+            "userId": "pasaportesalud01",
+            "email": "prueba@pasaportesalud.com",
+            "name": "Pasaporte a tu Salud QA"
+        },
+        "response": {
+            "code": "B_FORMAT_TOKEN_APLIC",
+            "additionalCode": null,
+            "message": "El tokenAplic debe ser alfanumerico, sin espacios ni caracteres especiales",
+            "token": null
+        },
+        "error": null
+    },
+    {
+        "name": "Signup — same user",
+        "description": "BALDER USER REGISTRATION",
+        "execComments": "Register the same user",
+        "date": "30\/04\/2026",
+        "hour": "16:45:28",
+        "descriptionResult": "The registration of the same user is not allowed",
+        "result": "SUCCESS",
+        "request": {
+            "merchant": "0000000000087626",
+            "affiliation": "7016408",
+            "userId": "pasaportesalud01",
+            "email": "prueba@pasaportesalud.com",
+            "name": "Pasaporte a tu Salud QA"
+        },
+        "response": {
+            "code": "B_FORMAT_TOKEN_APLIC",
+            "additionalCode": null,
+            "message": "El tokenAplic debe ser alfanumerico, sin espacios ni caracteres especiales",
+            "token": null
+        },
+        "error": null
+    },
+    {
+        "name": "User Keys",
+        "description": "OBTAINING THE USER KEYS",
+        "execComments": "For each registered user, you must obtain the corresponding keys.",
+        "date": "30\/04\/2026",
+        "hour": "16:45:29",
+        "descriptionResult": "The corresponding keys of the registered user",
+        "result": "SUCCESS",
+        "request": {
+            "affiliation": "7016408",
+            "userId": "pasaportesalud01"
+        },
+        "response": {
+            "code": "B_E_DATA_NO_VALID",
+            "additionalCode": null,
+            "message": "El request no es valido, o esta alterado",
+            "keyVo": null
+        },
+        "error": null
+    },
+    {
+        "name": "Generate Token",
+        "description": "GENERATE CARD TOKEN",
+        "execComments": "Generates a cardholder data token of each registered user on Balder. Cipher: pan, cardholderName, expDate, cvv2.",
+        "date": "30\/04\/2026",
+        "hour": "16:45:29",
+        "descriptionResult": "Deliver the cardholder data token",
+        "result": "FAIL",
+        "request": {
+            "pan": "7758d55c831f7b03e4dc2df7a1ec5e3b31b1f7b7fb0a1828db40261ceaf71b4c",
+            "cardholderName": "68c46df296ad67337b4ba91981908db6",
+            "expDate": "cfe82bed776509bda8a6b95be1e48ec2",
+            "cvv2": "8e124b108b60c874064c0132e9a13470",
+            "affiliation": "7016408"
+        },
+        "response": {
+            "responseCode": "401",
+            "message": "Feenicia HTTP error 401 en \/balder\/token\/generateToken"
+        },
+        "error": "Feenicia HTTP error 401 en \/balder\/token\/generateToken"
+    },
+    {
+        "name": "Generate Token — same card again",
+        "description": "GENERATE CARD TOKEN",
+        "execComments": "Generate the card token again",
+        "date": "30\/04\/2026",
+        "hour": "16:45:30",
+        "descriptionResult": "Error obtained at the generation of the cardholder data token",
+        "result": "SUCCESS",
+        "request": {
+            "pan": "7758d55c831f7b03e4dc2df7a1ec5e3b31b1f7b7fb0a1828db40261ceaf71b4c",
+            "cardholderName": "68c46df296ad67337b4ba91981908db6",
+            "expDate": "cfe82bed776509bda8a6b95be1e48ec2",
+            "cvv2": "8e124b108b60c874064c0132e9a13470",
+            "affiliation": "7016408"
+        },
+        "response": {
+            "responseCode": "401",
+            "message": "Feenicia HTTP error 401 en \/balder\/token\/generateToken"
+        },
+        "error": "Feenicia HTTP error 401 en \/balder\/token\/generateToken"
+    },
+    {
+        "name": "Register Merchant",
+        "description": "MERCHANT REGISTER",
+        "execComments": "Merchant's registration at Balder with the data sent by Administrator.",
+        "date": "30\/04\/2026",
+        "hour": "16:45:30",
+        "descriptionResult": "To get the TokenStore",
+        "result": "FAIL",
+        "request": {
+            "merchant": "0000000000087626",
+            "affiliation": "7016408",
+            "userId": "pasaportesalud01"
+        },
+        "response": {
+            "responseCode": "400",
+            "message": "Feenicia HTTP error 400 en \/balder\/auth\/registerMerchantFeenicia"
+        },
+        "error": "Feenicia HTTP error 400 en \/balder\/auth\/registerMerchantFeenicia"
+    },
+    {
+        "name": "Register Merchant — same",
+        "description": "MERCHANT REGISTER",
+        "execComments": "Generate the same Merchant's registration",
+        "date": "30\/04\/2026",
+        "hour": "16:45:30",
+        "descriptionResult": "It will not let the merchant to register",
+        "result": "SUCCESS",
+        "request": {
+            "merchant": "0000000000087626",
+            "affiliation": "7016408",
+            "userId": "pasaportesalud01"
+        },
+        "response": {
+            "responseCode": "400",
+            "message": "Feenicia HTTP error 400 en \/balder\/auth\/registerMerchantFeenicia"
+        },
+        "error": "Feenicia HTTP error 400 en \/balder\/auth\/registerMerchantFeenicia"
+    },
+    {
+        "name": "Register Merchant — different merchant",
+        "description": "MERCHANT REGISTER",
+        "execComments": "Feenicia's commerce register with a different Merchant than the original delivered.",
+        "date": "30\/04\/2026",
+        "hour": "16:45:31",
+        "descriptionResult": "It will allow the registration",
+        "result": "FAIL",
+        "request": {
+            "merchant": "0000000000099999",
+            "affiliation": "7016408"
+        },
+        "response": {
+            "responseCode": "400",
+            "message": "Feenicia HTTP error 400 en \/balder\/auth\/registerMerchantFeenicia"
+        },
+        "error": "Feenicia HTTP error 400 en \/balder\/auth\/registerMerchantFeenicia"
+    },
+    {
+        "name": "Sale with Store + Email",
+        "description": "GENERATE RECEIPTS OF SALE",
+        "execComments": "Generates a new Sale with TokenStore and Email",
+        "date": "30\/04\/2026",
+        "hour": "16:45:31",
+        "descriptionResult": "Generates the new Sale where the receipt will be sent by Email",
+        "result": "FAIL",
+        "request": {
+            "token": null,
+            "amount": 1,
+            "affiliation": "7016408",
+            "transactionDate": 1777567531063,
+            "cvv2": "8e124b108b60c874064c0132e9a13470",
+            "tip": 0
+        },
+        "response": {
+            "responseCode": "401",
+            "message": "Feenicia HTTP error 401 en \/balder\/token\/saleToken"
+        },
+        "error": "Feenicia HTTP error 401 en \/balder\/token\/saleToken"
+    },
+    {
+        "name": "Sale with Store + Email — same again",
+        "description": "GENERATE RECEIPTS OF SALE",
+        "execComments": "Generates again the same sale with TokenStore and Email",
+        "date": "30\/04\/2026",
+        "hour": "16:45:31",
+        "descriptionResult": "It will not allow to generate the same sale",
+        "result": "SUCCESS",
+        "request": {
+            "token": null,
+            "amount": 1,
+            "affiliation": "7016408",
+            "transactionDate": 1777567531063,
+            "cvv2": "8e124b108b60c874064c0132e9a13470",
+            "tip": 0
+        },
+        "response": {
+            "responseCode": "401",
+            "message": "Feenicia HTTP error 401 en \/balder\/token\/saleToken"
+        },
+        "error": "Feenicia HTTP error 401 en \/balder\/token\/saleToken"
+    },
+    {
+        "name": "Sale with Store — without Email",
+        "description": "GENERATE RECEIPTS OF SALE",
+        "execComments": "Generates a new sale with TokenStore and without Email",
+        "date": "30\/04\/2026",
+        "hour": "16:45:32",
+        "descriptionResult": "Generates the new Sale",
+        "result": "FAIL",
+        "request": {
+            "token": null,
+            "amount": 1,
+            "affiliation": "7016408",
+            "transactionDate": 1777567531745,
+            "cvv2": "8e124b108b60c874064c0132e9a13470",
+            "tip": 0
+        },
+        "response": {
+            "responseCode": "401",
+            "message": "Feenicia HTTP error 401 en \/balder\/token\/saleToken"
+        },
+        "error": "Feenicia HTTP error 401 en \/balder\/token\/saleToken"
+    },
+    {
+        "name": "Sale with Email — without Store",
+        "description": "GENERATE RECEIPTS OF SALE",
+        "execComments": "Generates a new sale with Email and without TokenStore",
+        "date": "30\/04\/2026",
+        "hour": "16:45:35",
+        "descriptionResult": "Generates the new Sale",
+        "result": "SUCCESS",
+        "request": {
+            "affiliation": "7016408",
+            "amount": 1,
+            "transactionDate": 1777567532078,
+            "pan": "7758d55c831f7b03e4dc2df7a1ec5e3b31b1f7b7fb0a1828db40261ceaf71b4c",
+            "cardholderName": "68c46df296ad67337b4ba91981908db6",
+            "cvv2": "8e124b108b60c874064c0132e9a13470",
+            "expDate": "cfe82bed776509bda8a6b95be1e48ec2",
+            "userId": "pasaportesalud01",
+            "tip": "0.0"
+        },
+        "response": {
+            "affiliation": "7016408",
+            "authnum": "533707",
+            "responseCode": "00",
+            "transactionId": 9631504,
+            "merchant": {
+                "name": "FEE SERTI",
+                "address": "Shakespeare 6 Piso 3 Nva An  ",
+                "id": "7016408"
+            },
+            "card": {
+                "product": "DEBIT",
+                "brand": "MasterCard",
+                "last4Digits": "3004",
+                "first6Digits": "543924"
+            },
+            "amount": 1,
+            "tip": 0,
+            "currency": {
+                "id": 484,
+                "description": "Mexican Pesos"
+            },
+            "issuerBank": {
+                "name": null,
+                "id": null
+            },
+            "acquirerBank": {
+                "name": "BANCO DEL BIENESTAR",
+                "id": null
+            },
+            "approved": true,
+            "folio": null,
+            "ReciboId": "f048af96105cef9f4ee69e3688959024",
+            "orderId": "8530489"
+        },
+        "error": null
+    },
+    {
+        "name": "Sale without Store — without Email",
+        "description": "GENERATE RECEIPTS OF SALE",
+        "execComments": "Generates a new Sale without TokenStore and without Email",
+        "date": "30\/04\/2026",
+        "hour": "16:45:41",
+        "descriptionResult": "Generates the new Sale",
+        "result": "SUCCESS",
+        "request": {
+            "affiliation": "7016408",
+            "amount": 1,
+            "transactionDate": 1777567538054,
+            "pan": "7758d55c831f7b03e4dc2df7a1ec5e3b31b1f7b7fb0a1828db40261ceaf71b4c",
+            "cardholderName": "68c46df296ad67337b4ba91981908db6",
+            "cvv2": "8e124b108b60c874064c0132e9a13470",
+            "expDate": "cfe82bed776509bda8a6b95be1e48ec2",
+            "userId": "pasaportesalud01",
+            "tip": "0.0"
+        },
+        "response": {
+            "affiliation": "7016408",
+            "authnum": "539770",
+            "responseCode": "00",
+            "transactionId": 9631505,
+            "merchant": {
+                "name": "FEE SERTI",
+                "address": "Shakespeare 6 Piso 3 Nva An  ",
+                "id": "7016408"
+            },
+            "card": {
+                "product": "DEBIT",
+                "brand": "MasterCard",
+                "last4Digits": "3004",
+                "first6Digits": "543924"
+            },
+            "amount": 1,
+            "tip": 0,
+            "currency": {
+                "id": 484,
+                "description": "Mexican Pesos"
+            },
+            "issuerBank": {
+                "name": null,
+                "id": null
+            },
+            "acquirerBank": {
+                "name": "BANCO DEL BIENESTAR",
+                "id": null
+            },
+            "approved": true,
+            "folio": null,
+            "ReciboId": "aecb223442ea00b9450e0df839768bc2",
+            "orderId": "8530490"
+        },
+        "error": null
+    },
+    {
+        "name": "Sale with wrong Merchant-TokenStore",
+        "description": "GENERATE RECEIPTS OF SALE",
+        "execComments": "Generates a new Sale with an incorrect Merchant-TokenStore.",
+        "date": "30\/04\/2026",
+        "hour": "16:45:42",
+        "descriptionResult": "Generates the new Sale (expect error)",
+        "result": "SUCCESS",
+        "request": {
+            "token": "invalidtoken00000000000000000000",
+            "amount": 1,
+            "affiliation": "7016408",
+            "transactionDate": 1777567541799,
+            "cvv2": "8e124b108b60c874064c0132e9a13470",
+            "tip": 0
+        },
+        "response": {
+            "responseCode": "401",
+            "message": "Feenicia HTTP error 401 en \/balder\/token\/saleToken"
+        },
+        "error": "Feenicia HTTP error 401 en \/balder\/token\/saleToken"
+    },
+    {
+        "name": "Sale — Timeout: 3 seconds",
+        "description": "GENERATE RECEIPTS OF SALE",
+        "execComments": "Requires Feenicia QA timeout simulation endpoint. Cannot be triggered from client side.",
+        "date": "30\/04\/2026",
+        "hour": "16:45:42",
+        "descriptionResult": "N\/A",
+        "result": "N\/A",
+        "request": [],
+        "response": [],
+        "error": null
+    },
+    {
+        "name": "Sale — Timeout: 5 seconds",
+        "description": "GENERATE RECEIPTS OF SALE",
+        "execComments": "Requires Feenicia QA timeout simulation endpoint. Cannot be triggered from client side.",
+        "date": "30\/04\/2026",
+        "hour": "16:45:42",
+        "descriptionResult": "N\/A",
+        "result": "N\/A",
+        "request": [],
+        "response": [],
+        "error": null
+    },
+    {
+        "name": "Sale — Timeout: 8 seconds",
+        "description": "GENERATE RECEIPTS OF SALE",
+        "execComments": "Requires Feenicia QA timeout simulation endpoint. Cannot be triggered from client side.",
+        "date": "30\/04\/2026",
+        "hour": "16:45:42",
+        "descriptionResult": "N\/A",
+        "result": "N\/A",
+        "request": [],
+        "response": [],
+        "error": null
+    },
+    {
+        "name": "Sale — Timeout: 15 seconds",
+        "description": "GENERATE RECEIPTS OF SALE",
+        "execComments": "Requires Feenicia QA timeout simulation endpoint. Cannot be triggered from client side.",
+        "date": "30\/04\/2026",
+        "hour": "16:45:42",
+        "descriptionResult": "N\/A",
+        "result": "N\/A",
+        "request": [],
+        "response": [],
+        "error": null
+    },
+    {
+        "name": "Sale — Timeout: 35 seconds",
+        "description": "GENERATE RECEIPTS OF SALE",
+        "execComments": "Requires Feenicia QA timeout simulation endpoint. Cannot be triggered from client side.",
+        "date": "30\/04\/2026",
+        "hour": "16:45:42",
+        "descriptionResult": "N\/A",
+        "result": "N\/A",
+        "request": [],
+        "response": [],
+        "error": null
+    },
+    {
+        "name": "Sale Cancellation — wrong orderId",
+        "description": "SALE CANCELLATION BY THE USER",
+        "execComments": "Sale cancellation - TokenStore with a different orderId",
+        "date": "30\/04\/2026",
+        "hour": "16:45:42",
+        "descriptionResult": "The sale cancellation will not exist because the data will not match",
+        "result": "SUCCESS",
+        "request": {
+            "token": null,
+            "affiliation": "7016408",
+            "orderId": "WRONG_ORDER_999"
+        },
+        "response": {
+            "responseCode": "401",
+            "message": "Feenicia HTTP error 401 en \/balder\/token\/cancelCard"
+        },
+        "error": "Feenicia HTTP error 401 en \/balder\/token\/cancelCard"
+    },
+    {
+        "name": "Sale Cancellation — wrong transactionId (data mismatch)",
+        "description": "SALE CANCELLATION BY THE USER",
+        "execComments": "Sale cancellation - tokenStore with authnum and differents transactionId",
+        "date": "30\/04\/2026",
+        "hour": "16:45:42",
+        "descriptionResult": "The sale cancellation will not exist because the data will not match",
+        "result": "SUCCESS",
+        "request": {
+            "token": null,
+            "affiliation": "7016408",
+            "transactionId": "0000000"
+        },
+        "response": {
+            "responseCode": "401",
+            "message": "Feenicia HTTP error 401 en \/balder\/token\/cancelCard"
+        },
+        "error": "Feenicia HTTP error 401 en \/balder\/token\/cancelCard"
+    },
+    {
+        "name": "Sale Cancellation — wrong PIN",
+        "description": "SALE CANCELLATION BY THE USER",
+        "execComments": "Sale cancellation - tokenStore with authnum and differents transactionId (PIN mismatch)",
+        "date": "30\/04\/2026",
+        "hour": "16:45:43",
+        "descriptionResult": "The sale cancellation will not exist because the security PIN will not match.",
+        "result": "SUCCESS",
+        "request": {
+            "token": null,
+            "affiliation": "7016408",
+            "authnum": "000000",
+            "transactionId": "9999999"
+        },
+        "response": {
+            "responseCode": "401",
+            "message": "Feenicia HTTP error 401 en \/balder\/token\/cancelCard"
+        },
+        "error": "Feenicia HTTP error 401 en \/balder\/token\/cancelCard"
+    },
+    {
+        "name": "Sale Cancellation — tokenStore",
+        "description": "SALE CANCELLATION BY THE USER",
+        "execComments": "Sale Cancellation - tokenStore",
+        "date": "30\/04\/2026",
+        "hour": "16:45:43",
+        "descriptionResult": "Cancel the sale",
+        "result": "FAIL",
+        "request": {
+            "token": null,
+            "affiliation": "7016408"
+        },
+        "response": {
+            "responseCode": "401",
+            "message": "Feenicia HTTP error 401 en \/balder\/token\/cancelCard"
+        },
+        "error": "Feenicia HTTP error 401 en \/balder\/token\/cancelCard"
+    },
+    {
+        "name": "Sale Cancellation — same again",
+        "description": "SALE CANCELLATION BY THE USER",
+        "execComments": "Cancel again the same sale - tokenStore",
+        "date": "30\/04\/2026",
+        "hour": "16:45:43",
+        "descriptionResult": "It will not let to cancel a sale previously canceled",
+        "result": "SUCCESS",
+        "request": {
+            "token": null,
+            "affiliation": "7016408"
+        },
+        "response": {
+            "responseCode": "401",
+            "message": "Feenicia HTTP error 401 en \/balder\/token\/cancelCard"
+        },
+        "error": "Feenicia HTTP error 401 en \/balder\/token\/cancelCard"
+    },
+    {
+        "name": "Sale Cancellation — without tokenStore",
+        "description": "SALE CANCELLATION BY THE USER",
+        "execComments": "Sale cancellation - without tokenStore",
+        "date": "30\/04\/2026",
+        "hour": "16:45:45",
+        "descriptionResult": "Cancel the sale",
+        "result": "SUCCESS",
+        "request": {
+            "affiliation": "7016408",
+            "amount": 1,
+            "transactionDate": 1777567543802,
+            "orderId": "8530490",
+            "pan": "7758d55c831f7b03e4dc2df7a1ec5e3b31b1f7b7fb0a1828db40261ceaf71b4c",
+            "cardholderName": "68c46df296ad67337b4ba91981908db6",
+            "expDate": "cfe82bed776509bda8a6b95be1e48ec2",
+            "authnum": "539770",
+            "transactionId": "9631505"
+        },
+        "response": {
+            "affiliation": "7016408",
+            "authnum": "539770",
+            "responseCode": "00",
+            "transactionId": 9631506,
+            "merchant": {
+                "name": "FEE SERTI",
+                "address": "Shakespeare 6 Piso 3 Nva An  ",
+                "id": "7016408"
+            },
+            "card": {
+                "product": "DEBIT",
+                "brand": "MasterCard",
+                "last4Digits": "3004",
+                "first6Digits": "543924"
+            },
+            "amount": 1,
+            "tip": 0,
+            "currency": {
+                "id": 484,
+                "description": "Mexican Pesos"
+            },
+            "issuerBank": {
+                "name": null,
+                "id": null
+            },
+            "acquirerBank": {
+                "name": "BANCO DEL BIENESTAR",
+                "id": null
+            },
+            "approved": true,
+            "folio": null
+        },
+        "error": null
+    },
+    {
+        "name": "Reverse by demand — Invalidate Sale",
+        "description": "REVERSE SALE",
+        "execComments": "Invalidate Sale",
+        "date": "30\/04\/2026",
+        "hour": "16:45:45",
+        "descriptionResult": "It will allow to invalidate a sale",
+        "result": "FAIL",
+        "request": {
+            "token": null,
+            "affiliation": "7016408",
+            "amount": 1,
+            "transactionDate": 1777567545230,
+            "transactionId": "9631505",
+            "authnum": "539770"
+        },
+        "response": {
+            "responseCode": "401",
+            "message": "Feenicia HTTP error 401 en \/balder\/token\/reversalSale"
+        },
+        "error": "Feenicia HTTP error 401 en \/balder\/token\/reversalSale"
+    },
+    {
+        "name": "Reverse — already cancelled",
+        "description": "REVERSE SALE",
+        "execComments": "Invalidate a sale previously canceled",
+        "date": "30\/04\/2026",
+        "hour": "16:45:45",
+        "descriptionResult": "It will not allow to invalidate a sale previously canceled",
+        "result": "SUCCESS",
+        "request": {
+            "token": null,
+            "affiliation": "7016408",
+            "amount": 1,
+            "transactionDate": 1777567545230,
+            "transactionId": "9631505",
+            "authnum": "539770"
+        },
+        "response": {
+            "responseCode": "401",
+            "message": "Feenicia HTTP error 401 en \/balder\/token\/reversalSale"
+        },
+        "error": "Feenicia HTTP error 401 en \/balder\/token\/reversalSale"
+    },
+    {
+        "name": "Card Update",
+        "description": "CARDHOLDER DATA UPDATE",
+        "execComments": "Cardholder data update",
+        "date": "30\/04\/2026",
+        "hour": "16:45:46",
+        "descriptionResult": "Data Update",
+        "result": "FAIL",
+        "request": {
+            "token": null,
+            "affiliation": "7016408",
+            "expDate": "03419341618980a8cdd1b01308cab477",
+            "alias": "Tarjeta QA actualizada"
+        },
+        "response": {
+            "responseCode": "401",
+            "message": "Feenicia HTTP error 401 en \/balder\/token\/updateCard"
+        },
+        "error": "Feenicia HTTP error 401 en \/balder\/token\/updateCard"
+    },
+    {
+        "name": "Card Recovery",
+        "description": "CARDHOLDER DATA BALDER REGISTER RECOVERY",
+        "execComments": "Cardholder data recovery",
+        "date": "30\/04\/2026",
+        "hour": "16:45:46",
+        "descriptionResult": "You must see Cardholder Data",
+        "result": "FAIL",
+        "request": {
+            "affiliation": "7016408"
+        },
+        "response": {
+            "responseCode": "401",
+            "message": "Feenicia HTTP error 401 en \/balder\/token\/getCards"
+        },
+        "error": "Feenicia HTTP error 401 en \/balder\/token\/getCards"
+    },
+    {
+        "name": "Delete Card",
+        "description": "DELETE THE CARD FROM THE USER ACCOUNT",
+        "execComments": "Cardholder data erase",
+        "date": "30\/04\/2026",
+        "hour": "16:45:46",
+        "descriptionResult": "The Balder user card should be erased",
+        "result": "FAIL",
+        "request": {
+            "token": null,
+            "affiliation": "7016408"
+        },
+        "response": {
+            "responseCode": "401",
+            "message": "Feenicia HTTP error 401 en \/balder\/token\/deleteCard"
+        },
+        "error": "Feenicia HTTP error 401 en \/balder\/token\/deleteCard"
+    },
+    {
+        "name": "Delete Card — same again",
+        "description": "DELETE THE CARD FROM THE USER ACCOUNT",
+        "execComments": "Delete again the same card",
+        "date": "30\/04\/2026",
+        "hour": "16:45:47",
+        "descriptionResult": "It will not let to delete the same card",
+        "result": "SUCCESS",
+        "request": {
+            "token": null,
+            "affiliation": "7016408"
+        },
+        "response": {
+            "responseCode": "401",
+            "message": "Feenicia HTTP error 401 en \/balder\/token\/deleteCard"
+        },
+        "error": "Feenicia HTTP error 401 en \/balder\/token\/deleteCard"
+    },
+    {
+        "name": "Sale with deleted card",
+        "description": "DELETE THE CARD FROM THE USER ACCOUNT",
+        "execComments": "Generates a sale with an erased card",
+        "date": "30\/04\/2026",
+        "hour": "16:45:47",
+        "descriptionResult": "It will not do any sale because the card does not exist.",
+        "result": "SUCCESS",
+        "request": {
+            "token": null,
+            "amount": 1,
+            "affiliation": "7016408",
+            "transactionDate": 1777567547315,
+            "cvv2": "8e124b108b60c874064c0132e9a13470",
+            "tip": 0
+        },
+        "response": {
+            "responseCode": "401",
+            "message": "Feenicia HTTP error 401 en \/balder\/token\/saleToken"
+        },
+        "error": "Feenicia HTTP error 401 en \/balder\/token\/saleToken"
+    }
+]

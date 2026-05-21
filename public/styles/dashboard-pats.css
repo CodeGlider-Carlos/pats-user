@@ -1,0 +1,154 @@
+/* ======================================================
+   PALETA FIFTY DOCTORS
+====================================================== */
+:root {
+    --fd-primary: #1232ff;
+    --fd-light: #B8D4FF;
+    --fd-gray: #eaeaea;
+    --fd-dark: #000000;
+}
+
+/* ======================================================
+   UTILIDADES
+====================================================== */
+.hover-shadow {
+    transition: all .3s ease;
+}
+.hover-shadow:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 28px rgba(0,0,0,.15);
+}
+
+/* ======================================================
+   CARDS PRINCIPALES
+====================================================== */
+.dashboard-card {
+    border-radius: 18px;
+    background: #fff;
+    border: 1px solid var(--fd-gray);
+}
+
+.dashboard-card h4 {
+    font-weight: 600;
+    color: var(--fd-dark);
+}
+
+/* ======================================================
+   HOSPITALES
+====================================================== */
+.hospital-card {
+    height: 220px;
+    border-radius: 18px;
+    background-size: cover;
+    background-position: center;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 10px 25px rgba(0,0,0,.18);
+}
+
+.hospital-overlay {
+    position: absolute;
+    inset: 0;
+    padding: 16px;
+    background: linear-gradient(
+        to top,
+        rgba(0,0,0,.75),
+        rgba(0,0,0,.25)
+    );
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+}
+
+.hospital-overlay h5 {
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+.hospital-overlay p {
+    font-size: .85rem;
+    margin-bottom: 4px;
+}
+
+.hospital-overlay .btn {
+    font-size: .75rem;
+}
+
+/* ======================================================
+   ACORDEONES
+====================================================== */
+.accordion-item {
+    border: 0;
+    border-radius: 14px;
+    overflow: hidden;
+    margin-bottom: 10px;
+    box-shadow: 0 6px 16px rgba(0,0,0,.08);
+}
+
+.accordion-button {
+    font-weight: 600;
+    background: var(--fd-gray);
+}
+
+.accordion-button:not(.collapsed) {
+    background: var(--fd-light);
+    color: var(--fd-primary);
+}
+
+.accordion-button:focus {
+    box-shadow: none;
+}
+
+/* ======================================================
+   DOCTORES
+====================================================== */
+.doctor-cell {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.doctor-avatar {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.doctor-name {
+    font-weight: 600;
+}
+
+.action-group {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+}
+
+.action-btn-round {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+}
+
+.btn-map {
+    background: var(--fd-primary);
+}
+
+.btn-phone {
+    background: #198754;
+}
+
+/* ======================================================
+   RESPONSIVE
+====================================================== */
+@media (max-width: 768px) {
+    .hospital-card {
+        height: 180px;
+    }
+}

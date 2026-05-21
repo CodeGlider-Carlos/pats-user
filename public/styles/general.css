@@ -1,0 +1,576 @@
+/* ===========================
+           DIGI DESIGN SYSTEM - GLOBAL
+           =========================== */
+
+:root {
+    /* Colores principales (manteniendo tus colores) */
+    --navy: #f0f4fb;
+    --navy-light: #e2eaf6;
+    --blue: #2563eb;
+    --blue-light: #60a5fa;
+    --cream: #1e3a5f;
+    --cream-dark: #2d4a6e;
+    --text: #1e3a5f;
+    --text-muted: #6b85a8;
+    --white: #ffffff;
+    --success: #0e7a5f;
+    --border: rgba(37, 99, 235, 0.12);
+    --danger: #dc2626;
+    --warning: #d97706;
+
+    /* Layout */
+    --header-height: 64px;
+    --container-max: 1280px;
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 16px;
+    --radius-xl: 24px;
+
+    /* Sombras */
+    --shadow-sm:
+        0 1px 3px rgba(30, 58, 95, 0.08), 0 1px 2px rgba(30, 58, 95, 0.06);
+    --shadow-md:
+        0 4px 16px rgba(30, 58, 95, 0.12), 0 2px 6px rgba(30, 58, 95, 0.08);
+    --shadow-lg:
+        0 8px 32px rgba(30, 58, 95, 0.14), 0 4px 12px rgba(30, 58, 95, 0.08);
+
+    /* Transiciones */
+    --transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-smooth: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+    /* Espaciado */
+    --spacing-xs: 4px;
+    --spacing-sm: 8px;
+    --spacing-md: 16px;
+    --spacing-lg: 24px;
+    --spacing-xl: 32px;
+    --spacing-xxl: 48px;
+}
+
+/* ===== LAYOUT PRINCIPAL ===== */
+body {
+    font-family: "DM Sans", sans-serif;
+    background: var(--navy-light);
+    color: var(--text);
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+}
+
+.digi-app-wrapper {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Contenedor principal - MODIFICADO PARA QUE FUNCIONE CON TU ESTRUCTURA */
+.container-scroller {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.main-panel {
+    flex: 1;
+    background: var(--navy-light) !important;
+    transition: all var(--transition-smooth);
+    width: 100%;
+}
+
+.content-wrapper {
+    padding: var(--spacing-lg);
+    background: transparent;
+    width: 100%;
+}
+
+/* Container moderno para contenido */
+.digi-container {
+    max-width: var(--container-max);
+    margin: 0 auto;
+    padding: 0 var(--spacing-md);
+    width: 100%;
+}
+
+/* ===== CARD SYSTEM ===== */
+.digi-card {
+    background: var(--white);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-sm);
+    transition: all var(--transition-smooth);
+    overflow: hidden;
+    margin-bottom: var(--spacing-lg);
+}
+
+.digi-card:hover {
+    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
+}
+
+.digi-card__header {
+    padding: var(--spacing-md) var(--spacing-lg);
+    border-bottom: 1px solid var(--border);
+    background: linear-gradient(to right, var(--white), var(--navy));
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: var(--spacing-sm);
+}
+
+.digi-card__title {
+    font-family: "Syne", sans-serif;
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--cream);
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+}
+
+.digi-card__title i {
+    color: var(--blue);
+    font-size: 1.4rem;
+}
+
+.digi-card__body {
+    padding: var(--spacing-lg);
+}
+
+.digi-card__footer {
+    padding: var(--spacing-md) var(--spacing-lg);
+    border-top: 1px solid var(--border);
+    background: var(--navy);
+}
+
+/* ===== BUTTONS ===== */
+.digi-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-sm);
+    padding: 0.625rem 1.25rem;
+    font-family: "DM Sans", sans-serif;
+    font-size: 0.9rem;
+    font-weight: 500;
+    border-radius: var(--radius-md);
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: all var(--transition);
+    text-decoration: none;
+    line-height: 1.5;
+}
+
+.digi-btn--primary {
+    background: var(--blue);
+    color: white;
+}
+
+.digi-btn--primary:hover {
+    background: var(--cream);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+}
+
+.digi-btn--secondary {
+    background: var(--navy);
+    color: var(--text);
+    border-color: var(--border);
+}
+
+.digi-btn--secondary:hover {
+    background: var(--navy-light);
+    border-color: var(--blue-light);
+}
+
+.digi-btn--outline {
+    background: transparent;
+    border-color: var(--border);
+    color: var(--text);
+}
+
+.digi-btn--outline:hover {
+    border-color: var(--blue);
+    color: var(--blue);
+    background: var(--navy);
+}
+
+.digi-btn--danger {
+    background: var(--danger);
+    color: white;
+}
+
+.digi-btn--danger:hover {
+    background: #b91c1c;
+}
+
+.digi-btn--sm {
+    padding: 0.375rem 1rem;
+    font-size: 0.85rem;
+}
+
+.digi-btn--lg {
+    padding: 0.875rem 1.75rem;
+    font-size: 1rem;
+}
+
+/* ===== BADGES ===== */
+.digi-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem 0.75rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    border-radius: 9999px;
+    font-family: "DM Sans", sans-serif;
+    line-height: 1.5;
+}
+
+.digi-badge--success {
+    background: #d1fae5;
+    color: #065f46;
+}
+
+.digi-badge--warning {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.digi-badge--danger {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+.digi-badge--info {
+    background: #dbeafe;
+    color: #1e40af;
+}
+
+/* ===== TABS MODERNOS ===== */
+.digi-tabs-wrapper {
+    margin-bottom: var(--spacing-lg);
+    border-bottom: 1px solid var(--border);
+    background: var(--white);
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    padding: 0 var(--spacing-md);
+}
+
+.digi-tabs {
+    display: flex;
+    gap: var(--spacing-xs);
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    overflow-x: auto;
+    scrollbar-width: none;
+}
+
+.digi-tabs::-webkit-scrollbar {
+    display: none;
+}
+
+.digi-tabs__item {
+    flex-shrink: 0;
+}
+
+.digi-tabs__link {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-md) var(--spacing-lg);
+    font-family: "DM Sans", sans-serif;
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: var(--text-muted);
+    background: transparent;
+    border: none;
+    border-bottom: 2px solid transparent;
+    transition: all var(--transition);
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.digi-tabs__link i {
+    font-size: 1.2rem;
+}
+
+.digi-tabs__link:hover {
+    color: var(--blue);
+    background: var(--navy);
+    border-radius: var(--radius-md) var(--radius-md) 0 0;
+}
+
+.digi-tabs__link.active {
+    color: var(--blue);
+    border-bottom-color: var(--blue);
+    font-weight: 600;
+}
+
+.digi-tab-content {
+    margin-top: var(--spacing-lg);
+}
+
+/* ===== PAGE HEADER ===== */
+.digi-page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--spacing-xl);
+    flex-wrap: wrap;
+    gap: var(--spacing-md);
+}
+
+.digi-page-title {
+    font-family: "Syne", sans-serif;
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--cream);
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+}
+
+.digi-page-title__icon {
+    font-size: 2.2rem;
+    color: var(--blue);
+}
+
+.digi-page-subtitle {
+    font-family: "DM Sans", sans-serif;
+    font-size: 1rem;
+    color: var(--text-muted);
+    margin: var(--spacing-xs) 0 0 0;
+}
+
+.digi-page-actions {
+    display: flex;
+    gap: var(--spacing-sm);
+}
+
+/* ===== ACCORDION ===== */
+.digi-accordion__item {
+    border-bottom: 1px solid var(--border);
+}
+
+.digi-accordion__item:last-child {
+    border-bottom: none;
+}
+
+.digi-accordion__header {
+    margin: 0;
+}
+
+.digi-accordion__button {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    width: 100%;
+    padding: var(--spacing-md) var(--spacing-lg);
+    background: transparent;
+    border: none;
+    font-family: "Syne", sans-serif;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text);
+    cursor: pointer;
+    transition: all var(--transition);
+}
+
+.digi-accordion__button:hover {
+    background: var(--navy);
+}
+
+.digi-accordion__icon {
+    transition: transform var(--transition-smooth);
+}
+
+.digi-accordion__button[aria-expanded="true"] .digi-accordion__icon {
+    transform: rotate(180deg);
+}
+
+.digi-accordion__body {
+    padding: var(--spacing-lg);
+    background: var(--white);
+}
+
+/* ===== FORM ELEMENTS ===== */
+.digi-input {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    font-family: "DM Sans", sans-serif;
+    font-size: 0.95rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    transition: all var(--transition);
+    background: var(--white);
+}
+
+.digi-input:focus {
+    outline: none;
+    border-color: var(--blue);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.digi-label {
+    display: block;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--text);
+    margin-bottom: var(--spacing-xs);
+}
+
+.digi-checkbox {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    cursor: pointer;
+}
+
+.digi-checkbox input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+}
+
+/* ===== CALENDAR CUSTOMIZATION ===== */
+#calendar {
+    background: var(--white);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-lg);
+}
+
+.fc-toolbar-title {
+    font-family: "Syne", sans-serif !important;
+    color: var(--cream) !important;
+    font-size: 1.2rem !important;
+}
+
+.fc-button {
+    background: var(--white) !important;
+    border: 1px solid var(--border) !important;
+    color: var(--text) !important;
+    font-family: "DM Sans", sans-serif !important;
+    border-radius: var(--radius-md) !important;
+    padding: 0.5rem 1rem !important;
+    transition: all var(--transition) !important;
+}
+
+.fc-button:hover {
+    background: var(--navy) !important;
+    border-color: var(--blue) !important;
+}
+
+.fc-button-primary:not(:disabled).fc-button-active {
+    background: var(--blue) !important;
+    border-color: var(--blue) !important;
+    color: white !important;
+}
+
+.fc-daygrid-day {
+    transition: background var(--transition);
+}
+
+.fc-daygrid-day:hover {
+    background: var(--navy) !important;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 991px) {
+    .content-wrapper {
+        padding: var(--spacing-md);
+    }
+
+    .digi-page-title {
+        font-size: 1.5rem;
+    }
+
+    .digi-page-title__icon {
+        font-size: 1.8rem;
+    }
+
+    .digi-tabs__link {
+        padding: var(--spacing-sm) var(--spacing-md);
+        font-size: 0.85rem;
+    }
+
+    .navbar-menu-wrapper {
+        overflow: visible !important;
+    }
+
+    .dropdown-menu {
+        position: fixed !important;
+        top: 60px !important;
+        right: 10px !important;
+        left: auto !important;
+        max-width: calc(100vw - 20px);
+    }
+}
+
+@media (max-width: 768px) {
+    .digi-card__header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .digi-page-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .digi-page-actions {
+        width: 100%;
+        justify-content: flex-start;
+    }
+
+    .fc-toolbar {
+        flex-direction: column;
+        gap: var(--spacing-md);
+    }
+}
+
+/* Utilidades */
+.digi-text-center {
+    text-align: center;
+}
+
+.digi-mt-2 {
+    margin-top: var(--spacing-sm);
+}
+
+.digi-mt-4 {
+    margin-top: var(--spacing-md);
+}
+
+.digi-mt-5 {
+    margin-top: var(--spacing-lg);
+}
+
+.digi-mb-2 {
+    margin-bottom: var(--spacing-sm);
+}
+
+.digi-mb-4 {
+    margin-bottom: var(--spacing-md);
+}
+
+.digi-mb-5 {
+    margin-bottom: var(--spacing-lg);
+}
+
+.digi-p-4 {
+    padding: var(--spacing-md);
+}
+
+.digi-p-5 {
+    padding: var(--spacing-lg);
+}
+
+.digi-d-none {
+    display: none;
+}
+
+.digi-d-block {
+    display: block;
+}
