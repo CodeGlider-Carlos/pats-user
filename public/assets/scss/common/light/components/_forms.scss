@@ -1,0 +1,127 @@
+/* Forms */
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+.input-group {
+  margin-bottom: 1rem;
+}
+
+.input-group-text {
+  background: $white;
+  color: $input-group-addon-color;
+  width: auto;
+  padding: $input-padding-y .75rem;
+  border-color: $border-color;
+  font-size: 1rem;
+  display: inline-flex;
+  height: 100%;
+}
+
+.form-control {
+  border: 1px solid $border-color;
+  font-family: $type1;
+  font-size: $input-font-size;
+  padding: $input-padding-y .75rem;
+  line-height: 14px;
+  margin-bottom: 1rem;
+
+  &.form-control-lg {
+    padding: $input-padding-y-lg .75rem;
+  }
+
+  &.form-control-sm {
+    padding: $input-padding-y-sm .75rem;
+  }
+}
+
+// .form-select {
+//   border-radius: 0;
+//   background: transparent;
+// }
+.input-group {
+  .form-control {
+    margin-bottom: 0;
+  }
+}
+
+select {
+  &.form-control {
+    padding: .875rem .75rem;
+    border: 0;
+    outline: 1px solid $border-color;
+    color: $input-placeholder-color;
+    appearance: none;
+    background: $input-bg url("../../images/arrow-down-dark.svg");
+    background-repeat: no-repeat;
+    background-position: 99% center;
+
+    &:focus {
+      outline: 1px solid $border-color;
+    }
+
+    @each $color, $value in $theme-colors {
+      &.border-#{$color} {
+        outline: 1px solid $value;
+
+        &:focus {
+          outline: 1px solid $value;
+        }
+      }
+    }
+  }
+
+  &.form-select {
+    padding: .875rem .75rem;
+    border: 0;
+    outline: 1px solid $border-color;
+    color: $black;
+    appearance: none;
+    // background: $input-bg url("../../images/arrow-down-dark.svg");
+    background-repeat: no-repeat;
+    background-position: 99% center;
+    background-color: transparent;
+    border-radius: 0;
+
+    &:focus {
+      outline: 1px solid $border-color;
+    }
+
+    @each $color, $value in $theme-colors {
+      &.border-#{$color} {
+        outline: 1px solid $value;
+
+        &:focus {
+          outline: 1px solid $value;
+        }
+      }
+    }
+  }
+}
+
+.form-group {
+  label {
+    font-size: $default-font-size;
+    line-height: 1;
+    vertical-align: top;
+  }
+
+  &.has-danger {
+    .form-control {
+      border-color: $danger;
+    }
+  }
+
+  .file-upload-default {
+    visibility: hidden;
+    position: absolute;
+  }
+
+  .file-upload-info {
+    background: transparent;
+  }
+}
+
+.form-check-input {
+  margin-top: 0 !important; // reset margin by adding bootstrap variable
+}

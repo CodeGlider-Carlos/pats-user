@@ -1,0 +1,2543 @@
+<!doctype html>
+<html lang="es">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Contrato de Distribución — Pasaporte a tu Salud</title>
+        <link
+            href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,600;1,400&family=Montserrat:wght@400;600;700&display=swap"
+            rel="stylesheet"
+        />
+        <style>
+            :root {
+                --navy: #111111;
+                --gold: #2b2b2b;
+                --gold-light: #aeaeae;
+                --cream: #ffffff;
+                --ink: #000000;
+                --muted: #7a7a7a;
+                --rule: #dcdcdc;
+                --accent-bg: #f5f5f5;
+            }
+
+            * {
+                box-sizing: border-box;
+                margin: 0;
+                padding: 0;
+            }
+
+            body {
+                font-family: Arial, Helvetica, sans-serif;
+                background: var(--cream);
+                color: var(--ink);
+                font-size: 15px;
+                line-height: 1.8;
+            }
+
+            /* ── COVER / HEADER ── */
+            .cover {
+                background: var(--navy);
+                color: #fff;
+                padding: 60px 80px 50px;
+                position: relative;
+                overflow: hidden;
+            }
+            .cover::before {
+                content: "";
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: repeating-linear-gradient(
+                    45deg,
+                    transparent,
+                    transparent 40px,
+                    rgba(255, 255, 255, 0.02) 40px,
+                    rgba(255, 255, 255, 0.02) 41px
+                );
+            }
+            .cover-inner {
+                position: relative;
+                z-index: 1;
+                max-width: 860px;
+                margin: 0 auto;
+            }
+            .cover-label {
+                font-family: "Montserrat", sans-serif;
+                font-size: 10px;
+                font-weight: 700;
+                letter-spacing: 4px;
+                text-transform: uppercase;
+                color: var(--gold-light);
+                margin-bottom: 18px;
+            }
+            .cover h1 {
+                font-family: "EB Garamond", serif;
+                font-size: 38px;
+                font-weight: 600;
+                line-height: 1.2;
+                margin-bottom: 8px;
+                color: #fff;
+            }
+            .cover-subtitle {
+                font-family: "Montserrat", sans-serif;
+                font-size: 12px;
+                font-weight: 600;
+                letter-spacing: 2px;
+                color: var(--gold-light);
+                text-transform: uppercase;
+                margin-bottom: 40px;
+            }
+            .cover-divider {
+                width: 60px;
+                height: 2px;
+                background: var(--gold-light);
+                margin-bottom: 32px;
+            }
+            .cover-parties {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 32px;
+                margin-top: 8px;
+            }
+            .cover-party h3 {
+                font-family: "Montserrat", sans-serif;
+                font-size: 9px;
+                font-weight: 700;
+                letter-spacing: 3px;
+                text-transform: uppercase;
+                color: var(--gold-light);
+                margin-bottom: 6px;
+            }
+            .cover-party p {
+                font-size: 14px;
+                color: rgba(255, 255, 255, 0.75);
+                line-height: 1.5;
+            }
+
+            /* ── PAGE WRAPPER ── */
+            .page {
+                max-width: 860px;
+                margin: 0 auto;
+                padding: 0 40px 80px;
+            }
+
+            /* ── CARATULA TABLE ── */
+            .caratula-section {
+                background: #fff;
+                border: 1px solid var(--rule);
+                border-top: 4px solid var(--gold);
+                margin: 48px 0 0;
+                border-radius: 2px;
+                overflow: hidden;
+            }
+            .caratula-header {
+                background: var(--navy);
+                color: #fff;
+                padding: 20px 32px;
+                display: flex;
+                align-items: center;
+                gap: 16px;
+            }
+            .caratula-header h2 {
+                font-family: "Montserrat", sans-serif;
+                font-size: 13px;
+                font-weight: 700;
+                letter-spacing: 3px;
+                text-transform: uppercase;
+                color: var(--gold-light);
+            }
+            .caratula-table {
+                width: 100%;
+                border-collapse: collapse;
+            }
+            .caratula-table tr:nth-child(even) {
+                background: var(--accent-bg);
+            }
+            .caratula-table td {
+                padding: 11px 24px;
+                border-bottom: 1px solid var(--rule);
+                vertical-align: top;
+                font-size: 14px;
+            }
+            .caratula-table td:first-child {
+                font-family: "Montserrat", sans-serif;
+                font-size: 10px;
+                font-weight: 700;
+                text-transform: uppercase;
+                letter-spacing: 1px;
+                color: var(--muted);
+                width: 38%;
+                padding-top: 13px;
+            }
+            .caratula-table td:last-child {
+                color: var(--ink);
+            }
+            .badge {
+                display: inline-block;
+                background: var(--accent-bg);
+                border: 1px solid var(--rule);
+                font-family: "Montserrat", sans-serif;
+                font-size: 10px;
+                font-weight: 600;
+                letter-spacing: 1px;
+                padding: 3px 10px;
+                border-radius: 2px;
+                color: var(--muted);
+                font-style: italic;
+            }
+
+            /* ── ANNEXES NAV ── */
+            .annexes-nav {
+                margin: 36px 0;
+                background: var(--navy);
+                border-radius: 2px;
+                padding: 24px 28px;
+            }
+            .annexes-nav h3 {
+                font-family: "Montserrat", sans-serif;
+                font-size: 9px;
+                font-weight: 700;
+                letter-spacing: 3px;
+                text-transform: uppercase;
+                color: var(--gold-light);
+                margin-bottom: 16px;
+            }
+            .annexes-grid {
+                display: grid;
+                grid-template-columns: repeat(3, 1fr);
+                gap: 8px;
+            }
+            .annexes-grid a {
+                font-family: "Montserrat", sans-serif;
+                font-size: 10px;
+                font-weight: 600;
+                color: rgba(255, 255, 255, 0.6);
+                text-decoration: none;
+                padding: 8px 10px;
+                border: 1px solid rgba(255, 255, 255, 0.1);
+                border-radius: 2px;
+                transition: all 0.2s;
+                display: flex;
+                gap: 8px;
+                align-items: flex-start;
+            }
+            .annexes-grid a:hover {
+                border-color: var(--gold-light);
+                color: #ffffff;
+                background: rgba(255, 255, 255, 0.06);
+            }
+            .annexes-grid a span.num {
+                color: var(--gold-light);
+                flex-shrink: 0;
+            }
+
+            /* ── SECTION HEADERS ── */
+            .section-head {
+                margin: 60px 0 28px;
+                padding-bottom: 14px;
+                border-bottom: 1px solid var(--rule);
+                position: relative;
+            }
+            .section-head::after {
+                content: "";
+                position: absolute;
+                bottom: -1px;
+                left: 0;
+                width: 48px;
+                height: 2px;
+                background: var(--gold);
+            }
+            .section-head .label {
+                font-family: "Montserrat", sans-serif;
+                font-size: 9px;
+                font-weight: 700;
+                letter-spacing: 3px;
+                text-transform: uppercase;
+                color: var(--gold);
+                margin-bottom: 6px;
+            }
+            .section-head h2 {
+                font-size: 24px;
+                font-weight: 600;
+                color: var(--navy);
+            }
+
+            /* ── BODY TEXT ── */
+            .intro-text {
+                font-size: 14px;
+                color: var(--muted);
+                margin-bottom: 32px;
+                font-style: italic;
+                padding: 20px 24px;
+                border-left: 3px solid var(--gold);
+                background: var(--accent-bg);
+            }
+
+            /* ── CLAUSE ── */
+            .clause {
+                margin-bottom: 36px;
+                scroll-margin-top: 20px;
+            }
+            .clause-title {
+                font-family: "Montserrat", sans-serif;
+                font-size: 11px;
+                font-weight: 700;
+                letter-spacing: 2px;
+                text-transform: uppercase;
+                color: var(--navy);
+                padding: 10px 0 10px;
+                border-top: 1px solid var(--rule);
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                cursor: default;
+            }
+            .clause-num {
+                background: var(--navy);
+                color: var(--gold-light);
+                font-size: 9px;
+                font-family: "Montserrat", sans-serif;
+                font-weight: 700;
+                padding: 3px 8px;
+                border-radius: 2px;
+                letter-spacing: 1px;
+            }
+            .clause-body {
+                padding: 14px 0 0;
+                font-size: 14.5px;
+                line-height: 1.85;
+                color: var(--ink);
+            }
+            .clause-body p {
+                margin-bottom: 12px;
+            }
+            .clause-body ul,
+            .clause-body ol {
+                padding-left: 24px;
+                margin: 12px 0 12px;
+            }
+            .clause-body li {
+                margin-bottom: 8px;
+            }
+
+            /* ── OBLIGATION ITEM ── */
+            .obl-item {
+                display: flex;
+                gap: 14px;
+                padding: 10px 14px;
+                border-radius: 2px;
+                margin-bottom: 6px;
+            }
+            .obl-item:nth-child(odd) {
+                background: var(--accent-bg);
+            }
+            .obl-item .obl-key {
+                font-family: "Montserrat", sans-serif;
+                font-size: 9px;
+                font-weight: 700;
+                letter-spacing: 1px;
+                color: var(--gold-light);
+                min-width: 22px;
+                padding-top: 3px;
+                text-transform: uppercase;
+            }
+            .obl-item .obl-val {
+                font-size: 14px;
+                line-height: 1.7;
+            }
+
+            /* ── CALLOUT BOXES ── */
+            .callout {
+                padding: 18px 22px;
+                border-radius: 2px;
+                margin: 16px 0;
+                font-size: 14px;
+                line-height: 1.7;
+            }
+            .callout.warning {
+                background: #f0f0f0;
+                border-left: 4px solid #555555;
+                color: #2b2b2b;
+            }
+            .callout.info {
+                background: #f5f5f5;
+                border-left: 4px solid #111111;
+                color: #111111;
+            }
+            .callout.danger {
+                background: #e8e8e8;
+                border-left: 4px solid #111111;
+                color: #111111;
+            }
+            .callout strong {
+                font-family: "Montserrat", sans-serif;
+                font-size: 10px;
+                font-weight: 700;
+                letter-spacing: 1.5px;
+                text-transform: uppercase;
+                display: block;
+                margin-bottom: 6px;
+            }
+
+            /* ── PRICE TABLE ── */
+            .price-table {
+                width: 100%;
+                border-collapse: collapse;
+                margin: 18px 0;
+                font-size: 14px;
+            }
+            .price-table thead tr {
+                background: var(--navy);
+                color: var(--gold-light);
+            }
+            .price-table thead th {
+                font-family: "Montserrat", sans-serif;
+                font-size: 9px;
+                font-weight: 700;
+                letter-spacing: 2px;
+                text-transform: uppercase;
+                padding: 12px 18px;
+                text-align: left;
+            }
+            .price-table tbody tr:nth-child(even) {
+                background: var(--accent-bg);
+            }
+            .price-table tbody td {
+                padding: 12px 18px;
+                border-bottom: 1px solid var(--rule);
+            }
+            .price-table .amount {
+                font-family: "Montserrat", sans-serif;
+                font-weight: 700;
+                font-size: 16px;
+                color: var(--navy);
+            }
+
+            /* ── ANNEX SECTIONS ── */
+            .annex-section {
+                margin: 60px 0 0;
+                padding-top: 48px;
+                border-top: 2px solid var(--rule);
+            }
+            .annex-tag {
+                display: inline-block;
+                background: var(--gold);
+                color: #ffffff;
+                font-family: "Montserrat", sans-serif;
+                font-size: 9px;
+                font-weight: 700;
+                letter-spacing: 3px;
+                text-transform: uppercase;
+                padding: 4px 14px;
+                margin-bottom: 12px;
+                border-radius: 2px;
+            }
+            .annex-section h2 {
+                font-size: 22px;
+                font-weight: 600;
+                color: var(--navy);
+                margin-bottom: 24px;
+            }
+
+            /* ── MANUAL SECTIONS ── */
+            .manual-item {
+                margin-bottom: 28px;
+            }
+            .manual-item h3 {
+                font-family: "Montserrat", sans-serif;
+                font-size: 11px;
+                font-weight: 700;
+                letter-spacing: 1.5px;
+                text-transform: uppercase;
+                color: var(--gold-light);
+                margin-bottom: 10px;
+                padding-bottom: 8px;
+                border-bottom: 1px dashed var(--rule);
+            }
+            .manual-item p,
+            .manual-item li {
+                font-size: 14px;
+                line-height: 1.75;
+            }
+            .manual-item ul {
+                padding-left: 20px;
+                margin-top: 8px;
+            }
+            .manual-item li {
+                margin-bottom: 5px;
+            }
+
+            /* ── BENEFITS GRID ── */
+            .benefits-grid {
+                display: grid;
+                grid-template-columns: repeat(2, 1fr);
+                gap: 12px;
+                margin: 16px 0;
+            }
+            .benefit-card {
+                background: #fff;
+                border: 1px solid var(--rule);
+                border-top: 3px solid var(--gold);
+                padding: 16px 18px;
+                border-radius: 2px;
+            }
+            .benefit-card .b-label {
+                font-family: "Montserrat", sans-serif;
+                font-size: 9px;
+                font-weight: 700;
+                letter-spacing: 2px;
+                text-transform: uppercase;
+                color: var(--muted);
+                margin-bottom: 6px;
+            }
+            .benefit-card .b-val {
+                font-size: 20px;
+                font-weight: 600;
+                color: var(--navy);
+            }
+            .benefit-card .b-desc {
+                font-size: 13px;
+                color: var(--muted);
+                margin-top: 4px;
+            }
+
+            /* ── SIGNATURE BLOCK ── */
+            .sig-block {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 40px;
+                margin: 60px 0 0;
+                padding-top: 40px;
+                border-top: 1px solid var(--rule);
+            }
+            .sig-party {
+                text-align: center;
+            }
+            .sig-line {
+                border-bottom: 1px solid var(--ink);
+                margin-bottom: 10px;
+                height: 48px;
+            }
+            .sig-name {
+                font-family: "Montserrat", sans-serif;
+                font-size: 10px;
+                font-weight: 700;
+                letter-spacing: 1px;
+                text-transform: uppercase;
+                color: var(--navy);
+            }
+            .sig-role {
+                font-size: 12px;
+                color: var(--muted);
+                margin-top: 4px;
+            }
+
+            /* ── DECLARATION FORM (Annex 12) ── */
+            .form-grid {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 16px;
+                margin: 20px 0;
+            }
+            .form-field {
+                border-bottom: 1px solid var(--ink);
+                padding-bottom: 4px;
+            }
+            .form-field label {
+                display: block;
+                font-family: "Montserrat", sans-serif;
+                font-size: 9px;
+                font-weight: 700;
+                letter-spacing: 1.5px;
+                text-transform: uppercase;
+                color: var(--muted);
+                margin-bottom: 6px;
+            }
+            .form-field .field-line {
+                height: 22px;
+            }
+            .form-field.full {
+                grid-column: span 2;
+            }
+
+            /* ── FOOTER ── */
+            .doc-footer {
+                background: var(--navy);
+                color: rgba(255, 255, 255, 0.4);
+                font-family: "Montserrat", sans-serif;
+                font-size: 10px;
+                letter-spacing: 1px;
+                text-align: center;
+                padding: 24px 40px;
+                margin-top: 80px;
+            }
+
+            /* ── PRINT ── */
+            @media print {
+                body {
+                    font-size: 11pt;
+                }
+                .cover {
+                    -webkit-print-color-adjust: exact;
+                    print-color-adjust: exact;
+                }
+                .section-head,
+                .annex-section {
+                    page-break-before: auto;
+                }
+                .no-print {
+                    display: none;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <!-- COVER -->
+        <div class="cover">
+            <div class="cover-inner">
+                <div class="cover-label">Documento Contractual</div>
+                <h1>Contrato de Distribución</h1>
+                <div class="cover-subtitle">
+                    Pasaporte a tu Salud, S.A. de C.V.
+                </div>
+                <div class="cover-divider"></div>
+                <div class="cover-parties">
+                    <div class="cover-party">
+                        <h3>El Proveedor</h3>
+                        <p>
+                            "Pasaporte a tu Salud",<br />Sociedad Anónima de
+                            Capital Variable<br />R.F.C. PTS260126KX3
+                        </p>
+                    </div>
+                    <div class="cover-party">
+                        <h3>El Distribuidor</h3>
+                        <p>
+                            Persona física señalada<br />en el Apartado 5 de la
+                            Carátula
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="page">
+            <!-- CARÁTULA -->
+            <div class="caratula-section" id="caratula">
+                <div class="caratula-header">
+                    <h2>Carátula del Contrato</h2>
+                </div>
+                <table class="caratula-table">
+                    <tr>
+                        <td>Apartado 1 — Nombre del Proveedor</td>
+                        <td>
+                            "Pasaporte a tu Salud", Sociedad Anónima de Capital
+                            Variable
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Apartado 2 — Representante Legal</td>
+                        <td>Emilio Flores Cervantes</td>
+                    </tr>
+                    <tr>
+                        <td>Apartado 3 — Domicilio del Proveedor</td>
+                        <td>
+                            Periférico Ecológico 3505, Col. Reserva Territorial
+                            Atlixayotl, Piso 4, Int. 412, San Andrés Cholula,
+                            Puebla, C.P. 72,820
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Apartado 4 — R.F.C. del Proveedor</td>
+                        <td>PTS260126KX3</td>
+                    </tr>
+                    <tr>
+                        <td>Apartado 5 — Nombre del Distribuidor</td>
+                        <td>
+                            <span class="badge" id="c_nombre">Por llenar</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Apartado 6 — Domicilio del Distribuidor</td>
+                        <td>
+                            <span class="badge" id="c_domicilio"
+                                >Por llenar</span
+                            >
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Apartado 7 — R.F.C. del Distribuidor</td>
+                        <td>
+                            <span class="badge" id="c_rfc">Por llenar</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Apartado 8 — Nombre del Franquiciatario</td>
+                        <td>
+                            <span class="badge" id="c_franquicia"
+                                >Por llenar</span
+                            >
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Apartado 9 — Demarcación Territorial</td>
+                        <td>
+                            <span class="badge" id="c_demarcacion"
+                                >Por llenar</span
+                            >
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            Apartado 10 — Precio del Derecho de Distribución
+                        </td>
+                        <td>
+                            <strong>$20,000.00 M.N.</strong> (Veinte mil pesos,
+                            IVA incluido)
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Apartado 11 — Cuenta Bancaria del Proveedor</td>
+                        <td>
+                            CLABE: 042650016008666521<br />Banca Mifel, S.A.,
+                            Institución de Banca Múltiple, Grupo Financiero
+                            Mifel
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Apartado 12 — Fecha de Inicio de Vigencia</td>
+                        <td>
+                            <span class="badge" id="c_fecha_inicio"
+                                >Por llenar</span
+                            >
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Apartado 13 — Fecha de Fin de Vigencia</td>
+                        <td>
+                            <span class="badge" id="c_fecha_fin"
+                                >Por llenar</span
+                            >
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Apartado 14 — Anexos</td>
+                        <td>Anexos 1 al 12 (ver índice de anexos)</td>
+                    </tr>
+                    <tr>
+                        <td>Apartado 15 — Fecha de Firma</td>
+                        <td>
+                            <span class="badge" id="c_fecha_firma"
+                                >Por llenar</span
+                            >
+                        </td>
+                    </tr>
+                </table>
+            </div>
+
+            <!-- ÍNDICE DE ANEXOS -->
+            <div class="annexes-nav no-print">
+                <h3>Índice de Anexos</h3>
+                <div class="annexes-grid">
+                    <a href="#anexo1"
+                        ><span class="num">1</span> Contrato de Franquicia</a
+                    >
+                    <a href="#anexo2"
+                        ><span class="num">2</span> Manual del Distribuidor</a
+                    >
+                    <a href="#anexo3"
+                        ><span class="num">3</span> Identificación del
+                        Distribuidor</a
+                    >
+                    <a href="#anexo4"
+                        ><span class="num">4</span> Comprobante de Domicilio</a
+                    >
+                    <a href="#anexo5"
+                        ><span class="num">5</span> Constancia de Situación
+                        Fiscal</a
+                    >
+                    <a href="#anexo6"
+                        ><span class="num">6</span> Manual de Afiliado</a
+                    >
+                    <a href="#anexo7"
+                        ><span class="num">7</span> Manual de Operación PATS</a
+                    >
+                    <a href="#anexo8"
+                        ><span class="num">8</span> Costo de la Tarjeta</a
+                    >
+                    <a href="#anexo9"
+                        ><span class="num">9</span> Comprobante Transferencia</a
+                    >
+                    <a href="#anexo10"
+                        ><span class="num">10</span> Comisiones del
+                        Distribuidor</a
+                    >
+                    <a href="#anexo11"
+                        ><span class="num">11</span> Aviso de Privacidad</a
+                    >
+                    <a href="#anexo12"
+                        ><span class="num">12</span> Declaración Dueño
+                        Beneficiario</a
+                    >
+                </div>
+            </div>
+
+            <!-- ANTECEDENTE -->
+            <div class="section-head">
+                <div class="label">Antecedente</div>
+                <h2>Único — Contrato de Franquicia</h2>
+            </div>
+            <div class="clause-body">
+                <p>
+                    Con anterioridad a la celebración del presente contrato,
+                    "Pasaporte a tu Salud", S.A. de C.V., en su carácter de
+                    Franquiciante, y la persona física señalada en el Apartado 8
+                    de la Carátula, en su carácter de Franquiciatario,
+                    celebraron un Contrato de Franquicia por virtud del cual se
+                    otorgó una licencia temporal y no exclusiva para gestionar,
+                    ofrecer, promocionar y comercializar la Tarjeta de Descuento
+                    denominada comercialmente "Pasaporte a tu Salud".
+                </p>
+                <div class="callout info">
+                    <strong>Descripción del producto</strong>
+                    Programa de beneficios que otorga descuentos y permite
+                    recibir servicios médicos privados de alta calidad de forma
+                    accesible, clara y sin restricciones dentro de la Red de
+                    Hospitales 50 (Fifty) Doctors, con sede en el Estado de
+                    Puebla.
+                </div>
+                <p>
+                    Para dichos fines, el Franquiciatario conformará una Red de
+                    Distribuidores que ejecutarán, en campo y dentro de la
+                    demarcación territorial señalada, las labores de promoción y
+                    comercialización de la Tarjeta de Descuento. El Contrato de
+                    Franquicia se adjunta como <strong>Anexo 1</strong>.
+                </p>
+            </div>
+
+            <!-- DECLARACIONES -->
+            <div class="section-head">
+                <div class="label">Declaraciones</div>
+                <h2>De las Partes</h2>
+            </div>
+
+            <div class="clause">
+                <div class="clause-title">
+                    <span class="clause-num">I</span> Declara El Proveedor
+                </div>
+                <div class="clause-body">
+                    <p>
+                        A. Sociedad mercantil constituida conforme a las leyes
+                        mexicanas, según consta en escritura pública número
+                        54,318, volumen 500, del 26 de enero de 2026, ante el
+                        Notario Público número Veintinueve del Distrito Judicial
+                        de Puebla, inscrita en el Registro Público de Comercio
+                        bajo el folio mercantil electrónico N-2026007106.
+                    </p>
+                    <p>
+                        B. El representante legal cuenta con todas las
+                        facultades necesarias para la celebración del presente
+                        contrato, con nombramiento de Administrador Único.
+                    </p>
+                    <p>
+                        C–D. Domicilio fiscal y R.F.C. según Apartados 3 y 4 de
+                        la Carátula.
+                    </p>
+                    <p>
+                        F. Es su deseo otorgar a El Distribuidor el derecho
+                        temporal de distribuir y comercializar la Tarjeta de
+                        Descuento en cualquier parte de la República Mexicana,
+                        siguiendo los lineamientos del Manual del Distribuidor y
+                        bajo la tutela de El Franquiciatario.
+                    </p>
+                </div>
+            </div>
+
+            <div class="clause">
+                <div class="clause-title">
+                    <span class="clause-num">II</span> Declara El Distribuidor
+                </div>
+                <div class="clause-body">
+                    <p>
+                        A–C. Persona física de nacionalidad mexicana, en pleno
+                        ejercicio de sus derechos, con domicilio y R.F.C. según
+                        Apartados 5, 6 y 7 de la Carátula. Los recursos
+                        provienen de fuentes lícitas.
+                    </p>
+                    <p>
+                        D–E. Ha leído el Contrato de Franquicia y conoce el
+                        esquema de comercialización; actuará bajo la tutela de
+                        El Franquiciatario y seguirá el Manual del Distribuidor.
+                    </p>
+                    <p>
+                        F. Recibe en este acto el Manual de Afiliado (Anexo 6),
+                        que deberá ser entregado a cada adquirente de la
+                        Tarjeta.
+                    </p>
+                    <p>
+                        G. Ha sido informado sobre los criterios financieros
+                        para determinar sus márgenes de utilidad, y recibe el
+                        Manual de Operación del Sistema PATS (Anexo 7).
+                    </p>
+                </div>
+            </div>
+
+            <!-- CLÁUSULAS -->
+            <div class="section-head">
+                <div class="label">Cuerpo del Contrato</div>
+                <h2>Cláusulas</h2>
+            </div>
+
+            <div class="clause" id="clausula1">
+                <div class="clause-title">
+                    <span class="clause-num">Primera</span> Objeto
+                </div>
+                <div class="clause-body">
+                    <p>
+                        El Proveedor otorga a El Distribuidor el
+                        <strong
+                            >derecho oneroso, personal e intransferible</strong
+                        >
+                        de distribuir y comercializar la Tarjeta de Descuento en
+                        favor de cualquier persona física o moral, al precio y
+                        condiciones del Anexo 8.
+                    </p>
+                    <div class="callout warning">
+                        <strong>Importante</strong>
+                        El Distribuidor actuará en todo momento bajo la
+                        instrucción y tutela de El Franquiciatario, y deberá
+                        apoyarse exclusivamente en los materiales publicitarios
+                        entregados por El Proveedor. No podrá ceder, transmitir
+                        ni sublicenciar este derecho a terceros, salvo lo
+                        dispuesto en la Cláusula Décima Séptima.
+                    </div>
+                    <p>
+                        El Proveedor podrá otorgar un derecho igual a cualquier
+                        persona física o moral que elija, sin necesidad de
+                        consentimiento previo del Distribuidor.
+                    </p>
+                </div>
+            </div>
+
+            <div class="clause" id="clausula2">
+                <div class="clause-title">
+                    <span class="clause-num">Segunda</span> Precio
+                </div>
+                <div class="clause-body">
+                    <table class="price-table">
+                        <thead>
+                            <tr>
+                                <th>Concepto</th>
+                                <th>Monto</th>
+                                <th>Condición</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>
+                                    Derecho de distribución y comercialización
+                                </td>
+                                <td>
+                                    <span class="amount">$20,000.00 M.N.</span>
+                                </td>
+                                <td>
+                                    IVA incluido · Pago único · No reembolsable
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="callout danger">
+                        <strong>Pago no reembolsable</strong>
+                        El pago es único y no reembolsable, aun en caso de
+                        rescisión o terminación del contrato. Cualquier
+                        erogación realizada en favor de persona diversa a El
+                        Proveedor no será reconocida.
+                    </div>
+                    <p>
+                        El pago se realiza mediante transferencia electrónica a
+                        la cuenta señalada en el Apartado 11 de la Carátula
+                        (CLABE: 042650016008666521, Banca Mifel). El comprobante
+                        se adjunta como Anexo 9.
+                    </p>
+                </div>
+            </div>
+
+            <div class="clause" id="clausula3">
+                <div class="clause-title">
+                    <span class="clause-num">Tercera</span> Obligaciones de El
+                    Distribuidor
+                </div>
+                <div class="clause-body">
+                    <p>
+                        Durante la vigencia del contrato, El Distribuidor se
+                        obliga a:
+                    </p>
+                    <div class="obl-item">
+                        <div class="obl-key">a</div>
+                        <div class="obl-val">
+                            Cumplir el objeto del contrato con diligencia,
+                            respetando las políticas y lineamientos
+                            administrativos del Proveedor.
+                        </div>
+                    </div>
+                    <div class="obl-item">
+                        <div class="obl-key">b</div>
+                        <div class="obl-val">
+                            Realizar actividades tendientes a la
+                            comercialización de la Tarjeta de Descuento conforme
+                            a las tarifas establecidas por El Proveedor.
+                        </div>
+                    </div>
+                    <div class="obl-item">
+                        <div class="obl-key">c</div>
+                        <div class="obl-val">
+                            <strong>Abstenerse</strong> de dar entrevistas o
+                            realizar publicidad sin autorización previa y por
+                            escrito del Proveedor.
+                        </div>
+                    </div>
+                    <div class="obl-item">
+                        <div class="obl-key">d</div>
+                        <div class="obl-val">
+                            <strong>Abstenerse</strong> de transmitir
+                            información sobre condiciones comerciales o el
+                            contenido del Contrato de Franquicia.
+                        </div>
+                    </div>
+                    <div class="obl-item">
+                        <div class="obl-key">e</div>
+                        <div class="obl-val">
+                            <strong>Abstenerse</strong> de realizar
+                            declaraciones públicas que dañen la imagen del
+                            Proveedor, la Tarjeta o la Franquicia.
+                        </div>
+                    </div>
+                    <div class="obl-item">
+                        <div class="obl-key">f</div>
+                        <div class="obl-val">
+                            <strong>Abstenerse</strong> de celebrar contratos en
+                            nombre del Proveedor y/o del Franquiciatario sin
+                            autorización escrita.
+                        </div>
+                    </div>
+                    <div class="obl-item">
+                        <div class="obl-key">g</div>
+                        <div class="obl-val">
+                            <strong>Abstenerse</strong> de transmitir el derecho
+                            de distribución de cualquier forma sin autorización
+                            escrita.
+                        </div>
+                    </div>
+                    <div class="obl-item">
+                        <div class="obl-key">h</div>
+                        <div class="obl-val">
+                            <strong>Abstenerse</strong> de recibir recursos
+                            económicos en nombre del Proveedor y/o del
+                            Franquiciatario.
+                        </div>
+                    </div>
+                    <div class="obl-item">
+                        <div class="obl-key">i</div>
+                        <div class="obl-val">
+                            <strong>Abstenerse</strong> de operar, promocionar o
+                            adquirir cualquier negocio o modelo de negocio
+                            similar al del Proveedor.
+                        </div>
+                    </div>
+                    <div class="obl-item">
+                        <div class="obl-key">j</div>
+                        <div class="obl-val">
+                            <strong>Abstenerse</strong> de explotar marcas
+                            registradas del Proveedor sin autorización expresa
+                            por escrito.
+                        </div>
+                    </div>
+                    <div class="callout warning" style="margin-top: 16px">
+                        <strong
+                            >Cláusula de No Competencia — 5 años posteriores a
+                            la terminación</strong
+                        >
+                        k) No operar, promocionar ni participar en cualquier
+                        negocio similar o competitivo al objeto de la Tarjeta de
+                        Descuento.<br /><br />
+                        l) No contactar, solicitar ni atender a clientes que
+                        hubieren adquirido la Tarjeta a través de sus gestiones
+                        durante la vigencia del contrato.
+                    </div>
+                </div>
+            </div>
+
+            <div class="clause" id="clausula4">
+                <div class="clause-title">
+                    <span class="clause-num">Cuarta</span> Reportes Periódicos
+                </div>
+                <div class="clause-body">
+                    <p>
+                        El Distribuidor deberá entregar a El Proveedor, a más
+                        tardar el <strong>día 10 de cada mes</strong>, un
+                        reporte detallado por escrito que incluya:
+                    </p>
+                    <ul>
+                        <li>Número de Tarjetas de Descuento vendidas</li>
+                        <li>
+                            Datos de los adquirentes (nombre, identificación y
+                            contacto)
+                        </li>
+                        <li>Actividades de promoción realizadas</li>
+                        <li>Uso de materiales publicitarios</li>
+                        <li>
+                            Cualquier otra información requerida por El
+                            Proveedor
+                        </li>
+                    </ul>
+                    <p>
+                        El Proveedor tendrá derecho a auditar libros y registros
+                        contables con previo aviso por escrito de al menos
+                        <strong>5 días hábiles</strong>. El incumplimiento de
+                        esta cláusula es causal de rescisión.
+                    </p>
+                </div>
+            </div>
+
+            <div class="clause" id="clausula5">
+                <div class="clause-title">
+                    <span class="clause-num">Quinta</span> Obligaciones de El
+                    Proveedor
+                </div>
+                <div class="clause-body">
+                    <div class="obl-item">
+                        <div class="obl-key">a</div>
+                        <div class="obl-val">
+                            Cumplir con sus obligaciones conforme al contrato.
+                        </div>
+                    </div>
+                    <div class="obl-item">
+                        <div class="obl-key">b</div>
+                        <div class="obl-val">
+                            Informar a la Red de Hospitales 50 (Fifty) Doctors
+                            sobre los actos de comercialización y venta de las
+                            Tarjetas para mantener vigente el servicio.
+                        </div>
+                    </div>
+                    <div class="obl-item">
+                        <div class="obl-key">c</div>
+                        <div class="obl-val">
+                            Entregar material ilustrativo, publicitario y el
+                            necesario para que El Distribuidor inicie sus
+                            labores de promoción.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="clause" id="clausula6">
+                <div class="clause-title">
+                    <span class="clause-num">Sexta</span> Capacitación de El
+                    Distribuidor
+                </div>
+                <div class="clause-body">
+                    <p>
+                        La obligación de capacitación recae única y
+                        exclusivamente en <strong>El Franquiciatario</strong>.
+                        El Distribuidor deberá:
+                    </p>
+                    <ul>
+                        <li>
+                            Acreditar todos los procesos de capacitación
+                            implementados por El Proveedor (directamente o a
+                            través del Franquiciatario).
+                        </li>
+                        <li>
+                            Asistir a las capacitaciones conforme a las
+                            políticas establecidas.
+                        </li>
+                        <li>
+                            Acceder a capacitaciones en la página oficial del
+                            Proveedor.
+                        </li>
+                    </ul>
+                    <p>
+                        La capacitación es requisito previo para iniciar la
+                        comercialización de la Tarjeta de Descuento.
+                    </p>
+                </div>
+            </div>
+
+            <div class="clause" id="clausula7">
+                <div class="clause-title">
+                    <span class="clause-num">Séptima</span> Comisión de El
+                    Distribuidor
+                </div>
+                <div class="clause-body">
+                    <table class="price-table">
+                        <thead>
+                            <tr>
+                                <th>Concepto</th>
+                                <th>Precio de Venta</th>
+                                <th>Comisión</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>
+                                    Tarjeta de Descuento (venta directa por El
+                                    Distribuidor)
+                                </td>
+                                <td>
+                                    <span class="amount">$800.00 M.N.</span>
+                                </td>
+                                <td>
+                                    <span class="amount">$20.00 M.N.</span> por
+                                    tarjeta pagada al Proveedor
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="callout info">
+                        <strong>Condiciones de pago de comisiones</strong>
+                        El Distribuidor deberá emitir el recibo fiscal
+                        correspondiente. Cualquier reclamación de pago respecto
+                        de comisiones causadas fuera de los
+                        <strong>6 meses inmediatos anteriores</strong> a dicha
+                        reclamación carecerá de validez. El Distribuidor no debe
+                        obtener beneficios principalmente por el reclutamiento
+                        de nuevos distribuidores, sino por la venta efectiva al
+                        consumidor final.
+                    </div>
+                </div>
+            </div>
+
+            <div class="clause" id="clausula8">
+                <div class="clause-title">
+                    <span class="clause-num">Octava</span> Vigencia
+                </div>
+                <div class="clause-body">
+                    <div class="benefits-grid">
+                        <div class="benefit-card">
+                            <div class="b-label">Vigencia inicial</div>
+                            <div class="b-val">3 años</div>
+                            <div class="b-desc">
+                                A partir de la fecha señalada en el Apartado 12
+                                de la Carátula
+                            </div>
+                        </div>
+                        <div class="benefit-card">
+                            <div class="b-label">
+                                Prórroga — plazo de solicitud
+                            </div>
+                            <div class="b-val">90 días</div>
+                            <div class="b-desc">
+                                Antes del vencimiento, por escrito y con acuse
+                                de recibo. Queda a discreción del Proveedor.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="clause" id="clausula9">
+                <div class="clause-title">
+                    <span class="clause-num">Novena</span> Rescisión
+                </div>
+                <div class="clause-body">
+                    <p>
+                        El Proveedor podrá rescindir el contrato de pleno
+                        derecho, sin declaración judicial previa y sin
+                        responsabilidad, mediante simple notificación escrita,
+                        en los siguientes casos:
+                    </p>
+                    <div class="obl-item">
+                        <div class="obl-key">a</div>
+                        <div class="obl-val">
+                            Incumplimiento de cualquier obligación del contrato,
+                            sus anexos, manuales o políticas.
+                        </div>
+                    </div>
+                    <div class="obl-item">
+                        <div class="obl-key">b</div>
+                        <div class="obl-val">
+                            Insolvencia declarada de El Distribuidor.
+                        </div>
+                    </div>
+                    <div class="obl-item">
+                        <div class="obl-key">c</div>
+                        <div class="obl-val">
+                            Comercialización de productos o servicios que
+                            compitan o sean similares a la Franquicia o la
+                            Tarjeta de Descuento.
+                        </div>
+                    </div>
+                    <div class="obl-item">
+                        <div class="obl-key">d</div>
+                        <div class="obl-val">
+                            Uso indebido o no autorizado de marcas, logotipos o
+                            derechos de propiedad intelectual del Proveedor.
+                        </div>
+                    </div>
+                    <div class="obl-item">
+                        <div class="obl-key">e</div>
+                        <div class="obl-val">
+                            Cesión de los derechos del contrato sin autorización
+                            escrita previa.
+                        </div>
+                    </div>
+                    <div class="obl-item">
+                        <div class="obl-key">f</div>
+                        <div class="obl-val">
+                            Inobservancia de instrucciones recibidas del
+                            Franquiciatario y/o del Proveedor.
+                        </div>
+                    </div>
+                    <div class="obl-item">
+                        <div class="obl-key">g</div>
+                        <div class="obl-val">
+                            Pérdida de la franquicia por acto u omisión
+                            contraria a los lineamientos del Proveedor.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="clause" id="clausula10">
+                <div class="clause-title">
+                    <span class="clause-num">Décima</span> Efectos de la
+                    Rescisión
+                </div>
+                <div class="clause-body">
+                    <div class="obl-item">
+                        <div class="obl-key">a</div>
+                        <div class="obl-val">
+                            Cese inmediato de cualquier actividad de
+                            comercialización de la Tarjeta de Descuento.
+                        </div>
+                    </div>
+                    <div class="obl-item">
+                        <div class="obl-key">b</div>
+                        <div class="obl-val">
+                            Dejar de utilizar definitivamente marcas, nombres
+                            comerciales, logotipos y material publicitario del
+                            Proveedor.
+                        </div>
+                    </div>
+                    <div class="obl-item">
+                        <div class="obl-key">c</div>
+                        <div class="obl-val">
+                            Devolver o destruir (a elección del Proveedor) toda
+                            información confidencial, manuales, bases de datos y
+                            materiales.
+                        </div>
+                    </div>
+                    <div class="obl-item">
+                        <div class="obl-key">d</div>
+                        <div class="obl-val">
+                            <strong>No devolución de erogaciones:</strong> El
+                            Distribuidor reconoce que no tendrá derecho a exigir
+                            la devolución del precio pagado ni de ninguna otra
+                            erogación, renunciando expresamente a cualquier
+                            acción legal para dicho fin.
+                        </div>
+                    </div>
+                    <p style="margin-top: 12px">
+                        El Proveedor únicamente estará obligado al pago de las
+                        comisiones efectivamente devengadas y acreditadas hasta
+                        la fecha de rescisión.
+                    </p>
+                </div>
+            </div>
+
+            <div class="clause" id="clausula11">
+                <div class="clause-title">
+                    <span class="clause-num">Décima Primera</span> Ausencia de
+                    Relación Laboral
+                </div>
+                <div class="clause-body">
+                    <div class="callout info">
+                        <strong>Naturaleza Mercantil</strong>
+                        La relación derivada del presente contrato es
+                        estrictamente mercantil y comercial. No existe, ni
+                        existirá, relación laboral alguna entre El Proveedor y
+                        El Distribuidor. El Distribuidor asume plena
+                        responsabilidad por su propio personal y se obliga a
+                        mantener en paz y a salvo al Proveedor frente a
+                        cualquier reclamación laboral de terceros.
+                    </div>
+                </div>
+            </div>
+
+            <div class="clause" id="clausula12">
+                <div class="clause-title">
+                    <span class="clause-num">Décima Segunda</span> Pena
+                    Convencional
+                </div>
+                <div class="clause-body">
+                    <div class="callout danger">
+                        <strong>Pena por Incumplimiento</strong>
+                        En caso de incumplimiento de cualquier obligación del
+                        contrato, El Proveedor tendrá derecho a exigir, además
+                        de la rescisión y cualquier acción legal procedente, una
+                        pena convencional equivalente al
+                        <strong
+                            >40% del precio pactado en la Cláusula
+                            Segunda</strong
+                        >, es decir, el equivalente al 40% de $20,000.00 M.N.
+                    </div>
+                </div>
+            </div>
+
+            <div class="clause" id="clausula13">
+                <div class="clause-title">
+                    <span class="clause-num">Décima Tercera</span>
+                    Confidencialidad
+                </div>
+                <div class="clause-body">
+                    <p>
+                        Las Partes se obligan a no divulgar información
+                        confidencial. Constituye información confidencial de El
+                        Proveedor: patentes, derechos de autor, marcas, planes
+                        de negocio, estrategias mercadotécnicas, manuales,
+                        correspondencia, y toda información verbal o documental
+                        a la que se tenga acceso durante la vigencia del
+                        contrato.
+                    </p>
+                    <div class="callout danger">
+                        <strong>Prohibición expresa</strong>
+                        El Distribuidor no podrá copiar, guardar en USB, disco
+                        duro o nube, ni publicar en redes sociales la
+                        Información Confidencial, de conformidad con los
+                        artículos 230 y 232 del Código Penal para el Estado de
+                        Puebla.
+                    </div>
+                    <p>
+                        El Proveedor podrá exigir en cualquier momento la
+                        destrucción o devolución de toda la información
+                        confidencial entregada.
+                    </p>
+                </div>
+            </div>
+
+            <div class="clause" id="clausula14">
+                <div class="clause-title">
+                    <span class="clause-num">Décima Cuarta</span> Protección de
+                    Datos Personales
+                </div>
+                <div class="clause-body">
+                    <p>
+                        El tratamiento de Datos Personales se sujetará a la Ley
+                        Federal de Protección de Datos Personales en Posesión de
+                        los Particulares. El Distribuidor autoriza expresamente
+                        el uso de sus datos para la distribución y
+                        comercialización de la Tarjeta de Descuento. El Aviso de
+                        Privacidad se adjunta firmado como
+                        <strong>Anexo 11</strong>.
+                    </p>
+                </div>
+            </div>
+
+            <div class="clause" id="clausula15">
+                <div class="clause-title">
+                    <span class="clause-num">Décima Quinta</span> Derechos de
+                    Propiedad Intelectual
+                </div>
+                <div class="clause-body">
+                    <p>
+                        El Distribuidor podrá usar las siguientes marcas
+                        <em>únicamente</em> para comercializar la Tarjeta, con
+                        previa autorización escrita del Proveedor y conforme a
+                        las instrucciones del Franquiciatario:
+                    </p>
+                    <ul>
+                        <li>50 (Fifty) Doctors Hospital</li>
+                        <li>Torres Médicas Angelópolis 2</li>
+                        <li>Dame Fifty</li>
+                        <li>50 (Fifty) Labs</li>
+                    </ul>
+                    <div class="callout warning">
+                        <strong>Sin cesión de marcas</strong>
+                        El contrato no implica asociación, cesión, venta ni
+                        transmisión de marcas o derechos de propiedad
+                        intelectual al Distribuidor. El Proveedor es el titular
+                        y único autorizado para ejercer cualquier derecho o
+                        defensa respecto de dichas marcas.
+                    </div>
+                </div>
+            </div>
+
+            <div class="clause" id="clausula16">
+                <div class="clause-title">
+                    <span class="clause-num">Décima Sexta</span> Publicidad y
+                    Ofertas
+                </div>
+                <div class="clause-body">
+                    <p>
+                        El Distribuidor <strong>no podrá</strong> realizar
+                        publicidad que haga referencia directa o indirecta a los
+                        productos y/o Marcas del Proveedor sin contar con
+                        autorización previa y por escrito que especifique: arte,
+                        forma, duración, periodicidad, texto, costo e imagen a
+                        utilizar.
+                    </p>
+                    <p>
+                        Tampoco podrá desarrollar promociones, hacer cargos
+                        adicionales o variar tarifas al consumidor sin
+                        autorización escrita del Proveedor. El Proveedor no
+                        estará obligado a pagar los gastos de publicidad de El
+                        Distribuidor.
+                    </p>
+                </div>
+            </div>
+
+            <div class="clause" id="clausula17">
+                <div class="clause-title">
+                    <span class="clause-num">Décima Séptima</span> Cesión
+                </div>
+                <div class="clause-body">
+                    <p>
+                        Los derechos y obligaciones del contrato no podrán
+                        cederse sin consentimiento previo y por escrito del
+                        Proveedor. En caso de que se autorice la cesión:
+                    </p>
+                    <ul>
+                        <li>
+                            El Distribuidor cedente deberá pagar al Proveedor el
+                            <strong>20% del precio original</strong> ($4,000.00
+                            M.N.).
+                        </li>
+                        <li>
+                            Excepción: si la cesión se efectúa en favor del
+                            cónyuge o exista parentesco por consanguinidad en
+                            primer grado, no se efectuará pago alguno.
+                        </li>
+                        <li>
+                            El posible cesionario deberá haber acreditado
+                            previamente todas las capacitaciones requeridas.
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="clause" id="clausula18">
+                <div class="clause-title">
+                    <span class="clause-num">Décima Octava</span> Modificaciones
+                </div>
+                <div class="clause-body">
+                    <p>
+                        El Proveedor podrá modificar unilateralmente los precios
+                        establecidos en los Anexos, previa notificación por
+                        escrito. Las modificaciones surtirán efectos dentro de
+                        los <strong>10 días naturales</strong> siguientes a la
+                        notificación, o de forma inmediata si así se establece
+                        en la misma.
+                    </p>
+                </div>
+            </div>
+
+            <div class="clause" id="clausula19">
+                <div class="clause-title">
+                    <span class="clause-num">Décima Novena</span> Acuerdo Total
+                </div>
+                <div class="clause-body">
+                    <p>
+                        El presente contrato contempla la totalidad de los
+                        acuerdos entre las Partes, reemplazando todos los
+                        acuerdos verbales y escritos anteriores. Ninguna
+                        cláusula puede ser suprimida o modificada sin acuerdo
+                        expreso suscrito por ambas Partes. En caso de
+                        diferencias entre el contrato y sus Anexos, prevalecerá
+                        el cuerpo del contrato.
+                    </p>
+                </div>
+            </div>
+
+            <div class="clause" id="clausula20">
+                <div class="clause-title">
+                    <span class="clause-num">Vigésima</span> Notificaciones y
+                    Domicilios
+                </div>
+                <div class="clause-body">
+                    <p>
+                        Todos los avisos y notificaciones deberán hacerse
+                        <strong>por escrito</strong>, de lo contrario no tendrán
+                        validez. Las Partes señalan como domicilios
+                        convencionales los indicados en las Declaraciones del
+                        contrato.
+                    </p>
+                </div>
+            </div>
+
+            <div class="clause" id="clausula21">
+                <div class="clause-title">
+                    <span class="clause-num">Vigésima Primera</span> Prevención
+                    de Lavado de Dinero
+                </div>
+                <div class="clause-body">
+                    <p>
+                        Las Partes declaran que los recursos utilizados para
+                        cumplir las obligaciones del contrato tienen origen
+                        lícito, no proveniente de actividades tipificadas como
+                        delitos. Las Partes se obligan a:
+                    </p>
+                    <ul>
+                        <li>
+                            Proporcionar información completa y fidedigna para
+                            el expediente de identificación conforme a la Ley
+                            Federal para la Prevención e Identificación de
+                            Operaciones con Recursos de Procedencia Ilícita.
+                        </li>
+                        <li>
+                            Informar sobre la existencia de un "Beneficiario
+                            Controlador" si lo hubiere.
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="clause" id="clausula22">
+                <div class="clause-title">
+                    <span class="clause-num">Vigésima Segunda</span>
+                    Conformación del Expediente de Identificación
+                </div>
+                <div class="clause-body">
+                    <p>
+                        El Distribuidor deberá entregar los siguientes
+                        documentos para la integración de su expediente:
+                    </p>
+                    <ul>
+                        <li>Identificación oficial vigente</li>
+                        <li>Acta de nacimiento</li>
+                        <li>Comprobante de domicilio vigente</li>
+                        <li>Constancia de situación fiscal vigente</li>
+                        <li>Clave Única de Registro de Población (CURP)</li>
+                        <li>Declaración de Dueño Beneficiario (Anexo 12)</li>
+                    </ul>
+                    <p>
+                        El Proveedor conservará el expediente por un mínimo de
+                        <strong>5 años</strong> a partir de la terminación del
+                        contrato, garantizando la confidencialidad de los datos.
+                    </p>
+                </div>
+            </div>
+
+            <div class="clause" id="clausula23">
+                <div class="clause-title">
+                    <span class="clause-num">Vigésima Tercera</span> Causal
+                    Específica de Rescisión
+                </div>
+                <div class="clause-body">
+                    <p>
+                        Serán causales de rescisión inmediata sin necesidad de
+                        declaración judicial:
+                    </p>
+                    <div class="obl-item">
+                        <div class="obl-key">a</div>
+                        <div class="obl-val">
+                            Negativa a proporcionar información requerida para
+                            la Ley de Prevención de Lavado de Dinero, o
+                            proporcionar información falsa.
+                        </div>
+                    </div>
+                    <div class="obl-item">
+                        <div class="obl-key">b</div>
+                        <div class="obl-val">
+                            Que cualquiera de las Partes, sus socios,
+                            accionistas o representantes aparezcan en las listas
+                            de personas bloqueadas emitidas por la Secretaría de
+                            Hacienda y Crédito Público.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="clause" id="clausula24">
+                <div class="clause-title">
+                    <span class="clause-num">Vigésima Cuarta</span> Jurisdicción
+                </div>
+                <div class="clause-body">
+                    <div class="callout info">
+                        <strong>Fuero Competente</strong>
+                        Las Partes se someten expresamente a la jurisdicción y
+                        leyes de los Tribunales del fuero común competentes en
+                        el
+                        <strong
+                            >Distrito Judicial de Puebla, Estado de
+                            Puebla</strong
+                        >, renunciando a cualquier otro fuero que pudiera
+                        corresponderles.
+                    </div>
+                </div>
+            </div>
+
+            <!-- FIRMA PRINCIPAL -->
+            <div class="sig-block">
+                <div class="sig-party">
+                    <div class="sig-line"></div>
+                    <div class="sig-name">
+                        "Pasaporte a tu Salud", S.A. de C.V.
+                    </div>
+                    <div class="sig-role">
+                        Representada por Emilio Flores Cervantes<br />Administrador
+                        Único
+                    </div>
+                </div>
+                <div class="sig-party">
+                    <div class="sig-line"></div>
+                    <div class="sig-name">El Distribuidor</div>
+                    <div class="sig-role">
+                        Persona física señalada en el Apartado 5 de la Carátula
+                    </div>
+                </div>
+            </div>
+
+            <!-- ══════════════ ANEXOS ══════════════ -->
+
+            <div class="annex-section" id="anexo1">
+                <span class="annex-tag">Anexo 1</span>
+                <h2>Contrato de Franquicia</h2>
+                <div class="callout info">
+                    <strong>Nota</strong>
+                    Copia simple del Contrato de Franquicia descrito en el
+                    Antecedente Único del presente instrumento. Se adjunta al
+                    cuerpo del contrato como documento independiente.
+                </div>
+            </div>
+
+            <div class="annex-section" id="anexo2">
+                <span class="annex-tag">Anexo 2</span>
+                <h2>Manual del Distribuidor — Pasaporte a tu Salud</h2>
+
+                <div class="manual-item">
+                    <h3>1. Presentación</h3>
+                    <p>
+                        Este manual brinda a toda persona interesada en
+                        convertirse en Distribuidor una visión clara y
+                        comprensible sobre las condiciones de su inversión, el
+                        alcance comercial de su participación, sus derechos,
+                        obligaciones, restricciones, forma de trabajo y
+                        posibilidades de ingreso dentro del sistema.
+                    </p>
+                </div>
+
+                <div class="manual-item">
+                    <h3>2. ¿Qué es Pasaporte a tu Salud?</h3>
+                    <p>
+                        Tarjeta de descuento que forma parte de un programa de
+                        beneficios orientado a facilitar el acceso a servicios
+                        médicos privados de alta calidad, dentro de la Red de
+                        Hospitales 50 (Fifty) Doctors en el Estado de Puebla. El
+                        Distribuidor no adquiere una franquicia ni derechos
+                        sobre la marca; adquiere la posibilidad de comercializar
+                        la tarjeta bajo reglas específicas.
+                    </p>
+                </div>
+
+                <div class="manual-item">
+                    <h3>3. ¿Qué adquiere el Distribuidor?</h3>
+                    <p>
+                        Al firmar el contrato y cubrir el pago correspondiente,
+                        el Distribuidor adquiere un
+                        <strong
+                            >derecho oneroso, temporal, personal e
+                            intransferible</strong
+                        >
+                        para:
+                    </p>
+                    <ul>
+                        <li>Distribuir la tarjeta Pasaporte a tu Salud</li>
+                        <li>Comercializarla a personas físicas y morales</li>
+                        <li>
+                            Actuar bajo la guía y tutela del Franquiciatario
+                            asignado
+                        </li>
+                        <li>
+                            Recibir comisiones por ventas efectivamente pagadas
+                            al Proveedor
+                        </li>
+                    </ul>
+                    <p>
+                        Este derecho <em>no equivale</em> a una franquicia, ni a
+                        una licencia de marca, ni a una representación legal del
+                        Proveedor.
+                    </p>
+                </div>
+
+                <div class="manual-item">
+                    <h3>5. Monto de Inversión Inicial</h3>
+                    <table class="price-table">
+                        <thead>
+                            <tr>
+                                <th>Concepto</th>
+                                <th>Monto</th>
+                                <th>Condición</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Licencia de distribución</td>
+                                <td>
+                                    <span class="amount">$20,000.00 M.N.</span>
+                                </td>
+                                <td>
+                                    IVA incluido · Único · No reembolsable · No
+                                    recuperable
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="manual-item">
+                    <h3>6. Vigencia del Contrato</h3>
+                    <p>
+                        <strong>3 años</strong> contados a partir de la fecha de
+                        firma. Prorrogable con solicitud escrita con
+                        <strong>90 días de anticipación</strong>, siempre a
+                        discreción del Proveedor.
+                    </p>
+                </div>
+
+                <div class="manual-item">
+                    <h3>7. Territorio Autorizado</h3>
+                    <p>
+                        El Distribuidor puede comercializar dentro de todo el
+                        territorio nacional; sin embargo, la prestación del
+                        servicio al usuario final se realiza en el
+                        <strong>Estado de Puebla</strong>.
+                    </p>
+                </div>
+
+                <div class="manual-item">
+                    <h3>11–12. Precio de Venta y Comisiones</h3>
+                    <table class="price-table">
+                        <thead>
+                            <tr>
+                                <th>Producto</th>
+                                <th>Precio de Venta</th>
+                                <th>Comisión del Distribuidor</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Tarjeta de Descuento</td>
+                                <td>
+                                    <span class="amount">$800.00 M.N.</span>
+                                </td>
+                                <td>
+                                    <span class="amount">$20.00 M.N.</span> por
+                                    tarjeta pagada al Proveedor
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="callout warning">
+                        <strong>Lógica de rentabilidad</strong>
+                        El ingreso depende exclusivamente del volumen de ventas
+                        efectivas. Para recuperar la inversión inicial ($20,000
+                        M.N.) se requieren al menos 1,000 tarjetas vendidas y
+                        pagadas al Proveedor.
+                    </div>
+                </div>
+
+                <div class="manual-item">
+                    <h3>26. Penas Convencionales</h3>
+                    <p>
+                        En caso de incumplimiento, El Proveedor puede exigir una
+                        pena convencional equivalente al
+                        <strong>40% de $20,000.00 M.N.</strong> = $8,000.00 M.N.
+                    </p>
+                </div>
+
+                <div class="manual-item">
+                    <h3>30. Resumen Ejecutivo de la Inversión</h3>
+                    <div class="benefits-grid">
+                        <div class="benefit-card">
+                            <div class="b-label">Inversión inicial</div>
+                            <div class="b-val">$20,000</div>
+                            <div class="b-desc">
+                                M.N. IVA incluido · No reembolsable
+                            </div>
+                        </div>
+                        <div class="benefit-card">
+                            <div class="b-label">Comisión por tarjeta</div>
+                            <div class="b-val">$20.00</div>
+                            <div class="b-desc">
+                                M.N. por tarjeta efectivamente pagada al
+                                Proveedor
+                            </div>
+                        </div>
+                        <div class="benefit-card">
+                            <div class="b-label">Vigencia</div>
+                            <div class="b-val">3 años</div>
+                            <div class="b-desc">
+                                A partir de la firma del contrato
+                            </div>
+                        </div>
+                        <div class="benefit-card">
+                            <div class="b-label">Precio tarjeta al público</div>
+                            <div class="b-val">$800.00</div>
+                            <div class="b-desc">
+                                M.N. IVA incluido · Precio fijo autorizado
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="annex-section" id="anexo3">
+                <span class="annex-tag">Anexo 3</span>
+                <h2>Identificación de El Distribuidor</h2>
+                <div class="callout info">
+                    <strong>Nota</strong> Copia de la credencial para votar
+                    vigente expedida por el Instituto Nacional Electoral (INE)
+                    del Distribuidor.
+                </div>
+            </div>
+
+            <div class="annex-section" id="anexo4">
+                <span class="annex-tag">Anexo 4</span>
+                <h2>Comprobante de Domicilio de El Distribuidor</h2>
+                <div class="callout info">
+                    <strong>Nota</strong> Copia simple del comprobante de
+                    domicilio vigente del Distribuidor.
+                </div>
+            </div>
+
+            <div class="annex-section" id="anexo5">
+                <span class="annex-tag">Anexo 5</span>
+                <h2>Constancia de Situación Fiscal de El Distribuidor</h2>
+                <div class="callout info">
+                    <strong>Nota</strong> Constancia de situación fiscal vigente
+                    del Distribuidor emitida por el SAT.
+                </div>
+            </div>
+
+            <div class="annex-section" id="anexo6">
+                <span class="annex-tag">Anexo 6</span>
+                <h2>Manual de Afiliado — PATS</h2>
+
+                <div class="callout danger">
+                    <strong>Importante</strong>
+                    PATS NO ES UN SEGURO MÉDICO. Es un programa de beneficios y
+                    descuentos en servicios médicos privados.
+                </div>
+
+                <div class="manual-item">
+                    <h3>¿Qué incluye tu PATS?</h3>
+                    <p>
+                        <strong>Sin costo</strong> (dentro de la Red 50 Doctors,
+                        Estado de Puebla):
+                    </p>
+                    <ul>
+                        <li>Consultas de medicina general ilimitadas</li>
+                        <li>Consultas de urgencias ilimitadas</li>
+                    </ul>
+                    <p><strong>Con precio preferencial o descuento:</strong></p>
+                    <ul>
+                        <li>
+                            Hospitalización · Consultas con especialistas ·
+                            Farmacia PATS
+                        </li>
+                        <li>
+                            Laboratorio clínico · Imagenología · Cirugías ·
+                            Quirófano
+                        </li>
+                        <li>
+                            Terapia intensiva · Otros servicios médicos dentro
+                            de la red
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="manual-item">
+                    <h3>Costo, duración y reactivación</h3>
+                    <table class="price-table">
+                        <thead>
+                            <tr>
+                                <th>Concepto</th>
+                                <th>Monto / Plazo</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Costo mensual PATS</td>
+                                <td>
+                                    <span class="amount">$800.00 M.N.</span> IVA
+                                    incluido · primeros 5 días de cada mes
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Duración por pago</td>
+                                <td>30 días a partir del pago</td>
+                            </tr>
+                            <tr>
+                                <td>Cuota de reactivación</td>
+                                <td>$50.00 M.N. por cada mes no pagado</td>
+                            </tr>
+                            <tr>
+                                <td>Entrega tarjeta digital</td>
+                                <td>5 días hábiles tras el primer pago</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="manual-item">
+                    <h3>Porcentajes de descuento</h3>
+                    <div class="benefits-grid">
+                        <div class="benefit-card">
+                            <div class="b-label">Urgencias</div>
+                            <div class="b-val">100%</div>
+                            <div class="b-desc">Gratis</div>
+                        </div>
+                        <div class="benefit-card">
+                            <div class="b-label">Hospitalización</div>
+                            <div class="b-val">90%</div>
+                            <div class="b-desc">Descuento</div>
+                        </div>
+                        <div class="benefit-card">
+                            <div class="b-label">Urgencias médicas</div>
+                            <div class="b-val">80%</div>
+                            <div class="b-desc">Descuento</div>
+                        </div>
+                        <div class="benefit-card">
+                            <div class="b-label">Terapia intensiva</div>
+                            <div class="b-val">75%</div>
+                            <div class="b-desc">Descuento</div>
+                        </div>
+                        <div class="benefit-card">
+                            <div class="b-label">Quirófano</div>
+                            <div class="b-val">75%</div>
+                            <div class="b-desc">Descuento</div>
+                        </div>
+                        <div class="benefit-card">
+                            <div class="b-label">Imagenología</div>
+                            <div class="b-val">70%</div>
+                            <div class="b-desc">Descuento</div>
+                        </div>
+                        <div class="benefit-card">
+                            <div class="b-label">Laboratorio clínico</div>
+                            <div class="b-val">60%</div>
+                            <div class="b-desc">Descuento</div>
+                        </div>
+                        <div class="benefit-card">
+                            <div class="b-label">Especialidad</div>
+                            <div class="b-val">$390</div>
+                            <div class="b-desc">M.N. precio preferencial</div>
+                        </div>
+                    </div>
+                    <div class="callout warning" style="margin-top: 14px">
+                        <strong>Cirugías y quirófano</strong>
+                        Para usar beneficios relacionados con cirugías, el
+                        afiliado debe haber pagado PATS por adelantado durante
+                        12 meses continuos y tener la tarjeta vigente al momento
+                        del procedimiento.
+                    </div>
+                </div>
+
+                <div class="manual-item">
+                    <h3>Lo que NO cubre PATS</h3>
+                    <ul>
+                        <li>
+                            Trasplantes · Tratamientos experimentales ·
+                            Oncología
+                        </li>
+                        <li>
+                            Medicamentos fuera del catálogo de Farmacia PATS
+                        </li>
+                        <li>
+                            Atención con especialistas fuera del directorio
+                            oficial
+                        </li>
+                        <li>
+                            Cualquier servicio no indicado expresamente en el
+                            programa
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="manual-item">
+                    <h3>Cancelación</h3>
+                    <p>
+                        Puede cancelarse en cualquier momento mediante aviso por
+                        escrito con <strong>30 días de anticipación</strong>. La
+                        cancelación aplica para el siguiente periodo mensual y
+                        no hay reembolso de pagos ya realizados.
+                    </p>
+                </div>
+            </div>
+
+            <div class="annex-section" id="anexo7">
+                <span class="annex-tag">Anexo 7</span>
+                <h2>Manual de Operación del Sistema PATS</h2>
+
+                <div class="manual-item">
+                    <h3>¿Qué es la plataforma PATS?</h3>
+                    <p>
+                        Herramienta de gestión y administración para el control
+                        y monitoreo de la estructura comercial. Acceso en:
+                        <strong>50d.com.mx</strong> (recomendado Chrome o
+                        Firefox).
+                    </p>
+                </div>
+
+                <div class="manual-item">
+                    <h3>Funciones disponibles para el Distribuidor</h3>
+                    <ul>
+                        <li>Gestionar datos personales y contraseña</li>
+                        <li>Administrar pasaportes vencidos</li>
+                        <li>Compartir link personalizado de registro</li>
+                        <li>
+                            Gestionar comisiones (botón activo primeros 5 días
+                            naturales del mes)
+                        </li>
+                        <li>Acceder a videos de capacitación</li>
+                        <li>Descargar material digital autorizado</li>
+                    </ul>
+                    <div class="callout info">
+                        <strong>Acceso a la plataforma</strong>
+                        Exclusivo para Administradores Corporativos, Gerentes de
+                        Expansión, Franquiciatarios y Distribuidores. Cada
+                        usuario cuenta con credenciales individuales; el alcance
+                        de información está limitado a su propia red.
+                    </div>
+                </div>
+
+                <div class="manual-item">
+                    <h3>Gestión de Comisiones</h3>
+                    <p>
+                        Acceder a <em>Admin → Mis pagos</em>. El botón "Enviar
+                        factura" está activo durante los primeros 5 días
+                        naturales de cada mes. Se deberá cargar la factura en
+                        PDF junto con su folio; el corporativo validará y
+                        enviará la transferencia con comprobante.
+                    </p>
+                </div>
+            </div>
+
+            <div class="annex-section" id="anexo8">
+                <span class="annex-tag">Anexo 8</span>
+                <h2>Costo de la Tarjeta de Descuento</h2>
+                <table class="price-table">
+                    <thead>
+                        <tr>
+                            <th>Producto</th>
+                            <th>Precio de Venta</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Licencia de Distribución</td>
+                            <td>
+                                <span class="amount">$20,000.00 M.N.</span> IVA
+                                incluido
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                Pasaporte a tu Salud ("La Tarjeta de Descuento")
+                            </td>
+                            <td>
+                                <span class="amount">$800.00 M.N.</span> IVA
+                                incluido
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div class="sig-block">
+                    <div class="sig-party">
+                        <div class="sig-line"></div>
+                        <div class="sig-name">
+                            "Pasaporte a tu Salud", S.A. de C.V.
+                        </div>
+                        <div class="sig-role">
+                            Emilio Flores Cervantes — Administrador Único
+                        </div>
+                    </div>
+                    <div class="sig-party">
+                        <div class="sig-line"></div>
+                        <div class="sig-name">El Distribuidor</div>
+                        <div class="sig-role">Apartado 5 de la Carátula</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="annex-section" id="anexo9">
+                <span class="annex-tag">Anexo 9</span>
+                <h2>Comprobante de Transferencia Bancaria</h2>
+                <div class="callout info">
+                    <strong>Nota</strong> Comprobante de la transferencia
+                    electrónica de fondos realizada por El Distribuidor a El
+                    Proveedor por concepto de adquisición del derecho de
+                    distribución.
+                </div>
+                <div class="sig-block">
+                    <div class="sig-party">
+                        <div class="sig-line"></div>
+                        <div class="sig-name">
+                            "Pasaporte a tu Salud", S.A. de C.V.
+                        </div>
+                        <div class="sig-role">
+                            Emilio Flores Cervantes — Administrador Único
+                        </div>
+                    </div>
+                    <div class="sig-party">
+                        <div class="sig-line"></div>
+                        <div class="sig-name">El Distribuidor</div>
+                        <div class="sig-role">Apartado 5 de la Carátula</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="annex-section" id="anexo10">
+                <span class="annex-tag">Anexo 10</span>
+                <h2>Comisiones a Devengar por El Distribuidor</h2>
+                <table class="price-table">
+                    <thead>
+                        <tr>
+                            <th>Producto</th>
+                            <th>Precio de Venta</th>
+                            <th>Comisión</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>
+                                Comercialización directa de la Tarjeta de
+                                Descuento por El Distribuidor
+                            </td>
+                            <td>
+                                <span class="amount">$800.00 M.N.</span> IVA
+                                incluido
+                            </td>
+                            <td>
+                                <span class="amount">$20.00 M.N.</span> IVA
+                                incluido<br />por tarjeta pagada al Proveedor
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div class="sig-block">
+                    <div class="sig-party">
+                        <div class="sig-line"></div>
+                        <div class="sig-name">
+                            "Pasaporte a tu Salud", S.A. de C.V.
+                        </div>
+                        <div class="sig-role">
+                            Emilio Flores Cervantes — Administrador Único
+                        </div>
+                    </div>
+                    <div class="sig-party">
+                        <div class="sig-line"></div>
+                        <div class="sig-name">El Distribuidor</div>
+                        <div class="sig-role">Apartado 5 de la Carátula</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="annex-section" id="anexo11">
+                <span class="annex-tag">Anexo 11</span>
+                <h2>Aviso de Privacidad</h2>
+                <div class="clause-body">
+                    <p>
+                        "Pasaporte a tu Salud, S.A. de C.V.", con domicilio en
+                        Paseo Sinfonía, Local 2-14, Interior 1, Lomas de
+                        Angelópolis II, San Andrés Cholula, Puebla, C.P. 72830,
+                        es responsable del tratamiento de sus datos personales
+                        conforme a la Ley Federal de Protección de Datos
+                        Personales en Posesión de los Particulares.
+                    </p>
+
+                    <div class="manual-item" style="margin-top: 16px">
+                        <h3>Finalidad de la Información</h3>
+                        <ul>
+                            <li>
+                                Elaborar y mantener actualizada la base de datos
+                                de Usuarios bajo la modalidad de Franquicia.
+                            </li>
+                            <li>
+                                Identificar a Franquiciatarios y Distribuidores
+                                facultados para comercializar la Tarjeta.
+                            </li>
+                            <li>
+                                Análisis estadísticos internos y mejora de
+                                productos y servicios.
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div class="manual-item">
+                        <h3>Tipo de Datos Necesarios</h3>
+                        <ul>
+                            <li>
+                                Datos de identificación (nombre, fecha y lugar
+                                de nacimiento, firma, INE, CURP, RFC)
+                            </li>
+                            <li>
+                                Datos de contacto (domicilio, teléfono, correo
+                                electrónico)
+                            </li>
+                            <li>
+                                Datos legales y mercantiles (contratos, poderes,
+                                actas)
+                            </li>
+                            <li>Datos fiscales (cuentas bancarias)</li>
+                        </ul>
+                    </div>
+
+                    <div class="manual-item">
+                        <h3>Derechos ARCO</h3>
+                        <p>
+                            El Usuario puede ejercer sus derechos de Acceso,
+                            Rectificación, Cancelación y Oposición mediante
+                            escrito presentado en las oficinas de El Proveedor o
+                            al correo:
+                            <strong>silvia@pasaporteatusalud.com</strong>. Plazo
+                            de respuesta: 30 días hábiles.
+                        </p>
+                    </div>
+
+                    <div
+                        style="
+                            margin-top: 32px;
+                            display: grid;
+                            grid-template-columns: 1fr 1fr 1fr;
+                            gap: 20px;
+                        "
+                    >
+                        <div>
+                            <div
+                                style="
+                                    border-bottom: 1px solid var(--ink);
+                                    height: 40px;
+                                    margin-bottom: 8px;
+                                "
+                            ></div>
+                            <div class="sig-role">Nombre</div>
+                        </div>
+                        <div>
+                            <div
+                                style="
+                                    border-bottom: 1px solid var(--ink);
+                                    height: 40px;
+                                    margin-bottom: 8px;
+                                "
+                            ></div>
+                            <div class="sig-role">Fecha</div>
+                        </div>
+                        <div>
+                            <div
+                                style="
+                                    border-bottom: 1px solid var(--ink);
+                                    height: 40px;
+                                    margin-bottom: 8px;
+                                "
+                            ></div>
+                            <div class="sig-role">Firma</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="annex-section" id="anexo12">
+                <span class="annex-tag">Anexo 12</span>
+                <h2>Declaración de Dueño Beneficiario</h2>
+                <p
+                    style="
+                        font-size: 11px;
+                        font-family: &quot;Montserrat&quot;, sans-serif;
+                        letter-spacing: 0.5px;
+                        color: var(--muted);
+                        margin-bottom: 24px;
+                    "
+                >
+                    De conformidad con los Artículos 18 Fracción I y III de la
+                    Ley Federal para Prevención e Identificación de Operaciones
+                    con Recursos de Procedencia Ilícita, el Artículo 15 de su
+                    Reglamento y el Artículo 13 de las Reglas de Carácter
+                    General.
+                </p>
+
+                <div
+                    style="
+                        background: #fff;
+                        border: 1px solid var(--rule);
+                        border-top: 3px solid var(--navy);
+                        padding: 28px 28px 32px;
+                        border-radius: 2px;
+                    "
+                >
+                    <div
+                        style="
+                            font-family: &quot;Montserrat&quot;, sans-serif;
+                            font-size: 9px;
+                            font-weight: 700;
+                            letter-spacing: 2px;
+                            text-transform: uppercase;
+                            color: var(--navy);
+                            margin-bottom: 20px;
+                        "
+                    >
+                        Datos de Identificación del Cliente
+                    </div>
+
+                    <div class="form-grid">
+                        <div class="form-field full">
+                            <label>1. Apellido paterno, materno y nombre(s)</label>
+                            <span class="badge" id="c_apellidos_nombre">Por llenar</span>
+                        </div>
+                        <div class="form-field">
+                            <label>2. Fecha de nacimiento</label>
+                            <span class="badge" id="c_fecha_nacimiento">Por llenar</span>
+                        </div>
+                        <div class="form-field">
+                            <label>3. País de nacimiento</label>
+                            <span class="badge" id="c_pais_nacimiento">Por llenar</span>
+                        </div>
+                        <div class="form-field">
+                            <label>4. Nacionalidad</label>
+                            <span class="badge" id="c_nacionalidad">Por llenar</span>
+                        </div>
+                        <div class="form-field">
+                            <label>5. Actividad / Ocupación / Profesión</label>
+                            <span class="badge" id="c_ocupacion">Por llenar</span>
+                        </div>
+                        <div class="form-field full">
+                            <label>6. Domicilio particular</label>
+                            <span class="badge" id="c_domicilio_12">Por llenar</span>
+                        </div>
+                        <div class="form-field">
+                            <label>6.1 Número exterior</label>
+                            <span class="badge" id="c_num_ext_12">Por llenar</span>
+                        </div>
+                        <div class="form-field">
+                            <label>6.2 Número interior</label>
+                            <span class="badge" id="c_num_int_12">Por llenar</span>
+                        </div>
+                        <div class="form-field full">
+                            <label>6.3 Colonia o fraccionamiento</label>
+                            <span class="badge" id="c_colonia_12">Por llenar</span>
+                        </div>
+                        <div class="form-field">
+                            <label>6.4 Municipio</label>
+                            <span class="badge" id="c_municipio_12">Por llenar</span>
+                        </div>
+                        <div class="form-field">
+                            <label>6.5 Ciudad</label>
+                            <span class="badge" id="c_ciudad_12">Por llenar</span>
+                        </div>
+                        <div class="form-field">
+                            <label>6.6 Estado</label>
+                            <span class="badge" id="c_estado_12">Por llenar</span>
+                        </div>
+                        <div class="form-field">
+                            <label>6.7 País</label>
+                            <span class="badge" id="c_pais_12">Por llenar</span>
+                        </div>
+                        <div class="form-field">
+                            <label>7. Teléfonos</label>
+                            <span class="badge" id="c_telefono_12">Por llenar</span>
+                        </div>
+                        <div class="form-field">
+                            <label>8. Correo electrónico</label>
+                            <span class="badge" id="c_correo_12">Por llenar</span>
+                        </div>
+                        <div class="form-field">
+                            <label>9. CURP</label>
+                            <span class="badge" id="c_curp_12">—</span>
+                        </div>
+                        <div class="form-field">
+                            <label>10. RFC</label>
+                            <span class="badge" id="c_rfc_12">Por llenar</span>
+                        </div>
+                        <div class="form-field">
+                            <label>11. Tipo de identificación</label>
+                            <span class="badge" id="c_tipo_id_12">Por llenar</span>
+                        </div>
+                        <div class="form-field">
+                            <label>11.1 Emitida por</label>
+                            <span class="badge" id="c_emitida_por_12">Por llenar</span>
+                        </div>
+                        <div class="form-field full">
+                            <label>11.2 Número de identificación</label>
+                            <span class="badge" id="c_num_id_12">Por llenar</span>
+                        </div>
+                    </div>
+
+                    <div
+                        style="
+                            font-family: &quot;Montserrat&quot;, sans-serif;
+                            font-size: 9px;
+                            font-weight: 700;
+                            letter-spacing: 2px;
+                            text-transform: uppercase;
+                            color: var(--navy);
+                            margin: 28px 0 16px;
+                        "
+                    >
+                        Datos de Identificación de la Operación
+                    </div>
+
+                    <div class="form-grid">
+                        <div class="form-field full">
+                            <label>13. Tipo de operación</label>
+                            <span class="badge" id="c_tipo_operacion_12">Por llenar</span>
+                        </div>
+                        <div class="form-field">
+                            <label>14. Monto de la operación</label>
+                            <span class="badge" id="c_monto_12">Por llenar</span>
+                        </div>
+                        <div class="form-field">
+                            <label>15. Fecha de la operación</label>
+                            <span class="badge" id="c_fecha_operacion_12">Por llenar</span>
+                        </div>
+                        <div class="form-field">
+                            <label>16. Forma de pago</label>
+                            <span class="badge" id="c_forma_pago_12">Por llenar</span>
+                        </div>
+                        <div class="form-field">
+                            <label>17. Moneda</label>
+                            <span class="badge" id="c_moneda_12">MXN — Peso Mexicano</span>
+                        </div>
+                    </div>
+
+                    <div class="callout info" style="margin-top: 24px">
+                        <strong>18. Declaración de Dueño Beneficiario</strong>
+                        Declaro que soy el beneficiario directo de la operación
+                        y no existe ningún otro dueño beneficiario o
+                        beneficiario controlador.<br /><br />
+                        <span
+                            style="
+                                font-family: &quot;Montserrat&quot;, sans-serif;
+                                font-size: 12px;
+                                font-weight: 700;
+                            "
+                            >☐ SÍ &nbsp;&nbsp;&nbsp; ☐ NO</span
+                        >
+                    </div>
+
+                    <div style="margin-top: 32px; text-align: center">
+                        <p style="font-size: 13px; margin-bottom: 24px">
+                            H. Puebla de Zaragoza al ________ del mes de
+                            ________________________ del año _________
+                        </p>
+                        <div style="display: inline-block; width: 280px">
+                            <div
+                                style="
+                                    border-bottom: 1px solid var(--ink);
+                                    height: 48px;
+                                    margin-bottom: 8px;
+                                "
+                            ></div>
+                            <div class="sig-role">Nombre y Firma</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- /page -->
+
+        <div class="doc-footer">
+            Pasaporte a tu Salud, S.A. de C.V. · R.F.C. PTS260126KX3 · Documento
+            generado para uso interno
+        </div>
+    </body>
+</html>

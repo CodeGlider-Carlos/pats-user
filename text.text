@@ -1,0 +1,88 @@
+  <div class="col-md-6">
+            <div class="accordion medical-accordion" id="accordionAntecedentes">
+
+                {{-- Heredo-familiares --}}
+                <div class="accordion-item">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#heredo">
+                            Antecedentes heredo-familiares
+                        </button>
+                    </h2>
+                    <div id="heredo" class="accordion-collapse collapse">
+                        <div class="accordion-body">
+                            <ul class="medical-list">
+                                <li class="medical-item checked">✔ Diabetes</li>
+                                <li class="medical-item unchecked">✖ Hipertensión</li>
+                                <li class="medical-item unchecked">✖ Cáncer</li>
+                                <li class="medical-item unchecked">✖ Cardiopatía</li>
+                                <li class="medical-item unchecked">✖ Renal</li>
+                                <li class="medical-item unchecked">✖ Neurológica</li>
+                                <li class="medical-item unchecked">✖ Ninguno</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Personales --}}
+                <div class="accordion-item">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button collapsed" data-bs-toggle="collapse"
+                            data-bs-target="#personales">
+                            Personales patológicos
+                        </button>
+                    </h2>
+                    <div id="personales" class="accordion-collapse collapse">
+                        <div class="accordion-body">
+                            <ul class="medical-list">
+                                <li class="medical-item unchecked">✖ Diabetes</li>
+                                <li class="medical-item unchecked">✖ Hipertensión</li>
+                                <li class="medical-item unchecked">✖ Asma / EPOC</li>
+                                <li class="medical-item unchecked">✖ Enfermedad cardiaca</li>
+                                <li class="medical-item checked">✔ Ninguno</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Alertas --}}
+                <div class="accordion-item">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button collapsed text-danger fw-bold" data-bs-toggle="collapse"
+                            data-bs-target="#alertas">
+                            Alertas de seguridad
+                        </button>
+                    </h2>
+                    <div id="alertas" class="accordion-collapse collapse">
+                        <div class="accordion-body">
+                            <div class="alert-box mb-2">
+                                <strong>Alergias:</strong> Penicilina
+                            </div>
+                            <p><strong>Cirugías:</strong> No</p>
+                            <p class="mb-0"><strong>Medicamentos:</strong> Paracetamol</p>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Estado general --}}
+                <div class="accordion-item">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button collapsed" data-bs-toggle="collapse"
+                            data-bs-target="#estadoGeneral">
+                            Estado general percibido
+                        </button>
+                    </h2>
+                    <div id="estadoGeneral" class="accordion-collapse collapse">
+                        <div class="accordion-body">
+                            <p class="mb-2">
+                                <strong>Salud actual:</strong>
+                                <span class="status-badge status-good">Buena</span>
+                            </p>
+                            <p class="mb-0">
+                                <strong>Hospitalizaciones recientes:</strong> No
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>

@@ -1,0 +1,8 @@
+// Background Mixins //
+@mixin alert-variant($color) {
+  color: $color;
+}
+@mixin alert-variant-fill($color) {
+  color: lighten($color, 80%);
+  background: $color;
+}
