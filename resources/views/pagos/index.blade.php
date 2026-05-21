@@ -655,6 +655,92 @@
             border-color: #4f46e5;
             background: #eef2ff;
         }
+
+        @media (max-width: 640px) {
+            .digi-plan-selector {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        @media (max-width: 460px) {
+            .digi-plan-selector {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .plan-option {
+                padding: 10px 8px;
+            }
+
+            .plan-option strong {
+                font-size: 0.82rem;
+            }
+
+            .plan-option span {
+                font-size: 0.72rem;
+            }
+        }
+    </style>
+    <style>
+        @media (max-width: 640px) {
+            .digi-container-pagosd {
+                padding: 0 14px;
+            }
+
+            .digi-page-title {
+                font-size: 1.4rem;
+            }
+
+            .digi-passport-card {
+                padding: 1.25rem;
+            }
+
+            .digi-passport-photo {
+                width: 110px;
+                height: 110px;
+            }
+
+            .credit-card {
+                max-width: 100%;
+            }
+
+            .digi-tabs__link {
+                padding: 0.625rem 0.875rem;
+                font-size: 0.85rem;
+            }
+
+            .digi-stats-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .digi-stat-card {
+                padding: 1rem;
+            }
+
+            .digi-stat-card__icon {
+                width: 40px;
+                height: 40px;
+                font-size: 1.2rem;
+            }
+
+            .digi-stat-card__content h3 {
+                font-size: 1.2rem;
+            }
+
+            .digi-passport-card {
+                padding: 1rem;
+            }
+
+            .digi-passport-photo {
+                width: 90px;
+                height: 90px;
+            }
+
+            .digi-tabs__link i {
+                display: none;
+            }
+        }
     </style>
     @php
         $pagos = [

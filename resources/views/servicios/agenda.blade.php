@@ -636,6 +636,71 @@
 
             .ag-stats {
                 flex-direction: column;
+                gap: 8px;
+            }
+
+            .ag-stat {
+                padding: 12px 16px;
+            }
+        }
+
+        @media (max-width:480px) {
+            .ag-page {
+                padding: 0 10px 60px;
+            }
+
+            .ag-header {
+                padding: 18px 0 14px;
+                gap: 10px;
+            }
+
+            .ag-fecha-badge {
+                display: none;
+            }
+
+            .ag-title {
+                font-size: 24px;
+            }
+
+            .ag-day {
+                min-height: 50px;
+                padding: 3px;
+            }
+
+            .ag-day__num {
+                width: 22px;
+                height: 22px;
+                font-size: 11px;
+                margin-bottom: 2px;
+            }
+
+            .ag-cal-weekdays span {
+                font-size: 9px;
+                padding: 8px 0;
+            }
+
+            .ag-filters {
+                padding: 10px 12px;
+                gap: 8px;
+            }
+
+            .ag-filters select {
+                font-size: 12px;
+                padding: 6px 26px 6px 10px;
+                flex: 1;
+                min-width: 0;
+            }
+
+            .ag-filter-label {
+                display: none;
+            }
+
+            .ag-cal-nav {
+                padding: 12px 14px;
+            }
+
+            .ag-cal-nav__mes {
+                font-size: 14px;
             }
         }
     </style>

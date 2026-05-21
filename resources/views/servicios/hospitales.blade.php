@@ -666,6 +666,59 @@
             padding-top: 1.5rem;
             padding-bottom: 1.5rem;
         }
+
+        /* ── Responsive ───────────────────────────── */
+        @media (min-width: 769px) {
+            .col-md-4 {
+                flex: 0 0 33.333%;
+                max-width: 33.333%;
+            }
+        }
+
+        @media (max-width: 900px) and (min-width: 561px) {
+            .col-md-4 {
+                flex: 0 0 50%;
+                max-width: 50%;
+            }
+        }
+
+        @media (max-width: 560px) {
+            .digi-container-h {
+                padding: 0 14px;
+            }
+
+            .col-md-4 {
+                flex: 0 0 100%;
+                max-width: 100%;
+            }
+
+            .digi-page-title {
+                font-size: 1.4rem;
+            }
+
+            .digi-hospital-card__image {
+                height: 160px;
+            }
+
+            .digi-hospital-card__actions {
+                flex-direction: column;
+            }
+
+            .digi-hospital-card__actions .digi-btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+
+        @media (max-width: 400px) {
+            .digi-hospital-card__body {
+                padding: 1rem;
+            }
+
+            .digi-hospital-card__title {
+                font-size: 1rem;
+            }
+        }
     </style>
 
     <div class="digi-container-h py-4">
