@@ -224,6 +224,59 @@
             }
         }
 
+        @media(max-width:480px) {
+            .digi-container-pasaporte {
+                padding: 0 14px;
+            }
+
+            .digi-page-title {
+                font-size: 1.4rem;
+            }
+
+            .digi-page-title i {
+                font-size: 1.6rem;
+            }
+
+            .digi-avatar--placeholder {
+                width: 120px;
+                height: 120px;
+                font-size: 3rem;
+            }
+
+            .digi-card__body {
+                padding: 1rem;
+            }
+
+            .digi-card__header {
+                padding: 1rem;
+            }
+
+            .digi-passport-info {
+                padding: 1rem;
+            }
+
+            .digi-membership-card {
+                min-width: unset;
+                width: 100%;
+            }
+
+            .digi-tabs__link {
+                padding: 0.625rem 0.75rem;
+                font-size: 0.82rem;
+                gap: 0.3rem;
+            }
+        }
+
+        @media(max-width:360px) {
+            .digi-tabs__link i {
+                display: none;
+            }
+
+            .digi-page-title {
+                font-size: 1.25rem;
+            }
+        }
+
         .digi-info-item {
             display: flex;
             flex-direction: column;

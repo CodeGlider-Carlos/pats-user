@@ -2383,23 +2383,22 @@
                                     </div>
                                 </div>
 
-                                <div class="field">
+                                <div class="field" style="display:none">
                                     <label class="label" for="fecha_inicio">Fecha de inicio <span
                                             class="label__req">*</span></label>
                                     <div class="input-wrap">
                                         <i class="mdi mdi-calendar icon-left"></i>
                                         <input class="input" type="date" id="fecha_inicio" name="fecha_inicio"
-                                            min="{{ date('Y-m-d') }}" required style="font-family:var(--mono)">
+                                            value="{{ date('Y-m-d') }}" style="font-family:var(--mono)">
                                     </div>
                                 </div>
 
-                                <div class="field" id="primerVencWrap">
+                                <div class="field" id="primerVencWrap" style="display:none">
                                     <label class="label" for="fecha_primer_vencimiento">Primer vencimiento</label>
                                     <div class="input-wrap">
                                         <i class="mdi mdi-calendar-check icon-left"></i>
                                         <input class="input" type="date" id="fecha_primer_vencimiento"
-                                            name="fecha_primer_vencimiento" min="{{ date('Y-m-d') }}" disabled
-                                            style="font-family:var(--mono)">
+                                            name="fecha_primer_vencimiento" style="font-family:var(--mono)">
                                     </div>
                                 </div>
 
@@ -2948,12 +2947,9 @@
                     r.addEventListener('change', () => {
                         const dif = r.value !== 'CONTADO';
                         const plazo = $('plazo_meses');
-                        const pv = $('fecha_primer_vencimiento');
                         if (plazo) plazo.disabled = !dif;
-                        if (pv) pv.disabled = !dif;
                         if (!dif) {
                             if (plazo) plazo.value = '';
-                            if (pv) pv.value = '';
                         }
                         buildPlan();
                     });
@@ -3613,6 +3609,13 @@
                 bindSignature();
                 bindContractName();
                 bindBeneficiarioListener();
+
+                const pv = $('fecha_primer_vencimiento');
+                if (pv) {
+                    const d = new Date();
+                    d.setFullYear(d.getFullYear() + 3);
+                    pv.value = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+                }
             });
 
         })();
