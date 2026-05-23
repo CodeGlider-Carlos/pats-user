@@ -793,6 +793,19 @@
                 </div>
 
                 {{-- Formulario (oculto hasta seleccionar slot) --}}
+                @php
+                    $pCurp     = old('curp',      $pasaporte->curp ?? '');
+                    $pNombre   = old('nombre',    isset($pasaporte)
+                        ? trim(($pasaporte->nombres ?? '') . ' ' . ($pasaporte->apellido_pa ?? '') . ' ' . ($pasaporte->apellido_ma ?? ''))
+                        : ($acceso->nombre_paciente ?? ''));
+                    $pFechaNac = old('fecha_nac', isset($pasaporte->fecha_nacimiento)
+                        ? \Carbon\Carbon::parse($pasaporte->fecha_nacimiento)->toDateString()
+                        : '');
+                    // CURP position 10: H = Hombre (M), M = Mujer (F)
+                    $curpSexo  = strlen($pCurp) >= 11 ? strtoupper($pCurp[10]) : '';
+                    $pSexo     = old('sexo', $curpSexo === 'H' ? 'M' : ($curpSexo === 'M' ? 'F' : ''));
+                @endphp
+
                 <form action="{{ route('especialidades.guardar') }}" method="POST" id="formCita" style="display:none;">
                     @csrf
                     <input type="hidden" name="id_agenda" id="inputIdAgenda">
@@ -802,7 +815,7 @@
                         <div class="ea-field">
                             <label class="ea-label" for="curp">CURP *</label>
                             <input class="ea-input" type="text" id="curp" name="curp"
-                                placeholder="18 caracteres" maxlength="18" value="{{ old('curp') }}"
+                                placeholder="18 caracteres" maxlength="18" value="{{ $pCurp }}"
                                 style="text-transform:uppercase;" required>
                             @error('curp')
                                 <span class="ea-error"><i class="mdi mdi-alert-circle"
@@ -813,7 +826,7 @@
                         <div class="ea-field">
                             <label class="ea-label" for="nombre">Nombre completo *</label>
                             <input class="ea-input" type="text" id="nombre" name="nombre"
-                                placeholder="Nombre del paciente" value="{{ old('nombre') }}" required>
+                                placeholder="Nombre del paciente" value="{{ $pNombre }}" required>
                             @error('nombre')
                                 <span class="ea-error"><i class="mdi mdi-alert-circle"
                                         style="font-size:14px;"></i>{{ $message }}</span>
@@ -824,15 +837,15 @@
                             <div class="ea-field">
                                 <label class="ea-label" for="fecha_nac">Fecha de nac. *</label>
                                 <input class="ea-input" type="date" id="fecha_nac" name="fecha_nac"
-                                    value="{{ old('fecha_nac') }}" max="{{ now()->subYears(1)->toDateString() }}"
+                                    value="{{ $pFechaNac }}" max="{{ now()->subYears(1)->toDateString() }}"
                                     required>
                             </div>
                             <div class="ea-field">
                                 <label class="ea-label" for="sexo">Sexo *</label>
                                 <select class="ea-select" id="sexo" name="sexo" required>
                                     <option value="">—</option>
-                                    <option value="M" {{ old('sexo') === 'M' ? 'selected' : '' }}>Masculino</option>
-                                    <option value="F" {{ old('sexo') === 'F' ? 'selected' : '' }}>Femenino</option>
+                                    <option value="M" {{ $pSexo === 'M' ? 'selected' : '' }}>Masculino</option>
+                                    <option value="F" {{ $pSexo === 'F' ? 'selected' : '' }}>Femenino</option>
                                 </select>
                             </div>
                         </div>

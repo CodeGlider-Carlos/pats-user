@@ -51,8 +51,7 @@
   border-bottom: 1px solid var(--border);
   box-shadow: var(--shadow-sm);
   position: relative;
-  background: radial-gradient(circle at 90% 0%, rgba(0, 217, 200, .16), transparent 30%), linear-gradient(135deg, rgba(7, 17, 39, .96), rgba(11, 29, 83, .95) 54%, rgba(15, 48, 128, .94));
-
+  background: linear-gradient(150deg, #090c38 0%, #0e1250 55%, var(--navy) 100%)
 }
 
 .digi-topbar .digi-container {

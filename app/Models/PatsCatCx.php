@@ -4,20 +4,26 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class PatsCatEstudioRx extends Model
+class PatsCatCx extends Model
 {
-    protected $table = 'pats_estudios_imagen';
+    // The table associated with the model.
+    protected $table = 'pats_cat_cx';
 
+    // The primary key associated with the table.
     protected $primaryKey = 'id_registro';
 
+    // Indicates if the IDs are auto-incrementing.
     public $incrementing = false;
 
+    // The "type" of the primary key ID.
     protected $keyType = 'string';
 
+    // The attributes that are mass assignable.
     protected $fillable = [
         'id_registro',
         'id_proveedor',
-        'estudio',
+        'especialidad',
+        'procedimiento',
         'precio_nopats',
         'descuento',
         'precio_pats',
@@ -26,6 +32,7 @@ class PatsCatEstudioRx extends Model
         'usuario_actualizo',
     ];
 
+    // The attributes that should be cast.
     protected $casts = [
         'precio_nopats' => 'decimal:2',
         'descuento'     => 'decimal:2',
@@ -33,14 +40,8 @@ class PatsCatEstudioRx extends Model
         'activo'        => 'boolean',
     ];
 
-    // Accessor to map study name to the view's expected attribute
-    public function getNombreEstudioAttribute(): string
-    {
-        return $this->estudio ?? '';
-    }
-
     /**
-     * Get the provider that owns the study.
+     * Get the provider associated with this procedure.
      */
     public function proveedor()
     {

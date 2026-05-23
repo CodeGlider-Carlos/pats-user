@@ -7,6 +7,7 @@ use App\Models\PatsCatMedicamento;
 use App\Models\PatsCatEstudioLaboratorio;
 use App\Models\PatsCatEstudioRx;
 use App\Models\PatsCatProveedor;
+use App\Models\PatsCatCx;
 
 
 
@@ -32,13 +33,24 @@ class ServiciosController extends Controller
         return view('servicios.hospitales', compact('hospitales'));
     }
     // ── 1. Atención Médica  →  /atencion-medica ─────────────────
-    // View defines all its own mock data inline; nothing to pass.
     public function atencionMedica()
-    {$hospitales = PatsCatProveedor::where('categoria', 'hospital')->where('activo', true)->get();
-        return view('servicios.atencion-medica', compact('hospitales'));
+    {
+        // Proveedores activos (categoría Hospitales) para el banner de urgencias
+        $hospitales = PatsCatProveedor::where('categoria', 'Hospitales')
+            ->where('activo', true)
+            ->get();
+
+        // Procedimientos activos con su proveedor, agrupados por especialidad
+        $serviciosMedicos = PatsCatCx::with('proveedor')
+            ->where('activo', true)
+            ->orderBy('especialidad')
+            ->orderBy('procedimiento')
+            ->get()
+            ->groupBy('especialidad');
+
+        return view('servicios.atencion-medica', compact('hospitales', 'serviciosMedicos'));
     }
 
-    // ── 2. Estudios Clínicos  →  /estudios-clinicos ─────────────
     // ── 2. Estudios Clínicos  →  /estudios-clinicos ─────────────
     public function estudiosСlinicos()
     {

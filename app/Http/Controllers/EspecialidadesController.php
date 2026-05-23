@@ -3,7 +3,10 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
+use App\Models\PatsCatMedico;
+use App\Models\DispoAgenda;
 
 class EspecialidadesController extends Controller
 {
@@ -54,75 +57,88 @@ class EspecialidadesController extends Controller
 
     public function bloquesMedico(Request $request, $idRecurso)
     {
-        $now    = $this->now();
-        $dbMedico = \App\Models\PatsCatMedico::where('id_medico_leadplus', $idRecurso)->first();
-        $datos = $dbMedico ? $dbMedico->toArray() : ['nombre_completo' => 'Médico Demo', 'especialidad' => 'General'];
-        $medico = (object)array_merge(['id_recurso' => $idRecurso, 'activo' => 1, 'region' => 'JAL', 'unidad' => 'ZR', 'nombre_recurso' => $datos['nombre_completo'] ?? 'Médico Demo'], $datos);
+        $now = $this->now();
 
-        $bloquesRaw = [];
-        $id = 1;
-        for ($d = 1; $d <= 8; $d++) {
-            $fecha = $now->copy()->addDays($d);
-            if ($fecha->isWeekend()) continue;
-            foreach (['09:00', '10:00', '11:00', '16:00', '17:00'] as $hora) {
-                $inicio = $fecha->copy()->setTimeFromTimeString($hora);
-                $fin    = $inicio->copy()->addHour();
-                $bloquesRaw[] = (object)[
-                    'id_agenda'    => $id++,
-                    'id_recurso'   => $idRecurso,
-                    'fecha_inicio' => $inicio->toDateTimeString(),
-                    'fecha_fin'    => $fin->toDateTimeString(),
-                    'cupos'        => 1,
-                    'ocupado'      => 0,
-                    'tipo_bloque'  => 'DISPONIBLE',
-                    'activo'       => 1,
-                ];
-            }
-        }
+        $medico = PatsCatMedico::where('id_medico_leadplus', $idRecurso)
+            ->where('activo', true)
+            ->firstOrFail();
 
-        $bloques = collect($bloquesRaw)
+        $bloques = DispoAgenda::where('id_recurso', $idRecurso)
+            ->where('tipo_bloque', 'DISPONIBLE')
+            ->where('activo', true)
+            ->whereColumn('ocupado', '<', 'cupos')
+            ->where('fecha_inicio', '>', $now)
+            ->where('fecha_inicio', '<=', $now->copy()->addDays(30))
+            ->orderBy('fecha_inicio')
+            ->get()
             ->groupBy(fn($b) => Carbon::parse($b->fecha_inicio)->toDateString());
 
-        $citasAgendadas = collect([
-            (object)[
-                'id_recurso'       => $idRecurso,
-                'nombre_paciente'  => 'Roberto Solís Mora',
-                'fecha_programada' => $now->copy()->addDays(2)->toDateString(),
-                'hora_inicio'      => '09:00:00',
-                'estatus'          => 'PROGRAMADO',
-            ],
-            (object)[
-                'id_recurso'       => $idRecurso,
-                'nombre_paciente'  => 'Patricia Lima Vega',
-                'fecha_programada' => $now->copy()->addDays(3)->toDateString(),
-                'hora_inicio'      => '11:00:00',
-                'estatus'          => 'CONFIRMADO',
-            ],
-        ]);
+        $acceso    = auth('pasaporte')->user();
+        $pasaporte = null;
+
+        if ($acceso?->id_pasaporte) {
+            $pasaporte = DB::table('pats_pasaportes')
+                ->where('id_pasaporte', $acceso->id_pasaporte)
+                ->where('activo', 1)
+                ->first();
+        }
 
         return view('servicios.especialidades-agenda', [
-            'medico'         => $medico,
-            'bloques'        => $bloques,
-            'citasAgendadas' => $citasAgendadas,
-            'fecha_hoy'      => $now->toDateString(),
-            'fecha_display'  => $now->isoFormat('dddd D [de] MMMM [de] YYYY'),
+            'medico'        => $medico,
+            'bloques'       => $bloques,
+            'fecha_hoy'     => $now->toDateString(),
+            'fecha_display' => $now->isoFormat('dddd D [de] MMMM [de] YYYY'),
+            'acceso'        => $acceso,
+            'pasaporte'     => $pasaporte,
         ]);
     }
 
     public function guardarCita(Request $request)
     {
-        $request->validate([
-            'id_agenda'     => 'required',
-            'curp'          => 'required|string|max:18',
+        $validated = $request->validate([
+            'id_agenda'     => 'required|integer|exists:dispo_agenda,id_agenda',
+            'curp'          => 'required|string|size:18',
             'nombre'        => 'required|string|max:220',
             'fecha_nac'     => 'required|date',
             'sexo'          => 'required|in:M,F',
-            'id_estudio'    => 'nullable|integer',
             'observaciones' => 'nullable|string|max:500',
         ]);
 
+        $slot   = DispoAgenda::findOrFail($validated['id_agenda']);
+        $medico = PatsCatMedico::where('id_medico_leadplus', $slot->id_recurso)->first();
+        $acceso = auth('pasaporte')->user();
+
+        DB::table('agenda_pats_demo')->insert([
+            'estatus'          => 'PROGRAMADO',
+            'region'           => $medico?->region  ?? $slot->region,
+            'unidad'           => $medico?->unidad  ?? $slot->unidad,
+            'curp'             => strtoupper($validated['curp']),
+            'nombre_paciente'  => $validated['nombre'],
+            'fecha_nacimiento' => $validated['fecha_nac'],
+            'sexo'             => $validated['sexo'],
+            'id_misional'      => '1CES',
+            'misional'         => 'Consulta de especialidad',
+            'id_servicio'      => 1,
+            'id_recurso'       => $slot->id_recurso,
+            'fecha_programada' => Carbon::parse($slot->fecha_inicio)->toDateString(),
+            'hora_inicio'      => Carbon::parse($slot->fecha_inicio)->format('H:i:s'),
+            'hora_fin'         => Carbon::parse($slot->fecha_fin)->format('H:i:s'),
+            'tipo_registro'    => 'CONSULTA_ESPECIALIDAD',
+            'prioridad'        => 2,
+            'folio_externo'    => $acceso?->id_pasaporte,
+            'origen_sistema'   => 'pats_usuario',
+            'observaciones'    => $validated['observaciones'] ?? null,
+            'confirmado'       => 0,
+            'iniciado_servicio'=> 0,
+            'activo'           => 1,
+        ]);
+
+        // Mark slot as reserved and consume the cupo
+        $slot->update(['tipo_bloque' => 'RESERVADO']);
+        $slot->increment('ocupado');
+
         return redirect()
-            ->route('especialidades.index')
+            ->route('especialidades.agenda', $slot->id_recurso)
             ->with('success', '¡Cita agendada correctamente! Recibirás confirmación en breve.');
     }
 }

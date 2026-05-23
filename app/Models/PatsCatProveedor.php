@@ -28,6 +28,11 @@ class PatsCatProveedor extends Model
         'nombre_unidad',
         'telefono',
         'direccion',
+        'imagen_path',
+        'imagen_file',
+        'imagen_mime',
+        'imagen_size',
+        'imagen_uploaded_at',
         'activo',
         'usuario_registro',
         'usuario_actualizo',
@@ -35,7 +40,9 @@ class PatsCatProveedor extends Model
 
     // The attributes that should be cast.
     protected $casts = [
-        'activo' => 'boolean',
+        'activo'            => 'boolean',
+        'imagen_size'       => 'integer',
+        'imagen_uploaded_at' => 'datetime',
     ];
 
     /**
