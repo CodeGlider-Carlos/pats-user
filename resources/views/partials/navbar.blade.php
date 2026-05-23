@@ -6,7 +6,9 @@
 
             {{-- LOGO --}}
             <a href="{{ route('pasaporte') }}" class="digi-brand">
-                <img src="{{ asset('images/logof.png') }}" style="filter: brightness(0) invert(1);" width="150"  alt="">
+                <img src="{{ asset('images/logo_50.png') }}" alt="" style="filter: brightness(0) invert(1); height:32px;">
+                <span style="color:#fff; font-weight:300;     margin-left: 8px; font-size:1.2rem;">|</span>
+                <img src="{{ asset('images/PATS_LOGO.png') }}" alt="PATS" style="filter: brightness(0) invert(1); height:32px;">
             </a>
 
             {{-- RIGHT ACTIONS --}}

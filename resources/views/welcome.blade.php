@@ -440,8 +440,10 @@
             <span></span><span></span>
         </div>
 
-        <div class="brand-logo">
-            <img src="{{ asset('images/logof.png') }}" alt="PATS Logo">
+        <div class="brand-logo" style="display:flex; align-items:center;">
+            <img src="{{ asset('images/logo_50.png') }}" alt="" style="filter: brightness(0) invert(1); height:36px;">
+            <span style="color:#fff; font-weight:300; margin:0 8px; opacity:.6; font-size:1.4rem;">|</span>
+            <img src="{{ asset('images/PATS_LOGO.png') }}" alt="PATS" style="filter: brightness(0) invert(1); height:36px;">
         </div>
 
         <div class="brand-body">
