@@ -760,32 +760,6 @@
                     @endif
                 </div>
 
-                {{-- Citas ya agendadas con este médico ──────── --}}
-                @if ($citasAgendadas->isNotEmpty())
-                    <div class="ea-agendadas">
-                        <div class="ea-agendadas__head">
-                            <i class="mdi mdi-format-list-bulleted"></i>
-                            Citas próximas con {{ explode(' ', $medico->nombre_recurso)[0] }}
-                        </div>
-                        @foreach ($citasAgendadas as $cita)
-                            @php
-                                $badgeCls = match ($cita->estatus) {
-                                    'CONFIRMADO' => 'conf',
-                                    'EN_PROCESO' => 'proc',
-                                    default => 'prog',
-                                };
-                            @endphp
-                            <div class="ea-cita-row">
-                                <div class="ea-cita-row__hora">
-                                    {{ \Illuminate\Support\Str::limit($cita->hora_inicio, 5, '') }}</div>
-                                <div class="ea-cita-row__pac">{{ $cita->nombre_paciente }}</div>
-                                <div class="ea-cita-row__fecha">
-                                    {{ Carbon::parse($cita->fecha_programada)->isoFormat('D MMM') }}</div>
-                                <span class="ea-cita-badge ea-cita-badge--{{ $badgeCls }}">{{ $cita->estatus }}</span>
-                            </div>
-                        @endforeach
-                    </div>
-                @endif
 
             </div>{{-- /col izq --}}
 

@@ -6,30 +6,7 @@
     @php
         use Illuminate\Support\Str;
 
-        $hospitales = [
-            [
-                'nombre' => 'Fifty Doctors Angelópolis',
-                'direccion' => 'Anillo Perif. Ecológico 3505, Tlaxcalancingo, San Andrés Cholula, Pue.',
-                'telefono' => '2226892995',
-                'horario' => 'Abierto las 24 hrs',
-                'imagen' => 'images/hospitals/angelopolis.jpeg',
-            ],
-            [
-                'nombre' => 'Fifty Doctors San Manuel',
-                'direccion' => 'Blvrd 14 Sur 4302, Jardines de San Manuel, Puebla',
-                'telefono' => '2226895140',
-                'horario' => 'Abierto las 24 hrs',
-                'imagen' => 'images/hospitals/angelopolis.jpeg',
-            ],
-            [
-                'nombre' => 'Fifty Doctors Homi La Paz',
-                'direccion' => 'Av. Teziutlán Sur 36, Col. La Paz, Puebla',
-                'telefono' => '2226895140',
-                'horario' => 'Abierto las 24 hrs',
-                'imagen' => 'images/hospitals/angelopolis.jpeg',
-            ],
-        ];
-
+       
         $doctores = [
             [
                 'nombre' => 'Adrián Castillo Moreno',
@@ -988,7 +965,7 @@
                 @foreach ($hospitales as $item)
                     <a href="tel:{{ $item['telefono'] }}" class="digi-btn digi-btn--danger">
                         <i class="mdi mdi-phone"></i>
-                        {{ $item['nombre'] }}
+                        {{ $item['nombre_unidad'] }}
                     </a>
                 @endforeach
             </div>
@@ -997,7 +974,7 @@
         {{-- Search Bar --}}
         <div class="digi-search-wrapper">
             <i class="mdi mdi-magnify digi-search-icon"></i>
-            <input type="text" class="digi-search-input" placeholder="Buscar especialidad o procedimiento..."
+            <input type="text" class="digi-search-input" placeholder="Buscar servicio o procedimiento..."
                 id="searchServicios" autocomplete="off">
             <button class="digi-search-clear" id="clearSearch">
                 <i class="mdi mdi-close"></i>

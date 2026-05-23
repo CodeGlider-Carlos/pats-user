@@ -357,7 +357,7 @@
                     'subtitle' => 'Atención médica básica con nuestros médicos',
                     'color' => '#87a924',
                     'icon' => 'consulta-general.svg',
-                    'url' => '/servicios/hospitales',
+                    'url' => '/hospitales',
                     'label' => 'Ver hospitales',
                 ],
                 [

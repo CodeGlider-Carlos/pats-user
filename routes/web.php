@@ -66,6 +66,7 @@ Route::middleware('auth:pasaporte')->group(function () {
 
     Route::get( '/perfil',          [PerfilController::class, 'show'])->name('perfil');
     Route::post('/perfil/campo',    [PerfilController::class, 'actualizarCampo'])->name('perfil.campo');
+    Route::post('/perfil/foto',     [PerfilController::class, 'actualizarFoto'])->name('perfil.foto');
     Route::post('/perfil/password', [PerfilController::class, 'actualizarPassword'])->name('perfil.password');
 });
 
@@ -73,13 +74,13 @@ Route::middleware('auth:pasaporte')->group(function () {
 //  SERVICIOS / ESPECIALIDADES — públicos
 // ──────────────────────────────────────────────────────────────────────────────
 
-Route::get('/servicios/hospitales', fn () => view('servicios.hospitales'))->name('hospitales.index');
 
 Route::controller(ServiciosController::class)->group(function () {
     Route::get('/atencion-medica',   'atencionMedica')->name('atencion.index');
     Route::get('/estudios-clinicos', 'estudiosСlinicos')->name('estudios.index');
     Route::get('/farmacia',          'farmacia')->name('farmacia.index');
     Route::get('/rayos',             'rayos')->name('rayos.index');
+    Route::get('/hospitales',        'hospitales')->name('hospitales.index');
 });
 
 Route::get( '/especialidades',                   [EspecialidadesController::class, 'index'])->name('especialidades.index');

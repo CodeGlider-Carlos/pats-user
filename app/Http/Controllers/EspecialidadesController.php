@@ -12,33 +12,12 @@ class EspecialidadesController extends Controller
         return Carbon::now('America/Mexico_City');
     }
 
-    private function medicosMock(): array
-    {
-        return [
-            1  => ['nombre_recurso' => 'Dr. Héctor Ramírez Luna',          'especialidad' => 'Cardiología',               'capacidad' => 1],
-            2  => ['nombre_recurso' => 'Dra. Gabriela Méndez Rangel',      'especialidad' => 'Pediatría',                 'capacidad' => 1],
-            3  => ['nombre_recurso' => 'Dra. Mariana López Estrada',       'especialidad' => 'Pediatría',                 'capacidad' => 1],
-            4  => ['nombre_recurso' => 'Dra. Fernanda Ruiz Gómez',         'especialidad' => 'Ginecología y Obstetricia', 'capacidad' => 1],
-            5  => ['nombre_recurso' => 'Dr. Arturo Peña Salgado',          'especialidad' => 'Cirugía General',           'capacidad' => 1],
-            6  => ['nombre_recurso' => 'Dr. Carlos Hernández Pineda',      'especialidad' => 'Cirugía General',           'capacidad' => 1],
-            7  => ['nombre_recurso' => 'Dra. Andrea Robles Fuentes',       'especialidad' => 'Dermatología',              'capacidad' => 1],
-            8  => ['nombre_recurso' => 'Dr. Ricardo Mendoza Salas',        'especialidad' => 'Neurología',                'capacidad' => 1],
-            9  => ['nombre_recurso' => 'Dra. Sofía Ramírez Castillo',      'especialidad' => 'Medicina Interna',          'capacidad' => 1],
-            10 => ['nombre_recurso' => 'Dr. Luis Alberto Sánchez Torres',  'especialidad' => 'Urología',                  'capacidad' => 1],
-            11 => ['nombre_recurso' => 'Dra. Cecilia Torres Aguilar',      'especialidad' => 'Endocrinología',            'capacidad' => 1],
-            12 => ['nombre_recurso' => 'Dr. Jorge Salinas Cruz',           'especialidad' => 'Neumología',                'capacidad' => 1],
-        ];
-    }
 
     public function index()
     {
         $now = $this->now();
 
-        $medicos = collect(array_map(
-            fn($id, $data) => (object)array_merge(['id_recurso' => $id], $data),
-            array_keys($this->medicosMock()),
-            $this->medicosMock()
-        ));
+        $medicos = \App\Models\PatsCatMedico::where('activo', true)->get();
 
         $porEspecialidad = $medicos->groupBy('especialidad');
 
@@ -76,9 +55,9 @@ class EspecialidadesController extends Controller
     public function bloquesMedico(Request $request, $idRecurso)
     {
         $now    = $this->now();
-        $mapa   = $this->medicosMock();
-        $datos  = $mapa[$idRecurso] ?? ['nombre_recurso' => 'Médico Demo', 'especialidad' => 'General', 'capacidad' => 1];
-        $medico = (object)array_merge(['id_recurso' => $idRecurso, 'activo' => 1, 'region' => 'JAL', 'unidad' => 'ZR'], $datos);
+        $dbMedico = \App\Models\PatsCatMedico::where('id_medico_leadplus', $idRecurso)->first();
+        $datos = $dbMedico ? $dbMedico->toArray() : ['nombre_completo' => 'Médico Demo', 'especialidad' => 'General'];
+        $medico = (object)array_merge(['id_recurso' => $idRecurso, 'activo' => 1, 'region' => 'JAL', 'unidad' => 'ZR', 'nombre_recurso' => $datos['nombre_completo'] ?? 'Médico Demo'], $datos);
 
         $bloquesRaw = [];
         $id = 1;

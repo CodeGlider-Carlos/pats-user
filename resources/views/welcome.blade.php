@@ -23,6 +23,7 @@
             --border: #dce2ee;
             --danger: #e74c3c;
             --info:   #2980b9;
+            --cyan:   #00D9C8;
         }
 
         html, body {
@@ -103,7 +104,7 @@
         }
         .brand-cross span {
             position: absolute;
-            background: var(--green);
+            background: linear-gradient(135deg, #083dff 0%,  #12d8ca 100%);
             border-radius: 3px;
         }
         .brand-cross span:first-child {
@@ -140,7 +141,7 @@
             gap: .45rem;
             background: rgba(135,169,36,.18);
             border: 1px solid rgba(135,169,36,.35);
-            color: var(--green);
+            color: var(--cyan);
             font-size: .72rem;
             font-weight: 600;
             letter-spacing: .1em;
@@ -159,8 +160,11 @@
             max-width: 340px;
         }
         .brand-headline em {
-            color: var(--green);
+            background: linear-gradient(90deg, #ffffff 0%, #cfe0ff 20%, #79b5ff 46%, #1fd6c8 76%, #b8f21d 100%);
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
             font-style: normal;
+            
         }
         .brand-sub {
             font-size: .9rem;
@@ -174,6 +178,7 @@
             display: flex;
             flex-wrap: wrap;
             gap: .6rem;
+
         }
         .brand-pill {
             display: inline-flex;
@@ -188,7 +193,7 @@
             border-radius: 50px;
         }
         .brand-pill i {
-            color: var(--green);
+            color: var(--cyan);
             font-size: .9rem;
         }
 
@@ -208,7 +213,7 @@
             font-weight: 600;
             letter-spacing: .12em;
             text-transform: uppercase;
-            color: var(--green);
+            color: var(--blue);
             margin-bottom: .7rem;
         }
         .form-title {
@@ -343,7 +348,7 @@
         .btn-login {
             width: 100%;
             height: 52px;
-            background: var(--green);
+            background: linear-gradient(135deg, #083dff 0%, #006fff 48%, #12d8ca 100%);
             color: var(--white);
             border: none;
             border-radius: 12px;
@@ -358,10 +363,10 @@
             justify-content: center;
             gap: .6rem;
             transition: background .2s, transform .15s, box-shadow .2s;
-            box-shadow: 0 4px 18px rgba(135,169,36,.35);
+            /* box-shadow: 0 4px 18px rgba(135,169,36,.35); */
         }
         .btn-login:hover {
-            background: var(--green-d);
+            background: var(--blue);
             transform: translateY(-1px);
             box-shadow: 0 8px 24px rgba(135,169,36,.4);
         }

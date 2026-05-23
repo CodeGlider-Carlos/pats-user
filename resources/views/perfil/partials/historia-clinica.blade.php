@@ -602,18 +602,20 @@
         <div class="digi-passport-card">
             <div class="row align-items-center">
                 <div class="col-md-4 text-center mb-4 mb-md-0">
-                    <div class="digi-passport-photo d-flex align-items-center justify-content-center"
-                         style="background:#dde8ff;font-size:3rem;font-weight:800;color:#2558e0;margin:0 auto;">
-                        {{ strtoupper(substr($nombreCompleto ?: ($user->correo_usuario ?? 'U'), 0, 1)) }}
-                    </div>
-                    @if($pasaporte)
-                    <div class="digi-passport-id mt-2">
-                        <i class="mdi mdi-card-account-details"></i>
-                        PATS-{{ str_pad($pasaporte->id_pasaporte, 6, '0', STR_PAD_LEFT) }}
-                    </div>
-                    @endif
-                    <div class="mt-3">
-                        <img src="{{ asset('images/logof.png') }}" width="100" alt="" onerror="this.style.display='none'">
+                    <div class="position-relative text-center mb-3" style="cursor: pointer; display: inline-block;" onclick="openCamera()">
+                        @if($pasaporte && $pasaporte->foto_usuario)
+                            <img id="userPhotoPreview" src="{{ asset($pasaporte->foto_usuario) }}" width="100" height="100" style="object-fit:cover; border-radius:50%; border: 3px solid #dde8ff; margin:0 auto; display:block;" alt="Foto">
+                            <div id="userPhotoInitials" style="display:none;"></div>
+                        @else
+                            <div id="userPhotoInitials" class="digi-passport-photo d-flex align-items-center justify-content-center"
+                                 style="background:#dde8ff;font-size:3rem;font-weight:800;color:#2558e0;margin:0 auto; width:100px; height:100px; border-radius:50%;">
+                                {{ strtoupper(substr($nombreCompleto ?: ($user->correo_usuario ?? 'U'), 0, 1)) }}
+                            </div>
+                            <img id="userPhotoPreview" src="" width="100" height="100" style="object-fit:cover; border-radius:50%; border: 3px solid #dde8ff; margin:0 auto; display:none;" alt="Foto">
+                        @endif
+                        <div style="font-size: 11px; margin-top: 8px; color: var(--blue); font-weight: 600;">
+                            <i class="mdi mdi-camera"></i> Tomar foto
+                        </div>
                     </div>
                 </div>
                 <div class="col-md-8">
@@ -894,6 +896,26 @@
         </div>
     </div>
 
+    {{-- Modal de Cámara --}}
+    <div class="modal fade" id="cameraModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="mdi mdi-camera"></i> Tomar Fotografía</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-center">
+                    <video id="cameraStream" autoplay playsinline style="width: 100%; max-width: 400px; border-radius: 8px; background: #000; transform: scaleX(-1);"></video>
+                    <canvas id="cameraCanvas" style="display:none;"></canvas>
+                </div>
+                <div class="modal-footer justify-content-center">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" id="btnCapture"><i class="mdi mdi-camera-iris"></i> Capturar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
         document.addEventListener("DOMContentLoaded", function() {
             // Editable fields
@@ -980,5 +1002,142 @@
                 });
             }
         });
+
+        // ── Cámara WebRTC ──
+        let videoStream = null;
+        let cameraModalInstance = null;
+        const cameraModalEl = document.getElementById('cameraModal');
+        const videoEl = document.getElementById('cameraStream');
+        const canvasEl = document.getElementById('cameraCanvas');
+        const btnCapture = document.getElementById('btnCapture');
+
+        // Inicializar el modal de bootstrap cuando esté disponible
+        document.addEventListener('DOMContentLoaded', () => {
+            if (typeof bootstrap !== 'undefined') {
+                cameraModalInstance = new bootstrap.Modal(cameraModalEl);
+            }
+        });
+
+        // Detener la cámara al cerrar el modal
+        cameraModalEl.addEventListener('hidden.bs.modal', function () {
+            if (videoStream) {
+                videoStream.getTracks().forEach(track => track.stop());
+                videoStream = null;
+            }
+        });
+
+        window.openCamera = function() {
+            if (!cameraModalInstance) {
+                if (typeof bootstrap === 'undefined') {
+                    alert("Error: Bootstrap no está cargado.");
+                    return;
+                }
+                cameraModalInstance = new bootstrap.Modal(cameraModalEl);
+            }
+            cameraModalInstance.show();
+
+            // Verificar si el navegador soporta WebRTC / Contexto Seguro (HTTPS o localhost)
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                console.error("navigator.mediaDevices es undefined. Esto suele ocurrir si no usas HTTPS.");
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Cámara no disponible',
+                    text: 'El navegador bloquea el acceso a la cámara porque la conexión no es segura (HTTPS) o tu dispositivo no tiene cámara.',
+                    confirmButtonColor: '#2563eb'
+                });
+                cameraModalInstance.hide();
+                return;
+            }
+
+            navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' } })
+                .then(stream => {
+                    videoStream = stream;
+                    videoEl.srcObject = stream;
+                    videoEl.play();
+                })
+                .catch(err => {
+                    console.error('Error accediendo a la cámara:', err);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Sin acceso a la cámara',
+                        text: 'Asegúrate de dar permisos a tu navegador para usar la cámara. Error: ' + err.message,
+                        confirmButtonColor: '#2563eb'
+                    });
+                    cameraModalInstance.hide();
+                });
+        };
+
+        btnCapture.addEventListener('click', () => {
+            if (!videoStream) return;
+            
+            // Dibujar video en el canvas
+            canvasEl.width = videoEl.videoWidth;
+            canvasEl.height = videoEl.videoHeight;
+            const ctx = canvasEl.getContext('2d');
+            
+            // Reflejar la imagen ya que la cámara frontal suele estar en espejo
+            ctx.translate(canvasEl.width, 0);
+            ctx.scale(-1, 1);
+            ctx.drawImage(videoEl, 0, 0, canvasEl.width, canvasEl.height);
+            
+            // Convertir a blob (jpeg)
+            canvasEl.toBlob(blob => {
+                if (!blob) return;
+                uploadBlob(blob);
+                cameraModalInstance.hide();
+            }, 'image/jpeg', 0.9);
+        });
+
+        function uploadBlob(blob) {
+            const formData = new FormData();
+            formData.append('foto', blob, 'camara_' + Date.now() + '.jpg');
+            formData.append('_token', '{{ csrf_token() }}');
+
+            // Mostrar preview localmente
+            const url = URL.createObjectURL(blob);
+            const preview = document.getElementById('userPhotoPreview');
+            const initials = document.getElementById('userPhotoInitials');
+            
+            if (initials) initials.style.display = 'none';
+            preview.src = url;
+            preview.style.display = 'block';
+
+            // Subir al servidor
+            fetch('{{ route("perfil.foto") }}', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: '¡Foto actualizada!',
+                        text: 'Tu foto de perfil se ha guardado correctamente.',
+                        confirmButtonColor: '#2563eb',
+                        timer: 2000,
+                        showConfirmButton: false
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: data.error || 'No se pudo actualizar la foto.',
+                        confirmButtonColor: '#2563eb'
+                    });
+                }
+            })
+            .catch(error => {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error de conexión',
+                    text: 'Ocurrió un error al subir la imagen.',
+                    confirmButtonColor: '#2563eb'
+                });
+            });
+        }
     </script>
 @endsection

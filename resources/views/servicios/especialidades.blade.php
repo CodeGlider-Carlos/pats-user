@@ -799,9 +799,7 @@
                                         <p class="med-card__esp">
                                             <i class="mdi mdi-tag-outline" style="font-size:13px;color:var(--blue);"></i>
                                             {{ $medico->especialidad ?? $especialidad }}
-                                            @if ($medico->capacidad > 1)
-                                                · Capacidad: {{ $medico->capacidad }}
-                                            @endif
+
                                         </p>
                                     </div>
                                 </div>
