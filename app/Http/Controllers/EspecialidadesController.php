@@ -24,12 +24,15 @@ class EspecialidadesController extends Controller
 
         $porEspecialidad = $medicos->groupBy('especialidad');
 
-        $disponibilidad = collect([
-            1 => 3, 2 => 5, 3 => 2, 4 => 4, 5 => 1,
-            6 => 0, 7 => 6, 8 => 2, 9 => 3, 10 => 4,
-            11 => 2, 12 => 1,
-        ]);
-
+        $disponibilidad = DB::table('dispo_agenda')
+            ->where('tipo_bloque', 'DISPONIBLE')
+            ->where('activo', 1)
+            ->whereColumn('ocupado', '<', 'cupos')
+            ->where('fecha_inicio', '>', $now)
+            ->where('fecha_inicio', '<=', $now->copy()->addDays(30))
+            ->groupBy('id_recurso')
+            ->selectRaw('id_recurso, COUNT(*) as total')
+            ->pluck('total', 'id_recurso');
         $estudios = collect([
             (object)['id_estudio' => 1, 'nombre_estudio' => 'Primera vez',     'requiere_cita' => 1],
             (object)['id_estudio' => 2, 'nombre_estudio' => 'Seguimiento',     'requiere_cita' => 1],

@@ -36,10 +36,9 @@ class ServiciosController extends Controller
     public function atencionMedica()
     {
         // Proveedores activos (categoría Hospitales) para el banner de urgencias
-        $hospitales = PatsCatProveedor::where('categoria', 'Hospitales')
+        $hospitales = PatsCatProveedor::where('categoria', 'hospital')
             ->where('activo', true)
             ->get();
-
         // Procedimientos activos con su proveedor, agrupados por especialidad
         $serviciosMedicos = PatsCatCx::with('proveedor')
             ->where('activo', true)
