@@ -1589,7 +1589,44 @@
 
         @media (max-width: 480px) {
             .topbar {
-                padding: 0 16px;
+                padding: 0 14px;
+                height: 52px;
+            }
+
+            .topbar__brand {
+                font-size: 16px;
+            }
+
+            .topbar__tag {
+                display: none;
+            }
+
+            .topbar__secure span {
+                display: none;
+            }
+
+            .topbar__secure {
+                gap: 0;
+                padding: 5px 10px;
+            }
+
+            .card-header {
+                padding: 18px 16px 14px;
+            }
+
+            .card-body {
+                padding: 18px 16px;
+            }
+
+            .card-footer {
+                padding: 14px 16px 18px;
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .card-footer .btn {
+                width: 100%;
+                justify-content: center;
             }
 
             .toggle-group {
@@ -1602,7 +1639,92 @@
             }
 
             .success-screen {
-                padding: 40px 22px;
+                padding: 40px 16px;
+            }
+
+            .success-title {
+                font-size: 22px;
+            }
+
+            .cc-card {
+                width: min(290px, calc(100vw - 40px));
+                height: 170px;
+            }
+
+            .cc-card__number {
+                font-size: 16px;
+            }
+
+            .cc-card__front,
+            .cc-card__back {
+                padding: 18px 20px;
+            }
+
+            .cc-fields {
+                grid-template-columns: 1fr;
+            }
+
+            .toast {
+                right: 12px;
+                left: 12px;
+                bottom: 16px;
+                max-width: unset;
+                border-radius: 14px;
+            }
+
+            .plan-table {
+                font-size: 12px;
+            }
+
+            .plan-table th,
+            .plan-table td {
+                padding: 8px 10px;
+            }
+
+            .step-label {
+                display: none;
+            }
+
+            .step-num {
+                width: 28px;
+                height: 28px;
+                font-size: 12px;
+            }
+        }
+
+        @media (max-width: 380px) {
+            .sol-layout {
+                padding: 14px 12px 60px;
+            }
+
+            .card-header {
+                padding: 14px 12px 12px;
+            }
+
+            .card-body {
+                padding: 14px 12px;
+            }
+
+            .card-footer {
+                padding: 12px 12px 14px;
+            }
+
+            .cc-card {
+                height: 158px;
+            }
+
+            .cc-card__number {
+                font-size: 14px;
+                letter-spacing: .12em;
+            }
+
+            .cc-card__front,
+            .cc-card__back {
+                padding: 14px 16px;
+            }
+
+            .sidebar__steps {
+                padding: 10px 12px;
             }
         }
 
@@ -1713,6 +1835,69 @@
             color: var(--slate-400);
             font-style: italic;
         }
+
+        /* ── Aviso de firma pendiente ── */
+        .firma-hint {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 14px;
+            background: #fffbeb;
+            border: 1.5px solid #fde68a;
+            border-radius: var(--radius-sm);
+            font-size: 13px;
+            color: #92400e;
+            margin-bottom: 12px;
+        }
+
+        .firma-hint i {
+            font-size: 16px;
+            color: #f59e0b;
+            flex-shrink: 0;
+        }
+
+        .firma-hint.hidden {
+            display: none;
+        }
+
+        /* ── Overlay firma sobre iframe ── */
+        .contrato-wrapper {
+            position: relative;
+        }
+
+        #contrato_firma_overlay {
+            display: none;
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(255, 255, 255, 0.97);
+            border-top: 2px solid var(--blue-100);
+            padding: 20px 32px 24px;
+            pointer-events: none;
+        }
+
+        /* ── Stripe Card Element ── */
+        .stripe-element-wrap {
+            padding: 13px 14px;
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius-sm);
+            background: var(--surface);
+            transition: border-color .2s, box-shadow .2s;
+            min-height: 46px;
+        }
+        .stripe-element-wrap.StripeElement--focus {
+            border-color: var(--border-focus);
+            box-shadow: 0 0 0 3px rgba(59,116,245,.12);
+        }
+        .stripe-element-wrap.StripeElement--invalid {
+            border-color: var(--danger);
+        }
+        #stripe-card-errors {
+            margin-top: 6px;
+            font-size: 12.5px;
+            color: var(--danger);
+        }
     </style>
 </head>
 
@@ -1741,7 +1926,7 @@
                 <div class="sidebar__sub">Forma parte de la red comercial más grande del sector médico en México.</div>
                 <div class="sidebar__price">
                     <div class="sidebar__price-label">Inversión inicial</div>
-                    <div class="sidebar__price-amount">${{ number_format($precioDistribucion ?? 20000, 0, '.', ',') }}
+                    <div class="sidebar__price-amount">${{ number_format($precioFranquicia ?? 999999, 0, '.', ',') }}
                     </div>
                     <div class="sidebar__price-note">MXN · Sin enganche · A meses disponible</div>
                 </div>
@@ -2132,11 +2317,11 @@
 
                                 <p class="field--full"
                                     style="font-size:13.5px;color:var(--slate-500);line-height:1.6;margin-bottom:4px;">
-                                    Toma tu fotografía directamente desde la cámara, revisa el contrato de franquicia,
-                                    dibuja tu firma y acepta los términos.
+                                    Toma tu fotografía, dibuja tu firma y luego revisa el contrato con tu firma ya
+                                    aplicada antes de aceptar.
                                 </p>
 
-                                {{-- ── Selfie ── --}}
+                                {{-- ── 1. SELFIE ── --}}
                                 <div class="divider" style="margin-top:4px;">
                                     <div class="divider__line"></div>
                                     <span class="divider__label">Fotografía del titular</span>
@@ -2145,59 +2330,38 @@
 
                                 <div class="field field--full">
                                     <label class="label">Fotografía del titular <span class="label__req">*</span></label>
-
                                     <div id="selfie_cam_area">
                                         <div class="selfie-cam-wrap" id="selfieCamWrap">
                                             <div class="selfie-cam-placeholder" id="selfiePlaceholder">
                                                 <i class="mdi mdi-camera-off"></i>
                                                 <span>Activa la cámara para tomar la fotografía</span>
                                             </div>
-                                            <video id="selfieVideo" autoplay playsinline muted style="display:none;width:100%;max-height:220px;object-fit:cover;transform:scaleX(-1);"></video>
-                                            <img id="selfieCaptura" style="display:none;width:100%;max-height:220px;object-fit:cover;" alt="Foto capturada">
+                                            <video id="selfieVideo" autoplay playsinline muted
+                                                style="display:none;width:100%;max-height:220px;object-fit:cover;transform:scaleX(-1);"></video>
+                                            <img id="selfieCaptura"
+                                                style="display:none;width:100%;max-height:220px;object-fit:cover;"
+                                                alt="Foto capturada">
                                         </div>
                                         <canvas id="selfieCanvas" style="display:none;"></canvas>
                                         <div style="display:flex;gap:8px;margin-top:10px;justify-content:center;flex-wrap:wrap;">
-                                            <button type="button" class="btn btn--primary" id="btnStartCamera" style="font-size:13px;padding:9px 16px;">
+                                            <button type="button" class="btn btn--primary" id="btnStartCamera"
+                                                style="font-size:13px;padding:9px 16px;">
                                                 <i class="mdi mdi-camera"></i> Activar cámara
                                             </button>
-                                            <button type="button" class="btn btn--primary" id="btnTakePhoto" style="display:none;font-size:13px;padding:9px 16px;">
+                                            <button type="button" class="btn btn--primary" id="btnTakePhoto"
+                                                style="display:none;font-size:13px;padding:9px 16px;">
                                                 <i class="mdi mdi-camera-iris"></i> Tomar foto
                                             </button>
-                                            <button type="button" class="btn btn--ghost" id="btnRetakePhoto" style="display:none;font-size:13px;padding:9px 16px;">
+                                            <button type="button" class="btn btn--ghost" id="btnRetakePhoto"
+                                                style="display:none;font-size:13px;padding:9px 16px;">
                                                 <i class="mdi mdi-camera-retake"></i> Repetir
                                             </button>
                                         </div>
                                     </div>
-
                                     <input type="hidden" name="selfie_data" id="selfie_data">
                                 </div>
 
-                                {{-- ── Contrato de distribución ── --}}
-                                <div class="divider">
-                                    <div class="divider__line"></div>
-                                    <span class="divider__label">Contrato de franquicia</span>
-                                    <div class="divider__line"></div>
-                                </div>
-
-                                <div class="field field--full">
-                                    <label class="label">Lee el contrato antes de firmar</label>
-                                    <div style="border:1.5px solid var(--blue-200);border-radius:var(--radius-sm);overflow:hidden;">
-                                        <div style="display:flex;align-items:center;gap:8px;background:var(--blue-100);border-bottom:1px solid var(--blue-200);padding:10px 14px;font-size:13px;color:var(--slate-600);">
-                                            <i class="mdi mdi-account-check" style="color:var(--blue-500);font-size:16px;flex-shrink:0;"></i>
-                                            <span>Este contrato se emitirá a nombre de: <strong id="contrato_nombre_live">—</strong></span>
-                                        </div>
-                                        <iframe src="/pdf/contrato_franq.pdf"
-                                            style="width:100%;height:500px;border:none;display:block;"
-                                            title="Contrato de franquicia PATS">
-                                        </iframe>
-                                    </div>
-                                    <p style="font-size:11.5px;color:var(--slate-400);margin-top:6px;">
-                                        <i class="mdi mdi-information-outline"></i>
-                                        Lee el contrato completo, luego dibuja tu firma en la sección siguiente y acepta los términos.
-                                    </p>
-                                </div>
-
-                                {{-- ── Firma digital ── --}}
+                                {{-- ── 2. FIRMA DIGITAL — ANTES DEL CONTRATO ── --}}
                                 <div class="divider">
                                     <div class="divider__line"></div>
                                     <span class="divider__label">Firma digital</span>
@@ -2205,7 +2369,11 @@
                                 </div>
 
                                 <div class="field field--full">
-                                    <label class="label">Firma del titular <span class="label__req">*</span></label>
+                                    <label class="label">Firma del titular <span class="label__req">*</span>
+                                        <span style="margin-left:auto;font-size:11px;font-weight:500;text-transform:none;letter-spacing:0;color:var(--blue-500);">
+                                            <i class="mdi mdi-information-outline"></i> Tu firma se mostrará en el contrato
+                                        </span>
+                                    </label>
                                     <div class="firma-wrap" id="firmaWrap">
                                         <canvas id="firmaCanvas"></canvas>
                                         <div class="firma-placeholder" id="firmaPlaceholder">
@@ -2213,14 +2381,135 @@
                                         </div>
                                     </div>
                                     <div style="display:flex;justify-content:flex-end;margin-top:8px;">
-                                        <button type="button" class="btn btn--ghost" id="btnClearFirma" style="font-size:12px;padding:7px 14px;">
+                                        <button type="button" class="btn btn--ghost" id="btnClearFirma"
+                                            style="font-size:12px;padding:7px 14px;">
                                             <i class="mdi mdi-eraser"></i> Limpiar firma
                                         </button>
                                     </div>
                                     <input type="hidden" name="firma_data" id="firma_data">
+                                    <input type="hidden" name="beneficiario_directo"
+                                        id="beneficiario_directo_input">
                                 </div>
 
-                                {{-- ── Aceptación ── --}}
+                                {{-- ── 3. CONTRATO CON OVERLAY DE FIRMA ── --}}
+                                <div class="divider">
+                                    <div class="divider__line"></div>
+                                    <span class="divider__label">Contrato de Franquicia</span>
+                                    <div class="divider__line"></div>
+                                </div>
+
+                                {{-- ── PREVIEW CARÁTULA ── --}}
+                                <div class="field field--full">
+                                    <div style="background:var(--blue-50);border:1.5px solid var(--blue-100);border-radius:var(--radius-sm);overflow:hidden;">
+                                        <div style="display:flex;align-items:center;gap:8px;background:var(--blue-100);border-bottom:1px solid var(--blue-200);padding:10px 14px;font-size:12px;font-weight:700;letter-spacing:.4px;text-transform:uppercase;color:var(--blue-600);">
+                                            <i class="mdi mdi-file-document-check-outline" style="font-size:16px;"></i>
+                                            Vista previa — Carátula del Contrato
+                                        </div>
+                                        <table style="width:100%;border-collapse:collapse;font-size:13px;">
+                                            <tr style="border-bottom:1px solid var(--blue-100);">
+                                                <td style="padding:8px 14px;color:var(--slate-500);width:46%;font-size:12px;">Apartado 5 — Nombre de la Franquicia</td>
+                                                <td style="padding:8px 14px;color:var(--slate-800);font-weight:600;" id="prev_apt5">—</td>
+                                            </tr>
+                                            <tr style="border-bottom:1px solid var(--blue-100);">
+                                                <td style="padding:8px 14px;color:var(--slate-500);font-size:12px;">Apartado 6 — Domicilio</td>
+                                                <td style="padding:8px 14px;color:var(--slate-800);font-weight:600;" id="prev_apt6">—</td>
+                                            </tr>
+                                            <tr style="border-bottom:1px solid var(--blue-100);">
+                                                <td style="padding:8px 14px;color:var(--slate-500);font-size:12px;">Apartado 7 — R.F.C.</td>
+                                                <td style="padding:8px 14px;color:var(--slate-800);font-weight:600;font-family:var(--mono);" id="prev_apt7">—</td>
+                                            </tr>
+                                            <tr style="border-bottom:1px solid var(--blue-100);">
+                                                <td style="padding:8px 14px;color:var(--slate-500);font-size:12px;">Apartado 8 — Nombre del Franquiciante</td>
+                                                <td style="padding:8px 14px;color:var(--slate-800);font-weight:600;" id="prev_apt8">—</td>
+                                            </tr>
+                                            <tr>
+                                                <td style="padding:8px 14px;color:var(--slate-500);font-size:12px;">Apartado 9 — Demarcación Territorial</td>
+                                                <td style="padding:8px 14px;color:var(--slate-800);font-weight:600;" id="prev_apt9">—</td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                </div>
+
+                                <div class="field field--full">
+                                    <label class="label">Lee el contrato antes de aceptar</label>
+
+                                    {{-- Indicador beneficiario directo (Anexo 12) --}}
+                                    <div id="ben_status_wrap"
+                                        style="display:none;align-items:center;gap:10px;padding:11px 16px;border-radius:var(--radius-sm);border:1.5px solid #d97706;background:#fffbeb;font-size:13px;color:#92400e;margin-bottom:12px;">
+                                        <i class="mdi mdi-alert-outline"
+                                            style="font-size:18px;flex-shrink:0;color:#d97706;"></i>
+                                        <span id="ben_status_txt">Desplázate hasta el <strong>Anexo 12</strong> del
+                                            contrato y selecciona si eres el beneficiario directo.</span>
+                                    </div>
+
+                                    {{-- Aviso si aún no hay firma --}}
+                                    <div class="firma-hint" id="firmaHint">
+                                        <i class="mdi mdi-alert-outline"></i>
+                                        Dibuja tu firma arriba para verla aplicada en el contrato.
+                                    </div>
+
+                                    <div style="border:1.5px solid var(--blue-200);border-radius:var(--radius-sm);overflow:hidden;">
+                                        <div style="display:flex;align-items:center;gap:8px;background:var(--blue-100);border-bottom:1px solid var(--blue-200);padding:10px 14px;font-size:13px;color:var(--slate-600);">
+                                            <i class="mdi mdi-account-check"
+                                                style="color:var(--blue-500);font-size:16px;flex-shrink:0;"></i>
+                                            <span>Este contrato se emitirá a nombre de: <strong
+                                                    id="contrato_nombre_live">—</strong></span>
+                                        </div>
+
+                                        {{-- Iframe + overlay absoluto --}}
+                                        <div class="contrato-wrapper">
+                                            <iframe id="contratoIframe" src="{{ route('franq.contrato') }}"
+                                                style="width:100%;height:500px;border:none;display:block;"
+                                                title="Contrato de Franquicia PATS">
+                                            </iframe>
+
+                                            {{-- Overlay con firma y fecha renderizados --}}
+                                            <div id="contrato_firma_overlay">
+                                                <p style="font-size:13px;color:var(--slate-600);margin-bottom:16px;text-align:center;">
+                                                    H. Puebla de Zaragoza a <strong id="overlay_dia">—</strong>
+                                                    del mes de <strong id="overlay_mes">—</strong>
+                                                    del año <strong id="overlay_anio">—</strong>
+                                                </p>
+                                                <div style="display:flex;justify-content:center;gap:60px;flex-wrap:wrap;">
+                                                    {{-- Bloque franquiciante --}}
+                                                    <div style="text-align:center;min-width:200px;">
+                                                        <div style="border-bottom:1px solid #000;height:40px;margin-bottom:8px;display:flex;align-items:center;justify-content:center;overflow:hidden;">
+                                                            <img src="{{ asset('images/firmas/firma_emilio_flores.png') }}"
+                                                                alt="Firma Emilio Flores Cervantes"
+                                                                style="max-height:38px;max-width:180px;object-fit:contain;">
+                                                        </div>
+                                                        <div style="font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--slate-700);">
+                                                            "Pasaporte a tu Salud", S.A. de C.V.
+                                                        </div>
+                                                        <div style="font-size:12px;color:var(--slate-400);margin-top:4px;">
+                                                            Emilio Flores Cervantes — Administrador Único
+                                                        </div>
+                                                    </div>
+                                                    {{-- Bloque franquiciatario con firma renderizada --}}
+                                                    <div style="text-align:center;min-width:200px;">
+                                                        <div style="height:40px;border-bottom:1px solid #000;margin-bottom:8px;display:flex;align-items:center;justify-content:center;overflow:hidden;">
+                                                            <img id="overlay_firma_img" src=""
+                                                                alt="Firma del franquiciatario"
+                                                                style="max-height:38px;max-width:180px;object-fit:contain;display:none;">
+                                                        </div>
+                                                        <div style="font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--slate-700);"
+                                                            id="overlay_nombre_dist">La Franquicia</div>
+                                                        <div style="font-size:12px;color:var(--slate-400);margin-top:4px;">
+                                                            Apartado 5 de la Carátula
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <p style="font-size:11.5px;color:var(--slate-400);margin-top:6px;">
+                                        <i class="mdi mdi-information-outline"></i>
+                                        Tu firma aparece renderizada al pie del contrato. Desplázate hacia abajo en el
+                                        documento para verla completa.
+                                    </p>
+                                </div>
+
+                                {{-- ── 4. ACEPTACIÓN ── --}}
                                 <div class="divider">
                                     <div class="divider__line"></div>
                                     <span class="divider__label">Aceptación</span>
@@ -2276,7 +2565,7 @@
                                     <div class="input-wrap">
                                         <i class="mdi mdi-currency-mxn icon-left"></i>
                                         <input class="input" type="text"
-                                            value="${{ number_format($precioDistribucion ?? 20000, 2) }} MXN" readonly
+                                            value="${{ number_format($precioFranquicia ?? 999999, 2) }} MXN" readonly
                                             style="font-family:var(--mono);font-size:16px;font-weight:700;color:var(--blue-600);background:var(--blue-50);border-color:var(--blue-100);">
                                     </div>
                                 </div>
@@ -2295,23 +2584,21 @@
                                     </div>
                                 </div>
 
-                                <div class="field">
-                                    <label class="label" for="fecha_inicio">Fecha de inicio <span
-                                            class="label__req">*</span></label>
+                                <div class="field" style="display:none">
+                                    <label class="label" for="fecha_inicio">Fecha de inicio</label>
                                     <div class="input-wrap">
                                         <i class="mdi mdi-calendar icon-left"></i>
                                         <input class="input" type="date" id="fecha_inicio" name="fecha_inicio"
-                                            min="{{ date('Y-m-d') }}" required style="font-family:var(--mono)">
+                                            value="{{ date('Y-m-d') }}" style="font-family:var(--mono)">
                                     </div>
                                 </div>
 
-                                <div class="field" id="primerVencWrap">
+                                <div class="field" id="primerVencWrap" style="display:none">
                                     <label class="label" for="fecha_primer_vencimiento">Primer vencimiento</label>
                                     <div class="input-wrap">
                                         <i class="mdi mdi-calendar-check icon-left"></i>
                                         <input class="input" type="date" id="fecha_primer_vencimiento"
-                                            name="fecha_primer_vencimiento" min="{{ date('Y-m-d') }}" disabled
-                                            style="font-family:var(--mono)">
+                                            name="fecha_primer_vencimiento" style="font-family:var(--mono)">
                                     </div>
                                 </div>
 
@@ -2499,7 +2786,7 @@
                         <p class="success-msg">Nos contactaremos contigo en un plazo de 24 a 48 horas.</p>
                         <div class="success-ref">
                             <i class="mdi mdi-identifier"></i>
-                            <span id="successRef">DIST-XXXXXX-0</span>
+                            <span id="successRef">FRANQ-XXXXXX-0</span>
                         </div>
                         <p class="success-note">Recibirás una confirmación en tu correo electrónico.</p>
                     </div>
@@ -2640,6 +2927,7 @@
                 $('btnSubmit').style.display = current === TOTAL ? '' : 'none';
 
                 if (current === TOTAL) updateSummary();
+                if (current === 5) updateCaratulaPreview();
             }
 
             /* ─── Panel transitions ──────────────────── */
@@ -2877,12 +3165,9 @@
                     r.addEventListener('change', () => {
                         const dif = r.value !== 'CONTADO';
                         const plazo = $('plazo_meses');
-                        const pv = $('fecha_primer_vencimiento');
                         if (plazo) plazo.disabled = !dif;
-                        if (pv) pv.disabled = !dif;
                         if (!dif) {
                             if (plazo) plazo.value = '';
-                            if (pv) pv.value = '';
                         }
                         buildPlan();
                     });
@@ -2903,7 +3188,7 @@
                     if (wrap) wrap.style.display = 'none';
                     return;
                 }
-                const total = 20000;
+                const total = {{ $precioFranquicia ?? 999999 }};
                 const mBase = Math.floor((total / plazo) * 100) / 100;
                 let acum = 0,
                     html = '';
@@ -2927,14 +3212,15 @@
                 const g = id => $(id)?.value?.trim() || '—';
                 const tipo = document.querySelector('input[name=tipo_persona]:checked')?.value;
                 const modal = document.querySelector('input[name=modalidad_pago]:checked')?.value;
+                const total = {{ $precioFranquicia ?? 999999 }};
                 $('sum_nombre').textContent = g('nombre');
                 $('sum_correo').textContent = g('correo');
                 $('sum_ubicacion').textContent = [g('municipio'), g('region')].filter(v => v !== '—').join(', ');
                 $('sum_tipo').textContent = tipo === 'MORAL' ? 'Persona Moral' : 'Persona Física';
                 $('sum_banco').textContent = g('banco');
                 $('sum_modal').textContent = modal === 'CONTADO' ?
-                    `Contado · ${money(20000)}` :
-                    `${g('plazo_meses')} meses · ${money(20000/Number(g('plazo_meses')||1))}/mes`;
+                    `Contado · ${money(total)}` :
+                    `${g('plazo_meses')} meses · ${money(total/Number(g('plazo_meses')||1))}/mes`;
                 buildPlan();
                 updatePreviewDist();
             }
@@ -3216,6 +3502,7 @@
                     if (hasSigned) {
                         if (dataInput) dataInput.value = canvas.toDataURL('image/png');
                         updatePreviewDist();
+                        updateContratoOverlay();
                     }
                 }
 
@@ -3234,6 +3521,7 @@
                     if (dataInput) dataInput.value = '';
                     wrap?.classList.remove('signed');
                     updatePreviewDist();
+                    updateContratoOverlay();
                 });
             }
 
@@ -3270,12 +3558,144 @@
                     const moral = document.querySelector('input[name=tipo_persona]:checked')?.value === 'MORAL';
                     const val   = moral ? razonEl?.value.trim() : nombreEl?.value.trim();
                     liveEl.textContent = val || '—';
+                    updateContratoOverlay();
                 }
 
                 nombreEl?.addEventListener('input', update);
                 razonEl?.addEventListener('input', update);
                 document.querySelectorAll('input[name=tipo_persona]').forEach(r => r.addEventListener('change', update));
                 update();
+            }
+
+            /* ─── Preview Carátula ───────────────────── */
+            function updateCaratulaPreview() {
+                const moral = document.querySelector('input[name=tipo_persona]:checked')?.value === 'MORAL';
+                const nombre = moral ?
+                    ($('razon_social')?.value.trim() || '—') :
+                    ($('nombre')?.value.trim() || '—');
+
+                const calle = $('calle')?.value.trim() || '';
+                const numExt = $('num_ext')?.value.trim() || '';
+                const numInt = $('num_int')?.value.trim() || '';
+                const colonia = $('colonia')?.value.trim() || '';
+                const cp = $('cp')?.value.trim() || '';
+                const municipio = $('municipio')?.value.trim() || '';
+                const regionEl = $('region');
+                const estadoText = (regionEl && regionEl.selectedIndex > 0 ? regionEl.options[regionEl.selectedIndex]?.text : '') || '';
+
+                let domicilio = calle;
+                if (numExt) domicilio += ' ' + numExt;
+                if (numInt) domicilio += ' Int. ' + numInt;
+                if (colonia) domicilio += ', Col. ' + colonia;
+                if (cp) domicilio += ', C.P. ' + cp;
+                if (municipio) domicilio += ', ' + municipio;
+                if (estadoText) domicilio += ', ' + estadoText;
+
+                const rfc = $('rfc')?.value.trim() || '';
+                const telefono = $('telefono')?.value.trim() || '';
+                const correo = $('correo')?.value.trim() || '';
+                const paisEl = $('pais');
+                const paisText = (paisEl && paisEl.selectedIndex > 0 ? paisEl.options[paisEl.selectedIndex]?.text : '') || '';
+
+                let demarcacion = municipio || '';
+                if (estadoText) demarcacion += (demarcacion ? ', ' : '') + estadoText;
+
+                const set = (id, val) => { const el = $(id); if (el) el.textContent = val || '—'; };
+                set('prev_apt5', nombre);
+                set('prev_apt6', domicilio || '—');
+                set('prev_apt7', rfc || '—');
+                set('prev_apt8', nombre);
+                set('prev_apt9', demarcacion || '—');
+
+                try {
+                    sessionStorage.setItem('pats_caratula', JSON.stringify({
+                        nombre, domicilio: domicilio || '', rfc,
+                        demarcacion: demarcacion || '', telefono, correo, pais: paisText,
+                    }));
+                } catch (_) {}
+            }
+
+            /* ─── Overlay firma en contrato ──────────── */
+            function updateContratoOverlay() {
+                const firmaData = $('firma_data')?.value;
+                const overlay = $('contrato_firma_overlay');
+                const imgEl = $('overlay_firma_img');
+                const nomEl = $('overlay_nombre_dist');
+                const hint = $('firmaHint');
+
+                if (!overlay) return;
+
+                if (!firmaData) {
+                    overlay.style.display = 'none';
+                    if (hint) hint.classList.remove('hidden');
+                    return;
+                }
+
+                if (hint) hint.classList.add('hidden');
+
+                const hoy = new Date();
+                const meses = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+                const overlayDia = $('overlay_dia');
+                const overlayMes = $('overlay_mes');
+                const overlayAnio = $('overlay_anio');
+                if (overlayDia) overlayDia.textContent = hoy.getDate();
+                if (overlayMes) overlayMes.textContent = meses[hoy.getMonth()];
+                if (overlayAnio) overlayAnio.textContent = hoy.getFullYear();
+
+                const moral = document.querySelector('input[name=tipo_persona]:checked')?.value === 'MORAL';
+                const nombreVal = moral ?
+                    ($('razon_social')?.value.trim() || '—') :
+                    ($('nombre')?.value.trim() || '—');
+                if (nomEl) nomEl.textContent = nombreVal;
+
+                if (imgEl) { imgEl.src = firmaData; imgEl.style.display = ''; }
+                overlay.style.display = '';
+
+                const iframe = $('contratoIframe');
+                if (iframe) {
+                    const base = iframe.src.split('?')[0];
+                    try {
+                        sessionStorage.setItem('pats_firma', firmaData);
+                        sessionStorage.setItem('pats_nombre', nombreVal);
+                        updateCaratulaPreview();
+                        iframe.src = base + '?ts=' + Date.now();
+                    } catch (_) {
+                        iframe.src = base + '?firma=' + encodeURIComponent(firmaData).slice(0, 1000);
+                    }
+                }
+            }
+
+            /* ─── Beneficiario Directo — postMessage ─── */
+            function bindBeneficiarioListener() {
+                const input = $('beneficiario_directo_input');
+                const statusWrap = $('ben_status_wrap');
+                const statusTxt = $('ben_status_txt');
+
+                window.addEventListener('message', function(event) {
+                    if (event.origin !== window.location.origin) return;
+                    const d = event.data;
+                    if (!d || d.type !== 'pats_beneficiario') return;
+
+                    const val = d.valor;
+                    if (input) input.value = val;
+                    try { sessionStorage.setItem('pats_beneficiario', val); } catch (_) {}
+
+                    if (statusWrap && statusTxt) {
+                        if (val === 'SI') {
+                            statusWrap.style.borderColor = '#10b981';
+                            statusWrap.style.background = '#ecfdf5';
+                            statusWrap.style.color = '#065f46';
+                            statusWrap.querySelector('i').style.color = '#10b981';
+                            statusTxt.innerHTML = '<strong>✓ Declaración confirmada</strong> — eres el beneficiario directo y único de esta operación.';
+                        } else {
+                            statusWrap.style.borderColor = '#ef4444';
+                            statusWrap.style.background = '#fff1f2';
+                            statusWrap.style.color = '#991b1b';
+                            statusWrap.querySelector('i').style.color = '#ef4444';
+                            statusTxt.innerHTML = '<strong>⚠ Indicaste que existe otro beneficiario controlador</strong> — contacta a soporte antes de continuar.';
+                        }
+                    }
+                });
             }
 
             /* ─── Init ───────────────────────────────── */
@@ -3291,6 +3711,14 @@
                 bindSelfie();
                 bindSignature();
                 bindContractName();
+                bindBeneficiarioListener();
+
+                const pv = $('fecha_primer_vencimiento');
+                if (pv) {
+                    const d = new Date();
+                    d.setFullYear(d.getFullYear() + 3);
+                    pv.value = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+                }
             });
 
 

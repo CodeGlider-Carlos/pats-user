@@ -618,6 +618,9 @@
     <table class="tabla-firmas">
         <tr>
             <td>
+                <div style="height:80px;display:flex;align-items:center;justify-content:center;margin-bottom:6px;overflow:hidden;">
+                    <img src="{{ asset('images/firmas/firma_emilio_flores.png') }}" alt="Firma Emilio Flores Cervantes" style="max-height:75px;max-width:240px;object-fit:contain;">
+                </div>
                 <div class="firma-linea"></div>
                 <strong>"LA FRANQUICIANTE"</strong><br>
                 "PASAPORTE A TU SALUD",<br>
@@ -627,6 +630,9 @@
                 el señor <strong>EMILIO FLORES CERVANTES</strong>
             </td>
             <td>
+                <div style="height:80px;display:flex;align-items:center;justify-content:center;margin-bottom:6px;overflow:hidden;">
+                    <img id="sig_firma_img" src="" alt="Firma del franquiciatario" style="display:none;max-height:75px;max-width:240px;object-fit:contain;">
+                </div>
                 <div class="firma-linea"></div>
                 <strong>"EL FRANQUICIATARIO"</strong><br>
                 <span class="form-campo" id="c_denominacion_firma">( ___ )</span><br><br>
@@ -649,6 +655,9 @@
     <table class="tabla-firmas" style="margin-top:20px;">
         <tr>
             <td>
+                <div style="height:80px;display:flex;align-items:center;justify-content:center;margin-bottom:6px;overflow:hidden;">
+                    <img src="{{ asset('images/firmas/firma_emilio_flores.png') }}" alt="Firma Emilio Flores Cervantes" style="max-height:75px;max-width:240px;object-fit:contain;">
+                </div>
                 <div class="firma-linea"></div>
                 <strong>"LA FRANQUICIANTE"</strong><br>
                 "PASAPORTE A TU SALUD", S.A. de C.V.<br><br>
@@ -656,6 +665,9 @@
                 EMILIO FLORES CERVANTES
             </td>
             <td>
+                <div style="height:80px;display:flex;align-items:center;justify-content:center;margin-bottom:6px;overflow:hidden;">
+                    <img id="anexo1_firma_img" src="" alt="Firma del franquiciatario" style="display:none;max-height:75px;max-width:240px;object-fit:contain;">
+                </div>
                 <div class="firma-linea"></div>
                 <strong>"EL FRANQUICIATARIO"</strong><br>
                 <span class="form-campo" id="c_denominacion_anexo">( ___ )</span>
@@ -664,5 +676,63 @@
     </table>
 
 </div>
+
+<script>
+(function () {
+    // ── Fecha actual ──────────────────────────────────────────────────────────
+    const hoy    = new Date();
+    const meses  = ['enero','febrero','marzo','abril','mayo','junio',
+                     'julio','agosto','septiembre','octubre','noviembre','diciembre'];
+    const diaEl  = document.getElementById('c_dia_firma');
+    const mesEl  = document.getElementById('c_mes_firma');
+    if (diaEl) diaEl.textContent = hoy.getDate();
+    if (mesEl) mesEl.textContent = meses[hoy.getMonth()].toUpperCase();
+
+    // ── Firma + nombre desde sessionStorage ───────────────────────────────────
+    let firmaData = '', nombreVal = '';
+    try {
+        firmaData  = sessionStorage.getItem('pats_firma')  || '';
+        nombreVal  = sessionStorage.getItem('pats_nombre') || '';
+    } catch (_) {}
+
+    if (!firmaData) {
+        const p = new URLSearchParams(window.location.search);
+        firmaData = p.get('firma')  || '';
+        nombreVal = p.get('nombre') || '';
+    }
+
+    if (firmaData) {
+        ['sig_firma_img', 'anexo1_firma_img'].forEach(id => {
+            const img = document.getElementById(id);
+            if (img) { img.src = firmaData; img.style.display = ''; }
+        });
+    }
+
+    if (nombreVal) {
+        ['c_representante_firma', 'c_representante'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el && el.textContent.trim() === '( ___ )') el.textContent = nombreVal;
+        });
+    }
+
+    // ── Datos de carátula desde sessionStorage ────────────────────────────────
+    try {
+        const car = JSON.parse(sessionStorage.getItem('pats_caratula') || '{}');
+        const map = {
+            c_denominacion:       car.nombre,
+            c_denominacion_firma: car.nombre,
+            c_denominacion_anexo: car.nombre,
+            c_rfc:                car.rfc,
+            c_domicilio:          car.domicilio,
+            c_territorio:         car.demarcacion,
+        };
+        Object.entries(map).forEach(([id, val]) => {
+            if (!val) return;
+            const el = document.getElementById(id);
+            if (el) el.textContent = val;
+        });
+    } catch (_) {}
+})();
+</script>
 </body>
 </html>
