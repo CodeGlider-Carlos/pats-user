@@ -594,7 +594,7 @@
             </div>
             @if ($pasaporte)
                 <a href="{{ route('pagos') }}" class="digi-btn digi-btn--primary">
-                    <i class="mdi mdi-credit-card-outline"></i> Renovar membresía
+                    <i class="mdi mdi-credit-card-outline"></i> Renovar pasaporte
                 </a>
             @endif
         </div>
@@ -720,7 +720,7 @@
 
                             <div>
                                 <div class="digi-membership-card">
-                                    <div style="font-weight:600;margin-bottom:1rem;">Membresía {{ $estadoTexto }}</div>
+                                    <div style="font-weight:600;margin-bottom:1rem;">Pasaporte {{ $estadoTexto }}</div>
                                     <div class="digi-membership__plan">Plan
                                         {{ ucfirst(strtolower($pasaporte->frecuencia_pago)) }}</div>
                                     <div class="digi-membership__date">

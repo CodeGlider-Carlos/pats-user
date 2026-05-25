@@ -23,7 +23,7 @@
 
 <div class="plan-section">
     <label class="form-lbl" style="margin-bottom:.75rem;">
-        {{ $esRenovacion ? 'Renovación de membresía' : 'Activa tu membresía' }}
+        {{ $esRenovacion ? 'Renovación de pasaporte' : 'Activa tu pasaporte' }}
     </label>
 
     {{-- Tabs de tipo de plan --}}
@@ -65,7 +65,7 @@
         {{-- Desglose del total --}}
         <div class="plan-desglose" id="desgloseMensual">
             <div class="desglose-row">
-                <span>Membresía <span id="lblMeses">1</span> mes</span>
+                <span>Pasaporte <span id="lblMeses">1</span> mes</span>
                 <strong id="lblMontoMeses">${{ number_format($montoBase, 0) }} MXN</strong>
             </div>
             @if ($tieneRecargo)
@@ -104,7 +104,7 @@
             @if ($tieneRecargo)
                 <div class="plan-desglose" style="margin-top:1rem;">
                     <div class="desglose-row">
-                        <span>Membresía anual</span>
+                        <span>Pasaporte anual</span>
                         <strong>$9,600 MXN</strong>
                     </div>
                     <div class="desglose-row desglose-recargo">

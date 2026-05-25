@@ -6,7 +6,9 @@
 
             {{-- LOGO --}}
             <a href="{{ route('pasaporte') }}" class="digi-brand">
-                <img src="{{ asset('images/logof.png') }}" width="150"  alt="">
+                <img src="{{ asset('images/logo_50.png') }}" alt="" style="filter: brightness(0) invert(1); height:32px;">
+                <span style="color:#fff; font-weight:300;     margin-left: 8px; font-size:1.2rem;">|</span>
+                <img src="{{ asset('images/PATS_LOGO.png') }}" alt="PATS" style="filter: brightness(0) invert(1); height:32px;">
             </a>
 
             {{-- RIGHT ACTIONS --}}
@@ -15,7 +17,7 @@
                 {{-- CAMPANA --}}
                 <div class="digi-dropdown">
                     <button class="digi-icon-btn" data-dropdown="notif">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white"
                             stroke-width="2">
                             <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
                             <path d="M13.73 21a2 2 0 0 1-3.46 0" />
@@ -83,11 +85,24 @@
 
                 {{-- USUARIO --}}
                 <div class="digi-dropdown">
-                    @php $navUser = auth()->user() ?? auth('pasaporte')->user(); @endphp
+                    @php 
+                        $navUser = auth()->user() ?? auth('pasaporte')->user(); 
+                        $navFoto = null;
+                        if ($navUser && $navUser->id_pasaporte) {
+                            $navPasaporte = \Illuminate\Support\Facades\DB::table('pats_pasaportes')->where('id_pasaporte', $navUser->id_pasaporte)->first();
+                            if ($navPasaporte && $navPasaporte->foto_usuario) {
+                                $navFoto = $navPasaporte->foto_usuario;
+                            }
+                        }
+                    @endphp
                     <button class="digi-user-btn" data-dropdown="user">
-                        <div class="digi-avatar" style="background:#dde8ff;color:#2558e0;font-weight:700;font-size:14px;display:flex;align-items:center;justify-content:center;">
-                            {{ strtoupper(substr($navUser->nombre_usuario ?? $navUser->nombre_paciente ?? $navUser->correo_usuario ?? 'U', 0, 1)) }}
-                        </div>
+                        @if($navFoto)
+                            <img src="{{ asset($navFoto) }}" class="digi-avatar" style="object-fit:cover; border: 1.5px solid var(--blue);" alt="Avatar">
+                        @else
+                            <div class="digi-avatar" style="background:#dde8ff;color:#2558e0;font-weight:700;font-size:14px;display:flex;align-items:center;justify-content:center;">
+                                {{ strtoupper(substr($navUser->nombre_usuario ?? $navUser->nombre_paciente ?? $navUser->correo_usuario ?? 'U', 0, 1)) }}
+                            </div>
+                        @endif
                         <div class="digi-user-info d-none d-md-block">
                             <span class="digi-user-info__name">{{ $navUser->nombre_usuario ?? $navUser->nombre_paciente ?? $navUser->correo_usuario }}</span>
                         </div>
@@ -99,9 +114,13 @@
 
                     <div class="digi-dropdown__panel digi-dropdown__panel--right" id="dropdown-user">
                         <div class="digi-dropdown__profile">
-                            <div class="digi-avatar digi-avatar--lg" style="background:#dde8ff;color:#2558e0;font-weight:700;font-size:18px;display:flex;align-items:center;justify-content:center;">
-                                {{ strtoupper(substr($navUser->nombre_usuario ?? $navUser->nombre_paciente ?? $navUser->correo_usuario ?? 'U', 0, 1)) }}
-                            </div>
+                            @if($navFoto)
+                                <img src="{{ asset($navFoto) }}" class="digi-avatar digi-avatar--lg" style="object-fit:cover; border: 2px solid var(--blue);" alt="Avatar">
+                            @else
+                                <div class="digi-avatar digi-avatar--lg" style="background:#dde8ff;color:#2558e0;font-weight:700;font-size:18px;display:flex;align-items:center;justify-content:center;">
+                                    {{ strtoupper(substr($navUser->nombre_usuario ?? $navUser->nombre_paciente ?? $navUser->correo_usuario ?? 'U', 0, 1)) }}
+                                </div>
+                            @endif
                             <div>
                                 <p class="digi-dropdown__profile-name">{{ $navUser->nombre_usuario ?? $navUser->nombre_paciente ?? $navUser->correo_usuario }}</p>
                                 <p class="digi-dropdown__profile-email">{{ $navUser->correo_usuario }}</p>
@@ -166,8 +185,21 @@
                     </a>
                 </li>
                 <li class="digi-nav__item">
-                    <a href="{{ route('pagos') }}"
-                        class="digi-nav__link {{ request()->routeIs('pagos') ? 'is-active' : '' }}">
+                    <a href="{{ route('agenda.index') }}"
+                        class="digi-nav__link {{ request()->routeIs('agenda.*') ? 'is-active' : '' }}">
+                        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <rect x="3" y="4" width="18" height="18" rx="2"/>
+                            <line x1="16" y1="2" x2="16" y2="6"/>
+                            <line x1="8" y1="2" x2="8" y2="6"/>
+                            <line x1="3" y1="10" x2="21" y2="10"/>
+                        </svg>
+                        Mi agenda
+                    </a>
+                </li>
+                <li class="digi-nav__item">
+                    <a href="javascript:void(0)"
+                        class="digi-nav__link" style="cursor: not-allowed; opacity: 0.5; pointer-events: none;">
                         <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                             stroke-width="2">
                             <rect x="1" y="4" width="22" height="16" rx="2" />
@@ -200,8 +232,19 @@
                 </svg>
                 <span>Servicios</span>
             </a>
-            <a href="{{ route('pagos') }}"
-                class="digi-fab__item {{ request()->routeIs('pagos*') ? 'is-active' : '' }}">
+            <a href="{{ route('agenda.index') }}"
+                class="digi-fab__item {{ request()->routeIs('agenda.*') ? 'is-active' : '' }}">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="2">
+                    <rect x="3" y="4" width="18" height="18" rx="2"/>
+                    <line x1="16" y1="2" x2="16" y2="6"/>
+                    <line x1="8" y1="2" x2="8" y2="6"/>
+                    <line x1="3" y1="10" x2="21" y2="10"/>
+                </svg>
+                <span>Agenda</span>
+            </a>
+            <a href="javascript:void(0)"
+                class="digi-fab__item" style="cursor: not-allowed; opacity: 0.5; pointer-events: none;">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                     stroke-width="2">
                     <rect x="1" y="4" width="22" height="16" rx="2" />
@@ -252,8 +295,8 @@
             </div>
             <span>Agenda</span>
         </a>
-        <a href="{{ route('pagos') }}"
-            class="digi-bottom-nav__item {{ request()->routeIs('pagos') ? 'is-active' : '' }}">
+        <a href="javascript:void(0)"
+            class="digi-bottom-nav__item" style="cursor: not-allowed; opacity: 0.5; pointer-events: none;">
             <div class="digi-bottom-nav__icon-wrap">
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <rect x="1" y="4" width="22" height="16" rx="2"/>

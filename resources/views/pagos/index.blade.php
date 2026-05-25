@@ -778,7 +778,7 @@
                     Mis pagos
                 </h1>
                 <p class="digi-page-subtitle">
-                    Historial de pagos y renovación de membresía
+                    Historial de pagos y renovación de pasaporte
                 </p>
             </div>
         </div>
@@ -1121,7 +1121,7 @@
                 </div>
                 <div class="modal-body">
                     <p class="digi-page-subtitle mb-4">
-                        El Pasaporte a tu Salud (PATS) es una membresía innovadora creada por
+                        El Pasaporte a tu Salud (PATS) es una pasaporte innovadora creada por
                         <strong>Fifty Doctors</strong>.
                     </p>
 

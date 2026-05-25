@@ -10,7 +10,8 @@
       "Bash(php --version)",
       "Bash(php -l \"c:/laragon/www/user-pats/app/Http/Controllers/Admin/SolicitudDistribuidorAdminController.php\")",
       "Bash(php -l \"c:/laragon/www/user-pats/routes/web.php\")",
-      "Bash(php scripts/feenicia_test.php)"
+      "Bash(php scripts/feenicia_test.php)",
+      "Bash(php artisan *)"
     ],
     "additionalDirectories": [
       "C:\\laragon\\www\\user-pats"

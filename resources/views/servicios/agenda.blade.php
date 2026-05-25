@@ -746,7 +746,7 @@
             </div>
         </div>
 
-        {{-- Filtros --}}
+        <!-- {{-- Filtros --}}
         <form class="ag-filters" method="GET" action="{{ route('agenda.index') }}">
             <input type="hidden" name="anio" value="{{ $anio }}">
             <input type="hidden" name="mes" value="{{ $mes }}">
@@ -767,7 +767,7 @@
                     </option>
                 @endforeach
             </select>
-        </form>
+        </form> -->
 
         <div class="ag-layout">
 

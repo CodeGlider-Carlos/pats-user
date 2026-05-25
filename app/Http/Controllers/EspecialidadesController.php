@@ -3,7 +3,10 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
+use App\Models\PatsCatMedico;
+use App\Models\DispoAgenda;
 
 class EspecialidadesController extends Controller
 {
@@ -12,42 +15,24 @@ class EspecialidadesController extends Controller
         return Carbon::now('America/Mexico_City');
     }
 
-    private function medicosMock(): array
-    {
-        return [
-            1  => ['nombre_recurso' => 'Dr. Héctor Ramírez Luna',          'especialidad' => 'Cardiología',               'capacidad' => 1],
-            2  => ['nombre_recurso' => 'Dra. Gabriela Méndez Rangel',      'especialidad' => 'Pediatría',                 'capacidad' => 1],
-            3  => ['nombre_recurso' => 'Dra. Mariana López Estrada',       'especialidad' => 'Pediatría',                 'capacidad' => 1],
-            4  => ['nombre_recurso' => 'Dra. Fernanda Ruiz Gómez',         'especialidad' => 'Ginecología y Obstetricia', 'capacidad' => 1],
-            5  => ['nombre_recurso' => 'Dr. Arturo Peña Salgado',          'especialidad' => 'Cirugía General',           'capacidad' => 1],
-            6  => ['nombre_recurso' => 'Dr. Carlos Hernández Pineda',      'especialidad' => 'Cirugía General',           'capacidad' => 1],
-            7  => ['nombre_recurso' => 'Dra. Andrea Robles Fuentes',       'especialidad' => 'Dermatología',              'capacidad' => 1],
-            8  => ['nombre_recurso' => 'Dr. Ricardo Mendoza Salas',        'especialidad' => 'Neurología',                'capacidad' => 1],
-            9  => ['nombre_recurso' => 'Dra. Sofía Ramírez Castillo',      'especialidad' => 'Medicina Interna',          'capacidad' => 1],
-            10 => ['nombre_recurso' => 'Dr. Luis Alberto Sánchez Torres',  'especialidad' => 'Urología',                  'capacidad' => 1],
-            11 => ['nombre_recurso' => 'Dra. Cecilia Torres Aguilar',      'especialidad' => 'Endocrinología',            'capacidad' => 1],
-            12 => ['nombre_recurso' => 'Dr. Jorge Salinas Cruz',           'especialidad' => 'Neumología',                'capacidad' => 1],
-        ];
-    }
 
     public function index()
     {
         $now = $this->now();
 
-        $medicos = collect(array_map(
-            fn($id, $data) => (object)array_merge(['id_recurso' => $id], $data),
-            array_keys($this->medicosMock()),
-            $this->medicosMock()
-        ));
+        $medicos = \App\Models\PatsCatMedico::where('activo', true)->get();
 
         $porEspecialidad = $medicos->groupBy('especialidad');
 
-        $disponibilidad = collect([
-            1 => 3, 2 => 5, 3 => 2, 4 => 4, 5 => 1,
-            6 => 0, 7 => 6, 8 => 2, 9 => 3, 10 => 4,
-            11 => 2, 12 => 1,
-        ]);
-
+        $disponibilidad = DB::table('dispo_agenda')
+            ->where('tipo_bloque', 'DISPONIBLE')
+            ->where('activo', 1)
+            ->whereColumn('ocupado', '<', 'cupos')
+            ->where('fecha_inicio', '>', $now)
+            ->where('fecha_inicio', '<=', $now->copy()->addDays(30))
+            ->groupBy('id_recurso')
+            ->selectRaw('id_recurso, COUNT(*) as total')
+            ->pluck('total', 'id_recurso');
         $estudios = collect([
             (object)['id_estudio' => 1, 'nombre_estudio' => 'Primera vez',     'requiere_cita' => 1],
             (object)['id_estudio' => 2, 'nombre_estudio' => 'Seguimiento',     'requiere_cita' => 1],
@@ -75,75 +60,88 @@ class EspecialidadesController extends Controller
 
     public function bloquesMedico(Request $request, $idRecurso)
     {
-        $now    = $this->now();
-        $mapa   = $this->medicosMock();
-        $datos  = $mapa[$idRecurso] ?? ['nombre_recurso' => 'Médico Demo', 'especialidad' => 'General', 'capacidad' => 1];
-        $medico = (object)array_merge(['id_recurso' => $idRecurso, 'activo' => 1, 'region' => 'JAL', 'unidad' => 'ZR'], $datos);
+        $now = $this->now();
 
-        $bloquesRaw = [];
-        $id = 1;
-        for ($d = 1; $d <= 8; $d++) {
-            $fecha = $now->copy()->addDays($d);
-            if ($fecha->isWeekend()) continue;
-            foreach (['09:00', '10:00', '11:00', '16:00', '17:00'] as $hora) {
-                $inicio = $fecha->copy()->setTimeFromTimeString($hora);
-                $fin    = $inicio->copy()->addHour();
-                $bloquesRaw[] = (object)[
-                    'id_agenda'    => $id++,
-                    'id_recurso'   => $idRecurso,
-                    'fecha_inicio' => $inicio->toDateTimeString(),
-                    'fecha_fin'    => $fin->toDateTimeString(),
-                    'cupos'        => 1,
-                    'ocupado'      => 0,
-                    'tipo_bloque'  => 'DISPONIBLE',
-                    'activo'       => 1,
-                ];
-            }
-        }
+        $medico = PatsCatMedico::where('id_medico_leadplus', $idRecurso)
+            ->where('activo', true)
+            ->firstOrFail();
 
-        $bloques = collect($bloquesRaw)
+        $bloques = DispoAgenda::where('id_recurso', $idRecurso)
+            ->where('tipo_bloque', 'DISPONIBLE')
+            ->where('activo', true)
+            ->whereColumn('ocupado', '<', 'cupos')
+            ->where('fecha_inicio', '>', $now)
+            ->where('fecha_inicio', '<=', $now->copy()->addDays(30))
+            ->orderBy('fecha_inicio')
+            ->get()
             ->groupBy(fn($b) => Carbon::parse($b->fecha_inicio)->toDateString());
 
-        $citasAgendadas = collect([
-            (object)[
-                'id_recurso'       => $idRecurso,
-                'nombre_paciente'  => 'Roberto Solís Mora',
-                'fecha_programada' => $now->copy()->addDays(2)->toDateString(),
-                'hora_inicio'      => '09:00:00',
-                'estatus'          => 'PROGRAMADO',
-            ],
-            (object)[
-                'id_recurso'       => $idRecurso,
-                'nombre_paciente'  => 'Patricia Lima Vega',
-                'fecha_programada' => $now->copy()->addDays(3)->toDateString(),
-                'hora_inicio'      => '11:00:00',
-                'estatus'          => 'CONFIRMADO',
-            ],
-        ]);
+        $acceso    = auth('pasaporte')->user();
+        $pasaporte = null;
+
+        if ($acceso?->id_pasaporte) {
+            $pasaporte = DB::table('pats_pasaportes')
+                ->where('id_pasaporte', $acceso->id_pasaporte)
+                ->where('activo', 1)
+                ->first();
+        }
 
         return view('servicios.especialidades-agenda', [
-            'medico'         => $medico,
-            'bloques'        => $bloques,
-            'citasAgendadas' => $citasAgendadas,
-            'fecha_hoy'      => $now->toDateString(),
-            'fecha_display'  => $now->isoFormat('dddd D [de] MMMM [de] YYYY'),
+            'medico'        => $medico,
+            'bloques'       => $bloques,
+            'fecha_hoy'     => $now->toDateString(),
+            'fecha_display' => $now->isoFormat('dddd D [de] MMMM [de] YYYY'),
+            'acceso'        => $acceso,
+            'pasaporte'     => $pasaporte,
         ]);
     }
 
     public function guardarCita(Request $request)
     {
-        $request->validate([
-            'id_agenda'     => 'required',
-            'curp'          => 'required|string|max:18',
+        $validated = $request->validate([
+            'id_agenda'     => 'required|integer|exists:dispo_agenda,id_agenda',
+            'curp'          => 'required|string|size:18',
             'nombre'        => 'required|string|max:220',
             'fecha_nac'     => 'required|date',
             'sexo'          => 'required|in:M,F',
-            'id_estudio'    => 'nullable|integer',
             'observaciones' => 'nullable|string|max:500',
         ]);
 
+        $slot   = DispoAgenda::findOrFail($validated['id_agenda']);
+        $medico = PatsCatMedico::where('id_medico_leadplus', $slot->id_recurso)->first();
+        $acceso = auth('pasaporte')->user();
+
+        DB::table('agenda_pats_demo')->insert([
+            'estatus'          => 'PROGRAMADO',
+            'region'           => $medico?->region  ?? $slot->region,
+            'unidad'           => $medico?->unidad  ?? $slot->unidad,
+            'curp'             => strtoupper($validated['curp']),
+            'nombre_paciente'  => $validated['nombre'],
+            'fecha_nacimiento' => $validated['fecha_nac'],
+            'sexo'             => $validated['sexo'],
+            'id_misional'      => '1CES',
+            'misional'         => 'Consulta de especialidad',
+            'id_servicio'      => 1,
+            'id_recurso'       => $slot->id_recurso,
+            'fecha_programada' => Carbon::parse($slot->fecha_inicio)->toDateString(),
+            'hora_inicio'      => Carbon::parse($slot->fecha_inicio)->format('H:i:s'),
+            'hora_fin'         => Carbon::parse($slot->fecha_fin)->format('H:i:s'),
+            'tipo_registro'    => 'CONSULTA_ESPECIALIDAD',
+            'prioridad'        => 2,
+            'folio_externo'    => $acceso?->id_pasaporte,
+            'origen_sistema'   => 'pats_usuario',
+            'observaciones'    => $validated['observaciones'] ?? null,
+            'confirmado'       => 0,
+            'iniciado_servicio'=> 0,
+            'activo'           => 1,
+        ]);
+
+        // Mark slot as reserved and consume the cupo
+        $slot->update(['tipo_bloque' => 'RESERVADO']);
+        $slot->increment('ocupado');
+
         return redirect()
-            ->route('especialidades.index')
+            ->route('especialidades.agenda', $slot->id_recurso)
             ->with('success', '¡Cita agendada correctamente! Recibirás confirmación en breve.');
     }
 }

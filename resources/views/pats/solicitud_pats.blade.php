@@ -1331,7 +1331,7 @@
                 <div class="hero__title">Activa tu<br>Pasaporte PATS</div>
                 <div class="hero__sub">Acceso completo a la red médica más grande de México.</div>
                 <div class="hero__price">
-                    <div class="hero__price-label">Membresía mensual</div>
+                    <div class="hero__price-label">Pasaporte mensual</div>
                     <div class="hero__price-row">
                         <div class="hero__price-amount">${{ number_format($montoMensual ?? 0, 0, '.', ',') }}</div>
                         <div class="hero__price-freq">MXN / mes</div>
@@ -1744,7 +1744,7 @@
                                 {{-- Contrato --}}
                                 <div>
                                     <div class="label" style="margin-bottom:10px;"><i
-                                            class="mdi mdi-file-document-outline"></i> Contrato de membresía</div>
+                                            class="mdi mdi-file-document-outline"></i> Contrato de pasporte</div>
                                     <div class="contract-box">
                                         <div class="contract-banner">
                                             <i class="mdi mdi-information-outline"></i>
@@ -1780,7 +1780,7 @@
                                 <div class="fields">
                                     <div class="divider">
                                         <div class="divider__line"></div>
-                                        <span class="divider__lbl">Plan de membresía</span>
+                                        <span class="divider__lbl">Plan de pasaporte</span>
                                         <div class="divider__line"></div>
                                     </div>
                                     <div class="field">
@@ -1830,7 +1830,7 @@
                                 <label class="terms-box">
                                     <input type="checkbox" id="acepta_contrato" name="acepta_contrato">
                                     <span class="terms-box__text">
-                                        He leído, entendido y acepto el contrato de membresía PATS. Reconozco que mi
+                                        He leído, entendido y acepto el contrato de pasaporte PATS. Reconozco que mi
                                         firma digital
                                         forma parte de la evidencia contractual del proceso.
                                     </span>

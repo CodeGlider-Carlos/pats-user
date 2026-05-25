@@ -27,8 +27,10 @@
                             <div class="auth-form-light p-5 radius-lg shadow-sm">
 
                                 {{-- Logo --}}
-                                <div class="brand-logo text-center mb-4">
-                                    <img src="{{ asset('images/logof.png') }}" alt="logo" class="radius-lg">
+                                <div class="brand-logo text-center mb-4" style="display:flex; align-items:center; justify-content:center; gap:0;">
+                                    <img src="{{ asset('images/logo_50.png') }}" alt="" style="filter: brightness(0) invert(1); height:36px;">
+                                    <span style="color:#1e3a5f; font-weight:300; margin:0 8px; opacity:.5; font-size:1.4rem;">|</span>
+                                    <img src="{{ asset('images/PATS_LOGO.png') }}" alt="PATS" style="filter: brightness(0) invert(1); height:36px;">
                                 </div>
 
                                 {{-- Título --}}
