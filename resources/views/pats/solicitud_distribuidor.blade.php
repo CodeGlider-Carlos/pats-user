@@ -1683,7 +1683,44 @@
 
         @media (max-width: 480px) {
             .topbar {
-                padding: 0 16px;
+                padding: 0 14px;
+                height: 52px;
+            }
+
+            .topbar__brand {
+                font-size: 16px;
+            }
+
+            .topbar__tag {
+                display: none;
+            }
+
+            .topbar__secure span {
+                display: none;
+            }
+
+            .topbar__secure {
+                gap: 0;
+                padding: 5px 10px;
+            }
+
+            .card-header {
+                padding: 18px 16px 14px;
+            }
+
+            .card-body {
+                padding: 18px 16px;
+            }
+
+            .card-footer {
+                padding: 14px 16px 18px;
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .card-footer .btn {
+                width: 100%;
+                justify-content: center;
             }
 
             .toggle-group {
@@ -1696,11 +1733,15 @@
             }
 
             .success-screen {
-                padding: 40px 22px;
+                padding: 40px 16px;
+            }
+
+            .success-title {
+                font-size: 22px;
             }
 
             .cc-card {
-                width: 290px;
+                width: min(290px, calc(100vw - 40px));
                 height: 170px;
             }
 
@@ -1715,6 +1756,69 @@
 
             .cc-fields {
                 grid-template-columns: 1fr;
+            }
+
+            .toast {
+                right: 12px;
+                left: 12px;
+                bottom: 16px;
+                max-width: unset;
+                border-radius: 14px;
+            }
+
+            .plan-table {
+                font-size: 12px;
+            }
+
+            .plan-table th,
+            .plan-table td {
+                padding: 8px 10px;
+            }
+
+            .step-label {
+                display: none;
+            }
+
+            .step-num {
+                width: 28px;
+                height: 28px;
+                font-size: 12px;
+            }
+        }
+
+        @media (max-width: 380px) {
+            .sol-layout {
+                padding: 14px 12px 60px;
+            }
+
+            .card-header {
+                padding: 14px 12px 12px;
+            }
+
+            .card-body {
+                padding: 14px 12px;
+            }
+
+            .card-footer {
+                padding: 12px 12px 14px;
+            }
+
+            .cc-card {
+                height: 158px;
+            }
+
+            .cc-card__number {
+                font-size: 14px;
+                letter-spacing: .12em;
+            }
+
+            .cc-card__front,
+            .cc-card__back {
+                padding: 14px 16px;
+            }
+
+            .sidebar__steps {
+                padding: 10px 12px;
             }
         }
     </style>

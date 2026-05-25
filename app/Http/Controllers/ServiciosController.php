@@ -130,12 +130,12 @@ class ServiciosController extends Controller
         ]);
 
         $recursos = collect([
-            (object)['nombre_recurso' => 'TAC 64 cortes',       'tipo_recurso' => 'TAC'],
-            (object)['nombre_recurso' => 'Ultrasonido General', 'tipo_recurso' => 'ULTRASONIDO'],
-            (object)['nombre_recurso' => 'Mamógrafo Digital',   'tipo_recurso' => 'MAMOGRAFIA'],
-            (object)['nombre_recurso' => 'Densitómetro DXA',    'tipo_recurso' => 'DENSITOMETRIA'],
-            (object)['nombre_recurso' => 'Rayos X Digital 1',   'tipo_recurso' => 'RAYOS_X'],
-            (object)['nombre_recurso' => 'Rayos X Digital 2',   'tipo_recurso' => 'RAYOS_X'],
+            (object)['id_recurso' => 1, 'nombre_recurso' => 'TAC 64 cortes',       'tipo_recurso' => 'TAC',          'capacidad' => 1],
+            (object)['id_recurso' => 2, 'nombre_recurso' => 'Ultrasonido General', 'tipo_recurso' => 'ULTRASONIDO',  'capacidad' => 1],
+            (object)['id_recurso' => 3, 'nombre_recurso' => 'Mamógrafo Digital',   'tipo_recurso' => 'MAMOGRAFIA',   'capacidad' => 1],
+            (object)['id_recurso' => 4, 'nombre_recurso' => 'Densitómetro DXA',    'tipo_recurso' => 'DENSITOMETRIA','capacidad' => 1],
+            (object)['id_recurso' => 5, 'nombre_recurso' => 'Rayos X Digital 1',   'tipo_recurso' => 'RAYOS_X',      'capacidad' => 1],
+            (object)['id_recurso' => 6, 'nombre_recurso' => 'Rayos X Digital 2',   'tipo_recurso' => 'RAYOS_X',      'capacidad' => 1],
         ]);
 
         $agendaHoy = collect([

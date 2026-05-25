@@ -10,7 +10,7 @@ use Stripe\PaymentIntent;
 
 class StripeFranquiciaController extends Controller
 {
-    private const PRECIO_DEFAULT  = 1000000.00;
+    private const PRECIO_DEFAULT  = 999999.00;
     private const STRIPE_MAX_MXN  = 99999900; // $999,999 MXN en centavos (límite de Stripe)
 
     /**
@@ -55,7 +55,8 @@ class StripeFranquiciaController extends Controller
         try {
             if ($amountCentavos > self::STRIPE_MAX_MXN) {
                 // ── Cobro dividido en dos intents ──────────────────────────────
-                $amount1 = self::STRIPE_MAX_MXN;
+                // Split evenly so both halves stay within Stripe limits and above the $10 MXN minimum.
+                $amount1 = (int) ceil($amountCentavos / 2);
                 $amount2 = $amountCentavos - $amount1;
 
                 $opts1 = $intentKey !== '' ? ['idempotency_key' => 'franq_a_' . $intentKey] : [];

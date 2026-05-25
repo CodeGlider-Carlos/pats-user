@@ -26,7 +26,7 @@ class SolicitudFranquiciaController extends Controller
 {
     // ─── Constantes ──────────────────────────────────────────────────────────
 
-    private const PRECIO_DEFAULT = 50000.00;
+    private const PRECIO_DEFAULT = 999999.00;
 
     private const MODALIDADES_VALIDAS = ['CONTADO', 'DIFERIDO'];
 
@@ -74,7 +74,7 @@ class SolicitudFranquiciaController extends Controller
         return view('pats.solicitud_franquicia', [
             'conToken'           => $token !== '',
             'token'              => $token,
-            'precioDistribucion' => $this->getPrecioFranquicia(),
+            'precioFranquicia' => $this->getPrecioFranquicia(),
             'estados'            => self::ESTADOS,
         ]);
     }
@@ -118,7 +118,7 @@ class SolicitudFranquiciaController extends Controller
         return view('pats.solicitud_franquicia', [
             'conToken'         => true,
             'ctx'              => $ctx,
-            'precioDistribucion' => $this->getPrecioFranquicia(),
+            'precioFranquicia' => $this->getPrecioFranquicia(),
             'estados'          => self::ESTADOS,
             'token'            => $token,
             'actorTipo'        => $ctx['actor_tipo'],
@@ -307,8 +307,6 @@ class SolicitudFranquiciaController extends Controller
 
         try {
             $idSolicitud = DB::table('pats_solicitudes_franquicia')->insertGetId([
-                'token_referido'             => $tokenReferido,
-                'id_franquicia'              => 0,
                 'id_gestor'                  => 0,
                 'id_franquicia_generada'     => null,
                 'user_solicita'              => auth()->id(),
@@ -318,7 +316,8 @@ class SolicitudFranquiciaController extends Controller
                 'region'                     => $region,
                 'zona'                       => $municipio,
                 'unidad'                     => null,
-                'nombre'                     => $nombre,
+                'nombre_comercial'           => $tipoPersona === 'MORAL' ? ($razonSocial ?: $nombre) : $nombre,
+                'nombre_titular'             => $nombre,
                 'tipo_persona'               => $tipoPersona,
                 'razon_social'               => $razonSocial ?: null,
                 'rfc'                        => $rfc ?: null,
@@ -337,15 +336,12 @@ class SolicitudFranquiciaController extends Controller
                 'periodicidad'               => $periodicidad,
                 'fecha_inicio'               => $fechaInicio,
                 'fecha_primer_vencimiento'   => $fechaPrimerV,
-                'esquema_pagos_json'         => $esquemaPagos
-                    ? json_encode($esquemaPagos, JSON_UNESCAPED_UNICODE)
-                    : null,
                 'contrato_admin_path'        => null,
                 'contrato_firmado_path'      => null,
                 'estatus'                    => 'ENVIADA',
                 'motivo_rechazo'             => null,
                 'observaciones_admin'        => null,
-                'observaciones_franquicia'   => null,
+                'observaciones_solicitante'  => null,
                 'fecha_envio_contrato'       => null,
                 'fecha_carga_firmado'        => null,
                 'fecha_autorizacion'         => null,
@@ -414,7 +410,6 @@ class SolicitudFranquiciaController extends Controller
                     'modalidad'     => $modalidad,
                     'valor_total'    => $valorTotal,
                     'plazo_meses'    => $plazoMeses,
-                    'token_referido' => $tokenReferido,
                 ]
             );
 

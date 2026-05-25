@@ -185,5 +185,5 @@ Route::prefix('portal')->name('portal.')->group(function () {
 //  CONTRATOS (públicos — usados por iframes)
 // ──────────────────────────────────────────────────────────────────────────────
 
-Route::get('/contrato/franquicia',     fn () => view('pats.contrato_dist'))->name('franq.contrato');
+Route::get('/contrato/franquicia',     fn () => view('pats.contrato_franq'))->name('franq.contrato');
 Route::get('/contrato/franquicia/en',  fn () => view('pats.contrato_dist_en'))->name('franq.contrato.en');
