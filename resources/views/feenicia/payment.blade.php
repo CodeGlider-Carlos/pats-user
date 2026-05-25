@@ -11,7 +11,7 @@
         <div class="pago-header">
             <div>
                 <h1 class="pago-title"><i class="mdi mdi-credit-card-outline"></i> Mis pagos</h1>
-                <p class="pago-sub">Historial de pagos y renovación de membresía</p>
+                <p class="pago-sub">Historial de pagos y renovación de pasaporte</p>
             </div>
         </div>
 
@@ -46,9 +46,9 @@
                     @elseif($pasaporte?->estatus === 'vencido')
                         <div class="stat-val" style="color:#dc2626;">Vencida</div>
                     @else
-                        <div class="stat-val" style="color:#94a3b8;">Sin membresía</div>
+                        <div class="stat-val" style="color:#94a3b8;">Sin Pasaporte</div>
                     @endif
-                    <div class="stat-lbl">Membresía</div>
+                    <div class="stat-lbl">Pasaporte</div>
                 </div>
             </div>
         </div>
