@@ -2,7 +2,7 @@
 deployment:
   tasks:
     # Copy public/ contents to the subdomain document root
-    - /bin/cp -R public/. /home2/monologi/userpats.codeglider.com.mx/
+    - /bin/cp -R public/. /home2/monologi/userpats.codeglider.com.mx/public
 
     # Patch index.php so it can find the app files in ~/user-pats/
     - /bin/sed -i "s|__DIR__.'/../|__DIR__.'/../user-pats/|g" /home2/monologi/userpats.codeglider.com.mx/index.php
