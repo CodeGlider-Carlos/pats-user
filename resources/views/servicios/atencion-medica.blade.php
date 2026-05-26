@@ -6,30 +6,6 @@
     @php
         use Illuminate\Support\Str;
 
-        $hospitales = [
-            [
-                'nombre' => 'Fifty Doctors Angelópolis',
-                'direccion' => 'Anillo Perif. Ecológico 3505, Tlaxcalancingo, San Andrés Cholula, Pue.',
-                'telefono' => '2226892995',
-                'horario' => 'Abierto las 24 hrs',
-                'imagen' => 'images/hospitals/angelopolis.jpeg',
-            ],
-            [
-                'nombre' => 'Fifty Doctors San Manuel',
-                'direccion' => 'Blvrd 14 Sur 4302, Jardines de San Manuel, Puebla',
-                'telefono' => '2226895140',
-                'horario' => 'Abierto las 24 hrs',
-                'imagen' => 'images/hospitals/angelopolis.jpeg',
-            ],
-            [
-                'nombre' => 'Fifty Doctors Homi La Paz',
-                'direccion' => 'Av. Teziutlán Sur 36, Col. La Paz, Puebla',
-                'telefono' => '2226895140',
-                'horario' => 'Abierto las 24 hrs',
-                'imagen' => 'images/hospitals/angelopolis.jpeg',
-            ],
-        ];
-
         $doctores = [
             [
                 'nombre' => 'Adrián Castillo Moreno',
@@ -247,123 +223,6 @@
         ];
 
         $doctoresPorEspecialidad = collect($doctores)->groupBy('especialidad');
-
-        $estudios = [
-            'Estudios de Cardiología' => [
-                ['nombre' => 'Ecocardiograma', 'precio' => 5200],
-                ['nombre' => 'Ecocardiograma Fetal', 'precio' => 5200],
-                ['nombre' => 'Ecocardiograma Transesofágico', 'precio' => 6630],
-                ['nombre' => 'Ecocardiograma de Estrés', 'precio' => 8450],
-                ['nombre' => 'Monitoreo Holter 24 horas', 'precio' => 3250],
-                ['nombre' => 'MAPA (Monitoreo Ambulatorio de Presión Arterial)', 'precio' => 3250],
-                ['nombre' => 'Electrocardiograma', 'precio' => 520],
-                ['nombre' => 'Valoración cardiológica básica', 'precio' => 2600],
-                ['nombre' => 'Valoración cardiológica completa', 'precio' => 3380],
-                ['nombre' => 'Consulta cardiológica', 'precio' => 1300],
-                ['nombre' => 'Prueba de esfuerzo', 'precio' => 3250],
-                ['nombre' => 'Placa de tórax', 'precio' => 1716],
-            ],
-
-            'Tomografías' => [
-                ['nombre' => 'TAC de cráneo simple', 'precio' => 2640],
-                ['nombre' => 'TAC de cráneo contrastada', 'precio' => 4498],
-                ['nombre' => 'TAC de hipófisis contrastada', 'precio' => 4498],
-                ['nombre' => 'TAC facial simple', 'precio' => 3120],
-                ['nombre' => 'TAC de senos paranasales', 'precio' => 3120],
-                ['nombre' => 'TAC de órbitas', 'precio' => 3120],
-                ['nombre' => 'TAC de oído', 'precio' => 3120],
-                ['nombre' => 'TAC de cuello simple', 'precio' => 3380],
-                ['nombre' => 'TAC de cuello contrastada', 'precio' => 4758],
-                ['nombre' => 'TAC de laringe simple', 'precio' => 3380],
-                ['nombre' => 'TAC de laringe contrastada', 'precio' => 4758],
-                ['nombre' => 'TAC de tórax simple', 'precio' => 5720],
-                ['nombre' => 'TAC de tórax contrastada', 'precio' => 7098],
-                ['nombre' => 'TAC de abdomen simple', 'precio' => 5720],
-                ['nombre' => 'TAC de abdomen contrastada', 'precio' => 7098],
-                ['nombre' => 'TAC de pelvis simple', 'precio' => 5720],
-                ['nombre' => 'TAC de pelvis contrastada', 'precio' => 7098],
-            ],
-        ];
-
-        $serviciosMedicos = [
-            'Traumatología y Ortopedia' => [
-                ['procedimiento' => 'Prótesis total de cadera (artroplastia)', 'cuota' => 10000],
-                ['procedimiento' => 'Prótesis total de rodilla (artroplastia)', 'cuota' => 10000],
-                ['procedimiento' => 'Artroscopia de rodilla – meniscos', 'cuota' => 10000],
-                ['procedimiento' => 'Reconstrucción de ligamento cruzado anterior', 'cuota' => 10000],
-                ['procedimiento' => 'Cirugía de síndrome del túnel carpiano', 'cuota' => 10000],
-            ],
-
-            'Urología' => [
-                ['procedimiento' => 'Resección transuretral de próstata (RTUP)', 'cuota' => 10000],
-                ['procedimiento' => 'Sistema Urolift', 'cuota' => 10000],
-                ['procedimiento' => 'Circuncisión / Fimosis', 'cuota' => 10000],
-                ['procedimiento' => 'Cirugía de próstata con vapor de agua (Rezum)', 'cuota' => 10000],
-            ],
-
-            'Cirugía General' => [
-                ['procedimiento' => 'Apendicectomía', 'cuota' => 10000],
-                ['procedimiento' => 'Colecistectomía laparoscópica', 'cuota' => 10000],
-                ['procedimiento' => 'Hernioplastía inguinal', 'cuota' => 10000],
-                ['procedimiento' => 'Cirugía de tiroides (tiroidectomía)', 'cuota' => 10000],
-            ],
-
-            'Ginecología y Obstetricia' => [
-                ['procedimiento' => 'Cesárea', 'cuota' => 10000],
-                ['procedimiento' => 'Histerectomía laparoscópica', 'cuota' => 10000],
-                ['procedimiento' => 'Legrado uterino', 'cuota' => 10000],
-                ['procedimiento' => 'Cirugía de prolapso uterino', 'cuota' => 10000],
-            ],
-
-            'Cirugía Plástica' => [
-                ['procedimiento' => 'Abdominoplastia', 'cuota' => 10000],
-                ['procedimiento' => 'Aumento mamario con implantes', 'cuota' => 10000],
-                ['procedimiento' => 'Liposucción asistida (VASER / Lipo HD)', 'cuota' => 10000],
-                ['procedimiento' => 'Rinoplastia (estética y/o funcional)', 'cuota' => 10000],
-            ],
-        ];
-
-        $hospitalesMock = [
-            [
-                'nombre' => 'Fifty Doctors Angelópolis',
-                'direccion' => 'Anillo Perif. Ecológico 3505, Tlaxcalancingo, San Andrés Cholula, Pue.',
-                'telefono' => '2226892995',
-                'horario' => 'Abierto las 24 hrs',
-                'imagen' => 'images/hospitals/angelopolis.jpg',
-            ],
-            [
-                'nombre' => 'Fifty Doctors San Manuel',
-                'direccion' => 'Blvrd 14 Sur 4302, Jardines de San Manuel, Puebla',
-                'telefono' => '2226895140',
-                'horario' => 'Abierto las 24 hrs',
-                'imagen' => 'images/hospitals/san-manuel.jpg',
-            ],
-            [
-                'nombre' => 'Fifty Doctors Homi La Paz',
-                'direccion' => 'Av. Teziutlán Sur 36, Col. La Paz, Puebla',
-                'telefono' => '2226895140',
-                'horario' => 'Abierto las 24 hrs',
-                'imagen' => 'images/hospitals/la-paz.jpg',
-            ],
-        ];
-
-        $medicamentos = [
-            ['nombre' => '11-Desoxicorticosterona', 'precio' => 7042.04],
-            ['nombre' => '17-Cetosteroides 17-KS en orina', 'precio' => 1133.63],
-            ['nombre' => '17-Hidroxi corticoesteroides 17-OHCS', 'precio' => 1133.63],
-            ['nombre' => '17-Alfa-Hidroxi-Progesterona (17-OHP)', 'precio' => 533.03],
-            ['nombre' => 'Acetaminofén (Tylenol)', 'precio' => 1111.11],
-            ['nombre' => 'Acetona en orina', 'precio' => 234.23],
-            ['nombre' => 'Ácido fólico', 'precio' => 555.56],
-            ['nombre' => 'Ácido úrico en suero', 'precio' => 87.09],
-            ['nombre' => 'Alcohol (Etanol)', 'precio' => 366.37],
-            ['nombre' => 'Aldosterona en sangre', 'precio' => 1681.68],
-            ['nombre' => 'Amilasa en suero', 'precio' => 138.14],
-            ['nombre' => 'Anfetamina / Metanfetamina', 'precio' => 240.24],
-            ['nombre' => 'Anticuerpos anti Citomegalovirus IGG', 'precio' => 247.75],
-            ['nombre' => 'Anticuerpos anti Citomegalovirus IGM', 'precio' => 247.75],
-            ['nombre' => 'Anticuerpos anti Cardiolipinas IGG e IGM', 'precio' => 1022.52],
-        ];
     @endphp
     <style>
         /* ===========================
@@ -774,11 +633,49 @@
             margin: 0 0 0.5rem 0;
         }
 
+        .digi-procedimiento-card__prices {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+            margin-top: 0.4rem;
+        }
+
         .digi-procedimiento-card__price {
             font-size: 1.2rem;
             font-weight: 700;
             color: var(--blue);
             margin: 0;
+        }
+
+        .digi-procedimiento-card__price--original {
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--text-muted);
+            text-decoration: line-through;
+            margin: 0;
+        }
+
+        .digi-price-label {
+            font-size: 0.72rem;
+            font-weight: 600;
+            font-family: 'DM Sans', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        .digi-price-label--original {
+            color: var(--text-muted);
+        }
+
+        .digi-price-label--pats {
+            color: var(--blue);
+        }
+
+        .digi-price-block {
+            display: flex;
+            flex-direction: column;
+            gap: 0.1rem;
         }
 
         /* Hospitales List */
@@ -969,7 +866,7 @@
                 </p>
             </div>
             <span class="digi-badge digi-badge--info">
-                {{ array_sum(array_map('count', $serviciosMedicos)) }} procedimientos
+                {{ $serviciosMedicos->flatten()->count() }} procedimientos
             </span>
         </div>
 
@@ -988,7 +885,7 @@
                 @foreach ($hospitales as $item)
                     <a href="tel:{{ $item['telefono'] }}" class="digi-btn digi-btn--danger">
                         <i class="mdi mdi-phone"></i>
-                        {{ $item['nombre'] }}
+                        {{ $item['nombre_unidad'] }}
                     </a>
                 @endforeach
             </div>
@@ -997,7 +894,7 @@
         {{-- Search Bar --}}
         <div class="digi-search-wrapper">
             <i class="mdi mdi-magnify digi-search-icon"></i>
-            <input type="text" class="digi-search-input" placeholder="Buscar especialidad o procedimiento..."
+            <input type="text" class="digi-search-input" placeholder="Buscar servicio o procedimiento..."
                 id="searchServicios" autocomplete="off">
             <button class="digi-search-clear" id="clearSearch">
                 <i class="mdi mdi-close"></i>
@@ -1024,7 +921,7 @@
 
                     <div class="digi-servicio-card__count">
                         <i class="mdi mdi-file-document"></i>
-                        <span>{{ count($procedimientos) }} procedimientos</span>
+                        <span>{{ $procedimientos->count() }} procedimientos</span>
                     </div>
                 </div>
             @empty
@@ -1063,30 +960,48 @@
                                 <div class="digi-procedimiento-card__body">
                                     <div class="digi-procedimiento-card__header">
                                         <h4 class="digi-procedimiento-card__title">
-                                            {{ $proc['procedimiento'] }}
+                                            {{ $proc->procedimiento }}
                                         </h4>
-                                        @if (isset($proc['cuota']))
-                                            {{-- <p class="digi-procedimiento-card__price">
-                                                ${{ number_format($proc['cuota']) }} MXN
-                                            </p> --}}
+                                        @if ($proc->precio_nopats || $proc->precio_pats)
+                                            <div class="digi-procedimiento-card__prices">
+                                                @if ($proc->precio_nopats)
+                                                    <div class="digi-price-block">
+                                                        <span class="digi-price-label digi-price-label--original">Sin descuento</span>
+                                                        <p class="digi-procedimiento-card__price--original">
+                                                            ${{ number_format($proc->precio_nopats, 0, '.', ',') }} MXN
+                                                        </p>
+                                                    </div>
+                                                @endif
+                                                @if ($proc->precio_pats)
+                                                    <div class="digi-price-block">
+                                                        <span class="digi-price-label digi-price-label--pats">Precio PATS</span>
+                                                        <p class="digi-procedimiento-card__price">
+                                                            ${{ number_format($proc->precio_pats, 0, '.', ',') }} MXN
+                                                        </p>
+                                                    </div>
+                                                @endif
+                                            </div>
                                         @endif
                                     </div>
 
-                                    <div class="digi-hospitales-list">
-                                        @foreach ($hospitales as $hospital)
+                                    {{-- Proveedor asociado al procedimiento --}}
+                                    @if ($proc->proveedor)
+                                        <div class="digi-hospitales-list">
                                             <div class="digi-hospital-item">
                                                 <span class="digi-hospital-item__name">
                                                     <i class="mdi mdi-hospital-building"></i>
-                                                    {{ $hospital['nombre'] }}
+                                                    {{ $proc->proveedor->nombre_unidad }}
                                                 </span>
-                                                <a href="tel:{{ $hospital['telefono'] }}"
-                                                    class="digi-btn digi-btn--outline digi-btn--sm">
-                                                    <i class="mdi mdi-phone"></i>
-                                                    Llamar
-                                                </a>
+                                                @if ($proc->proveedor->telefono)
+                                                    <a href="tel:{{ $proc->proveedor->telefono }}"
+                                                        class="digi-btn digi-btn--outline digi-btn--sm">
+                                                        <i class="mdi mdi-phone"></i>
+                                                        Llamar
+                                                    </a>
+                                                @endif
                                             </div>
-                                        @endforeach
-                                    </div>
+                                        </div>
+                                    @endif
                                 </div>
                             </div>
                         @endforeach

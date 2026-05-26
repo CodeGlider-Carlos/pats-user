@@ -31,6 +31,7 @@
             max-width: 1160px;
             margin: 0 auto;
             padding: 0 28px 80px;
+            overflow-x: hidden;
         }
 
         /* ── Header ─────────────────────────────────── */
@@ -175,7 +176,7 @@
         /* ── Layout ─────────────────────────────────── */
         .far-layout {
             display: grid;
-            grid-template-columns: 1fr 320px;
+            /* grid-template-columns: 1fr 320px; */
             gap: 24px;
             align-items: start;
         }
@@ -295,100 +296,179 @@
             color: var(--blue);
         }
 
-        /* ── Tabla de medicamentos ──────────────────── */
-        .far-table-wrap {
+        /* ── Tabs ───────────────────────────────────── */
+        .far-tabs-wrap {
             background: var(--white);
             border: 1px solid var(--border);
             border-radius: var(--radius-lg);
             overflow: hidden;
             box-shadow: var(--shadow);
+            margin-bottom: 22px;
         }
 
-        .far-table-head {
-            padding: 16px 22px;
+        .far-tabs-nav {
+            display: flex;
             border-bottom: 1px solid var(--border);
-            background: linear-gradient(135deg, var(--navy) 0%, var(--navy-light) 100%);
+            background: var(--navy-light);
+        }
+
+        .far-tab-btn {
+            flex: 1;
+            padding: 16px 20px;
+            background: none;
+            border: none;
+            border-bottom: 3px solid transparent;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all .18s;
+        }
+
+        .far-tab-btn.is-active {
+            color: var(--blue);
+            border-bottom-color: var(--blue);
+            background: var(--white);
+        }
+
+        .far-tab-count {
+            font-size: 11px;
+            font-weight: 700;
+            background: rgba(37, 99, 235, .10);
+            color: var(--blue);
+            padding: 2px 8px;
+            border-radius: 100px;
+        }
+
+        .far-tab-panel {
+            display: none;
+            padding: 20px 24px;
+        }
+
+        .far-tab-panel.is-active {
+            display: block;
+        }
+
+        /* ── Acordeones ─────────────────────────────── */
+        .far-accordion-btn {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: var(--white);
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius);
+            padding: 14px 18px;
+            cursor: pointer;
+            transition: all .18s;
+        }
+
+        .far-accordion-btn.is-open {
+            border-bottom-color: transparent;
+            border-radius: var(--radius) var(--radius) 0 0;
+            background: var(--navy-light);
+        }
+
+        .far-accordion-btn__left {
             display: flex;
             align-items: center;
             gap: 10px;
-        }
-
-        .far-table-head-title {
-            font-size: 14px;
+            font-size: 14.5px;
             font-weight: 700;
             color: var(--cream);
         }
 
-        .far-table-head-sub {
-            font-size: 12px;
-            color: var(--text-muted);
-            margin-top: 1px;
-        }
-
-        .far-table-head i {
+        .far-accordion-btn__left i {
             color: var(--blue);
-            font-size: 22px;
+            font-size: 20px;
         }
 
-        .far-table {
-            width: 100%;
-            border-collapse: collapse;
+        .far-accordion-btn__right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
         }
 
-        .far-table thead tr {
-            background: var(--navy-light);
+        .far-accordion-chevron {
+            font-size: 20px;
+            color: var(--text-muted);
+            transition: transform .2s;
         }
 
-        .far-table thead th {
-            padding: 10px 16px;
+        .far-accordion-btn.is-open .far-accordion-chevron {
+            transform: rotate(180deg);
+        }
+
+        .far-accordion-panel {
+            display: none;
+            border: 1.5px solid var(--border);
+            border-top: none;
+            border-radius: 0 0 var(--radius) var(--radius);
+            background: var(--white);
+        }
+
+        .far-accordion-panel.is-open {
+            display: block;
+        }
+
+        /* ── Header precios ─────────────────────────── */
+        .far-price-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 18px;
+            background: var(--navy);
+            border-bottom: 1px solid var(--border);
             font-size: 11px;
             font-weight: 700;
             text-transform: uppercase;
-            letter-spacing: .07em;
+            letter-spacing: .06em;
             color: var(--text-muted);
-            text-align: left;
+        }
+
+        .far-price-header__name {
+            flex: 1;
+        }
+
+        .far-price-header__price {
+            width: 100px;
+            text-align: center;
+        }
+
+        /* ── Estudio / Medicamento individual ───────── */
+        .far-estudio {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 18px;
             border-bottom: 1px solid var(--border);
+            transition: background .15s;
         }
 
-        .far-table thead th:last-child {
-            text-align: right;
-        }
-
-        .far-table tbody tr {
-            border-bottom: 1px solid var(--border);
-            transition: background .12s;
-        }
-
-        .far-table tbody tr:last-child {
+        .far-estudio:last-child {
             border-bottom: none;
         }
 
-        .far-table tbody tr:hover {
+        .far-estudio:hover {
             background: var(--navy);
         }
 
-        .far-table tbody tr.hidden {
-            display: none;
-        }
-
-        .far-table td {
-            padding: 12px 16px;
-            font-size: 13.5px;
-        }
-
-        .far-table td:first-child {
+        .far-estudio__info {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 14px;
+            flex: 1;
+            min-width: 0;
+            padding-right: 20px;
         }
 
-        .far-table td:last-child {
-            text-align: right;
-        }
-
-        .far-td-icon {
-            width: 32px;
-            height: 32px;
+        .far-estudio__icon {
+            width: 36px;
+            height: 36px;
             flex-shrink: 0;
             background: rgba(37, 99, 235, .08);
             border-radius: var(--radius-sm);
@@ -396,42 +476,69 @@
             align-items: center;
             justify-content: center;
             color: var(--blue);
-            font-size: 15px;
+            font-size: 18px;
         }
 
-        .far-td-nombre {
+        .far-estudio__text {
+            min-width: 0;
+        }
+
+        .far-estudio__nombre {
+            font-size: 14px;
             font-weight: 600;
             color: var(--cream);
+            margin-bottom: 3px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
-        .far-td-precio {
-            font-weight: 800;
-            color: var(--blue);
-            font-size: 14px;
+        .far-price-cols {
+            display: flex;
+            gap: 10px;
+            flex-shrink: 0;
         }
 
-        .far-pill-disp {
-            display: inline-flex;
+        .far-price-tag {
+            width: 100px;
+            text-align: center;
+            padding: 6px 10px;
+            border-radius: var(--radius-sm);
+            display: flex;
+            flex-direction: column;
             align-items: center;
-            gap: 4px;
-            font-size: 10.5px;
+            gap: 1px;
+        }
+
+        .far-price-tag__label {
+            font-size: 9.5px;
             font-weight: 700;
-            padding: 2px 9px;
-            border-radius: 100px;
+            text-transform: uppercase;
+            letter-spacing: .07em;
+        }
+
+        .far-price-tag__val {
+            font-size: 14px;
+            font-weight: 800;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .far-price-tag--pats {
             background: rgba(14, 122, 95, .09);
+        }
+
+        .far-price-tag--pats .far-price-tag__label,
+        .far-price-tag--pats .far-price-tag__val {
             color: #0e7a5f;
         }
 
-        .far-pill-inac {
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-            font-size: 10.5px;
-            font-weight: 700;
-            padding: 2px 9px;
-            border-radius: 100px;
-            background: rgba(217, 119, 6, .09);
-            color: var(--warning);
+        .far-price-tag--pub {
+            background: rgba(37, 99, 235, .08);
+        }
+
+        .far-price-tag--pub .far-price-tag__label,
+        .far-price-tag--pub .far-price-tag__val {
+            color: var(--blue);
         }
 
         /* Sin resultados */
@@ -643,7 +750,7 @@
 
         @media (max-width:600px) {
             .far-wrap {
-                padding: 0 16px 60px;
+                padding: 0 12px 60px;
             }
 
             .far-header {
@@ -652,6 +759,73 @@
 
             .far-stats {
                 flex-direction: column;
+            }
+
+            .far-tab-panel {
+                padding: 14px 10px;
+            }
+
+            .far-accordion-btn {
+                padding: 12px;
+            }
+
+            .far-accordion-btn__left {
+                flex: 1;
+                min-width: 0;
+                overflow: hidden;
+                font-size: 13px;
+            }
+
+            .far-price-header__price {
+                width: 72px;
+                font-size: 9px;
+            }
+
+            .far-price-tag {
+                width: 64px;
+                padding: 4px 5px;
+            }
+
+            .far-price-tag__val {
+                font-size: 12px;
+            }
+
+            .far-estudio__nombre {
+                white-space: normal;
+            }
+        }
+
+        /* Stack prices below name on narrow phones */
+        @media (max-width: 430px) {
+            .far-price-header { display: none; }
+
+            .far-estudio {
+                flex-wrap: wrap;
+                row-gap: 6px;
+                align-items: flex-start;
+            }
+
+            /* flex-basis:100% forces info onto its own line so it never collapses to 0 */
+            .far-estudio__info {
+                flex: 0 0 100%;
+                padding-right: 0;
+                min-width: 0;
+            }
+
+            .far-price-cols {
+                width: 100%;
+                padding-left: 50px;
+                justify-content: flex-start;
+            }
+
+            .far-price-tag {
+                flex: 1;
+                width: auto;
+                min-width: 0;
+            }
+
+            .far-price-tag__val {
+                font-size: 13px;
             }
         }
     </style>
@@ -711,70 +885,100 @@
                     <div class="far-sug" id="farSug"></div>
                 </div>
 
-                {{-- Tabla de medicamentos --}}
-                <div class="far-table-wrap">
-                    <div class="far-table-head">
-                        <i class="mdi mdi-pill"></i>
-                        <div>
-                            <div class="far-table-head-title">Catálogo de medicamentos</div>
-                            <div class="far-table-head-sub">
-                                {{ $medicamentos->count() }} activos
-                                @if ($medicamentosInactivos->count() > 0)
-                                    · {{ $medicamentosInactivos->count() }} inactivos
-                                @endif
-                            </div>
-                        </div>
+                {{-- Tabs Catálogo --}}
+                <div class="far-tabs-wrap">
+                    <div class="far-tabs-nav">
+                        <button class="far-tab-btn is-active" data-tab="med">
+                            <i class="mdi mdi-pill"></i>
+                            Catálogo de Medicamentos
+                            <span class="far-tab-count">{{ $medicamentos->count() }}</span>
+                        </button>
                     </div>
 
-                    @if ($medicamentos->isEmpty())
-                        <div class="far-empty">
-                            <i class="mdi mdi-pill"></i>
-                            Sin medicamentos registrados en esta unidad.
-                        </div>
-                    @else
-                        <table class="far-table">
-                            <thead>
-                                <tr>
-                                    <th>Medicamento</th>
-                                    <th>Estado</th>
-                                    <th>Precio</th>
-                                </tr>
-                            </thead>
-                            <tbody id="farTbody">
-                                @foreach ($medicamentos as $med)
-                                    <tr class="far-row" data-nombre="{{ strtolower($med->medicamento) }}">
-                                        <td>
-                                            <div class="far-td-icon">
-                                                <i class="mdi mdi-pill"></i>
-                                            </div>
-                                            <span class="far-td-nombre">{{ $med->medicamento }}</span>
-                                        </td>
-                                        <td>
-                                            <span class="far-pill-disp">
-                                                <i class="mdi mdi-check" style="font-size:10px;"></i>
-                                                Disponible
-                                            </span>
-                                        </td>
-                                        <td>
-                                            <span class="far-td-precio">${{ number_format($med->precio, 2) }}</span>
-                                        </td>
-                                    </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
+                    <div class="far-tab-panel is-active" id="panel-med">
+                        @php
+                            $gruposMed = $medicamentos->groupBy(fn($med) => $med->proveedor ? $med->proveedor->nombre_unidad : 'Proveedor General');
+                        @endphp
 
-                        {{-- Sin resultados de búsqueda --}}
-                        <div class="far-empty" id="farEmpty" style="display:none;">
-                            <i class="mdi mdi-magnify"></i>
-                            Sin resultados para tu búsqueda.
-                        </div>
-                    @endif
+                        @forelse($gruposMed as $proveedorNombre => $meds)
+                            @php 
+                                $accordionId = 'faracc-' . Str::slug($proveedorNombre); 
+                                $proveedor = $meds->first()->proveedor;
+                            @endphp
+                            <div class="far-proveedor-group" style="margin-bottom: 10px;">
+                                <button class="far-accordion-btn" data-target="#{{ $accordionId }}" aria-expanded="true">
+                                    <span class="far-accordion-btn__left">
+                                        <i class="mdi mdi-hospital-building"></i>
+                                        {{ $proveedorNombre }}
+                                    </span>
+                                    <span class="far-accordion-btn__right">
+                                        <span class="far-tab-count">{{ $meds->count() }} meds</span>
+                                        <i class="mdi mdi-chevron-down far-accordion-chevron"></i>
+                                    </span>
+                                </button>
+
+                                <div class="far-accordion-panel" id="{{ $accordionId }}">
+                                    @if($proveedor && ($proveedor->direccion || $proveedor->telefono))
+                                    <div style="padding: 12px 18px; background: rgba(37,99,235,0.04); border-bottom: 1px solid var(--border); font-size: 12.5px; color: var(--text-muted); display: flex; gap: 20px; flex-wrap: wrap;">
+                                        @if($proveedor->direccion)
+                                        <a href="https://maps.google.com/?q={{ urlencode($proveedor->direccion) }}" target="_blank"
+                                            class="digi-btn digi-btn--secondary digi-btn--sm">
+                                            <i class="mdi mdi-directions"></i>
+                                            Ubicación
+                                        </a>
+                                        <!-- <span><i class="mdi mdi-map-marker" style="color:var(--blue); font-size:14px; vertical-align:middle; margin-right:4px;"></i>{{ $proveedor->direccion }}</span> -->
+                                        @endif
+                                        @if($proveedor->telefono)
+                                        <a href="tel:{{ $proveedor->telefono }}" class="digi-btn digi-btn--outline digi-btn--sm">
+                                        <span><i class="mdi mdi-phone" style="color:var(--blue); font-size:14px; vertical-align:middle; margin-right:4px;"></i>{{ $proveedor->telefono }}</span>
+                                        </a>
+                                        @endif
+                                    </div>
+                                    @endif
+                                    
+                                    <div class="far-price-header">
+                                        <span class="far-price-header__name">Medicamento</span>
+                                        <span class="far-price-header__price">Público</span>
+                                        <span class="far-price-header__price">PATS</span>
+                                    </div>
+
+                                    @foreach($meds as $med)
+                                        <div class="far-estudio" data-nombre="{{ strtolower($med->descripcion) }}">
+                                            <div class="far-estudio__info">
+                                                <div class="far-estudio__icon"><i class="mdi mdi-pill"></i></div>
+                                                <div class="far-estudio__text">
+                                                    <div class="far-estudio__nombre" title="{{ $med->descripcion }}">
+                                                        {{ $med->descripcion }}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="far-price-cols">
+                                                <div class="far-price-tag far-price-tag--pub">
+                                                    <span class="far-price-tag__label">Público</span>
+                                                    <span class="far-price-tag__val">${{ number_format($med->precio_nopats, 2) }}</span>
+                                                </div>
+                                                <div class="far-price-tag far-price-tag--pats">
+                                                    <span class="far-price-tag__label">PATS</span>
+                                                    <span class="far-price-tag__val">${{ number_format($med->precio_pats, 2) }}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            </div>
+                        @empty
+                            <div class="far-empty">
+                                <i class="mdi mdi-pill"></i>
+                                Sin medicamentos registrados.
+                            </div>
+                        @endforelse
+                    </div>
                 </div>
 
             </div>{{-- /col izq --}}
 
             {{-- COL DERECHA: Unidades y citas ──────────────── --}}
-            <div class="far-panel">
+            <!-- <div class="far-panel">
 
                 {{-- Unidades / Contacto --}}
                 <div class="far-panel-card">
@@ -834,30 +1038,8 @@
                     </div>
                 </div>
 
-                {{-- Entregas de hoy --}}
-                @if ($entregasHoy->isNotEmpty())
-                    <div class="far-panel-card">
-                        <div class="far-panel-head">
-                            <i class="mdi mdi-package-variant-closed"></i>
-                            <div>
-                                <div class="far-panel-head__title">Entregas de hoy</div>
-                                <div class="far-panel-head__sub">{{ $entregasHoy->count() }} programadas</div>
-                            </div>
-                        </div>
-                        <div class="far-panel-body" style="max-height:300px;overflow-y:auto;">
-                            @foreach ($entregasHoy as $entrega)
-                                <div class="far-cita-row">
-                                    <div class="far-cita-row__hora">
-                                        {{ \Illuminate\Support\Str::limit($entrega->hora_inicio, 5, '') }}
-                                    </div>
-                                    <div class="far-cita-row__pac">{{ $entrega->nombre_paciente }}</div>
-                                </div>
-                            @endforeach
-                        </div>
-                    </div>
-                @endif
 
-            </div>{{-- /far-panel --}}
+            </div>{{-- /far-panel --}} -->
 
         </div>{{-- /far-layout --}}
     </div>{{-- /far-wrap --}}
@@ -878,74 +1060,62 @@
                 setInterval(tick, 30000);
             }
 
-            // ── Búsqueda ──────────────────────────────────
+            // ── Búsqueda y Acordeones ───────────────────────
             const inp = document.getElementById('farSearch');
             const clear = document.getElementById('farClear');
-            const sug = document.getElementById('farSug');
-            const rows = [...document.querySelectorAll('.far-row')];
-            const empty = document.getElementById('farEmpty');
-
-            if (!inp) return;
 
             function normalize(s) {
-                return s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+                return s ? s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '') : '';
             }
 
-            function filter(term) {
+            function filterMeds(term) {
                 const t = normalize(term);
-                let visible = 0;
-                rows.forEach(row => {
-                    const match = normalize(row.dataset.nombre).includes(t);
-                    row.classList.toggle('hidden', !match);
-                    if (match) visible++;
-                });
-                if (empty) empty.style.display = (visible === 0 && t) ? 'block' : 'none';
-            }
-
-            function buildSug(term) {
-                sug.innerHTML = '';
-                if (!term) {
-                    sug.classList.remove('open');
-                    return;
-                }
-                const t = normalize(term);
-                const matches = rows.filter(r => normalize(r.dataset.nombre).includes(t)).slice(0, 8);
-                if (!matches.length) {
-                    sug.classList.remove('open');
-                    return;
-                }
-
-                matches.forEach(row => {
-                    const nombre = row.querySelector('.far-td-nombre').textContent;
-                    const precio = row.querySelector('.far-td-precio').textContent;
-                    const item = document.createElement('div');
-                    item.className = 'far-sug-item';
-                    item.innerHTML =
-                        `<span class="far-sug-item__name">${nombre}</span><span class="far-sug-item__price">${precio}</span>`;
-                    item.addEventListener('click', () => {
-                        inp.value = nombre;
-                        filter(nombre);
-                        sug.classList.remove('open');
-                        clear.classList.add('visible');
+                document.querySelectorAll('.far-proveedor-group').forEach(group => {
+                    let visibleCount = 0;
+                    group.querySelectorAll('.far-estudio').forEach(el => {
+                        const nombre = el.dataset.nombre;
+                        const match = !t || normalize(nombre).includes(t);
+                        el.style.display = match ? 'flex' : 'none';
+                        if (match) visibleCount++;
                     });
-                    sug.appendChild(item);
+                    group.style.display = (t && visibleCount === 0) ? 'none' : 'block';
                 });
-                sug.classList.add('open');
             }
 
-            inp.addEventListener('input', () => {
-                const term = inp.value.trim();
-                clear.classList.toggle('visible', term.length > 0);
-                filter(term);
-                buildSug(term);
-            });
+            if (inp && clear) {
+                inp.addEventListener('input', () => {
+                    const term = inp.value.trim();
+                    clear.classList.toggle('visible', term.length > 0);
+                    filterMeds(term);
+                });
 
-            clear.addEventListener('click', () => {
-                inp.value = '';
-                inp.focus();
-                clear.classList.remove('visible');
-                filter('');
-                sug.classList.remove('open');
+                clear.addEventListener('click', () => {
+                    inp.value = '';
+                    inp.focus();
+                    clear.classList.remove('visible');
+                    filterMeds('');
+                });
+
+                inp.addEventListener('keydown', e => {
+                    if (e.key === 'Escape') clear.click();
+                });
+            }
+
+            // ── Lógica de acordeones ───────────────────────
+            document.querySelectorAll('.far-accordion-btn').forEach(btn => {
+                const targetSel = btn.dataset.target;
+                const panel = document.querySelector(targetSel);
+                if (!panel) return;
+
+                // Empezar abiertos por defecto
+                btn.classList.add('is-open');
+                panel.classList.add('is-open');
+
+                btn.addEventListener('click', () => {
+                    const isOpen = btn.classList.toggle('is-open');
+                    panel.classList.toggle('is-open', isOpen);
+                    btn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+                });
             });
 
             inp.addEventListener('keydown', e => {

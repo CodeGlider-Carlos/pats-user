@@ -31,6 +31,7 @@
             max-width: 1160px;
             margin: 0 auto;
             padding: 0 28px 80px;
+            overflow-x: hidden;
         }
 
         /* ── Header ─────────────────────────────────── */
@@ -172,10 +173,146 @@
             margin-top: 4px;
         }
 
+        /* ── Buscador ───────────────────────────────── */
+        .rx-search-wrap {
+            position: relative;
+            margin-bottom: 24px;
+        }
+
+        .rx-search {
+            width: 100%;
+            padding: 13px 16px 13px 48px;
+            font-size: 15px;
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius);
+            background: var(--white);
+            color: var(--text);
+            outline: none;
+            transition: border-color .18s, box-shadow .18s;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .rx-search:focus {
+            border-color: var(--blue);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, .10);
+        }
+
+        .rx-search::placeholder {
+            color: var(--text-muted);
+        }
+
+        .rx-search-icon {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            font-size: 20px;
+            pointer-events: none;
+        }
+
+        .rx-search-clear {
+            position: absolute;
+            right: 13px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: var(--navy);
+            border: none;
+            border-radius: 50%;
+            width: 28px;
+            height: 28px;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: var(--text-muted);
+            transition: background .15s;
+        }
+
+        .rx-search-clear.visible {
+            display: flex;
+        }
+
+        .rx-search-clear:hover {
+            background: var(--navy-light);
+            color: var(--blue);
+        }
+
+        /* ── Tabs ───────────────────────────────────── */
+        .rx-tabs-wrap {
+            background: var(--white);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            margin-bottom: 22px;
+        }
+
+        .rx-tabs-nav {
+            display: flex;
+            border-bottom: 1px solid var(--border);
+            background: var(--navy-light);
+        }
+
+        .rx-tab-btn {
+            flex: 1;
+            padding: 16px 20px;
+            background: none;
+            border: none;
+            border-bottom: 3px solid transparent;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all .18s;
+        }
+
+        .rx-tab-btn i {
+            font-size: 18px;
+        }
+
+        .rx-tab-btn:hover {
+            color: var(--blue);
+        }
+
+        .rx-tab-btn.is-active {
+            color: var(--blue);
+            border-bottom-color: var(--blue);
+            background: var(--white);
+        }
+
+        .rx-tab-btn .rx-tab-count {
+            font-size: 11px;
+            font-weight: 700;
+            background: rgba(37, 99, 235, .10);
+            color: var(--blue);
+            padding: 2px 8px;
+            border-radius: 100px;
+        }
+
+        .rx-tab-btn.is-active .rx-tab-count {
+            background: var(--blue);
+            color: #fff;
+        }
+
+        /* Panel de cada tab */
+        .rx-tab-panel {
+            display: none;
+            padding: 20px 24px;
+        }
+
+        .rx-tab-panel.is-active {
+            display: block;
+        }
+
         /* ── Layout ─────────────────────────────────── */
         .rx-layout {
             display: grid;
-            grid-template-columns: 1fr 320px;
+            /* grid-template-columns: 1fr 320px; */
             gap: 24px;
             align-items: start;
         }
@@ -625,7 +762,7 @@
 
         @media (max-width:600px) {
             .rx-wrap {
-                padding: 0 16px 60px;
+                padding: 0 12px 60px;
             }
 
             .rx-header {
@@ -635,6 +772,247 @@
             .rx-stats {
                 flex-direction: column;
             }
+
+            .rx-tab-panel {
+                padding: 14px 10px;
+            }
+
+            .rx-accordion-btn {
+                padding: 11px 12px;
+                font-size: 13px;
+            }
+
+            .rx-accordion-btn__left {
+                flex: 1;
+                min-width: 0;
+                overflow: hidden;
+            }
+        }
+
+        /* ── Acordeón por proveedor ──────────────────── */
+        .rx-accordion-btn {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 13px 18px;
+            background: var(--white);
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            font-size: 14.5px;
+            font-weight: 700;
+            color: var(--cream);
+            transition: background .15s, border-color .15s;
+            box-shadow: var(--shadow-sm);
+            text-align: left;
+            margin-bottom: 0;
+        }
+
+        .rx-accordion-btn:hover {
+            background: var(--navy);
+            border-color: rgba(37, 99, 235, .28);
+        }
+
+        .rx-accordion-btn.is-open {
+            border-color: var(--blue);
+            background: rgba(37, 99, 235, .04);
+            border-bottom-left-radius: 0;
+            border-bottom-right-radius: 0;
+        }
+
+        .rx-accordion-btn__left {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+        }
+
+        .rx-accordion-btn__left i {
+            color: var(--blue);
+            font-size: 18px;
+        }
+
+        .rx-accordion-btn__right {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-shrink: 0;
+        }
+
+        .rx-accordion-chevron {
+            font-size: 20px;
+            color: var(--text-muted);
+            transition: transform .22s ease;
+        }
+
+        .rx-accordion-btn.is-open .rx-accordion-chevron {
+            transform: rotate(180deg);
+            color: var(--blue);
+        }
+
+        .rx-accordion-panel {
+            border: 1.5px solid var(--blue);
+            border-top: none;
+            border-bottom-left-radius: var(--radius-sm);
+            border-bottom-right-radius: var(--radius-sm);
+            overflow: hidden;
+            display: none;
+            margin-bottom: 10px;
+        }
+
+        .rx-accordion-panel.is-open {
+            display: block;
+        }
+
+        .rx-proveedor-group {
+            margin-bottom: 10px;
+        }
+
+        /* ── Cabecera de precios ─────────────────── */
+        .rx-price-header {
+            display: flex;
+            align-items: center;
+            padding: 8px 16px;
+            background: var(--navy-light);
+            border-bottom: 1px solid var(--border);
+            font-size: 10.5px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .07em;
+            color: var(--text-muted);
+        }
+
+        .rx-price-header__name { flex: 1; }
+        .rx-price-header__price { width: 110px; text-align: center; }
+
+        /* ── Fila estudio ─────────────────────── */
+        .rx-estudio {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: var(--white);
+            border-bottom: 1px solid var(--border);
+            padding: 11px 16px;
+            transition: background .12s;
+        }
+
+        .rx-estudio:last-child { border-bottom: none; }
+        .rx-estudio:hover { background: var(--navy); }
+
+        .rx-estudio__icon {
+            width: 34px;
+            height: 34px;
+            flex-shrink: 0;
+            background: rgba(37, 99, 235, .08);
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--blue);
+            font-size: 16px;
+        }
+
+        .rx-estudio__body {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .rx-estudio__nombre {
+            font-size: 13.5px;
+            font-weight: 700;
+            color: var(--cream);
+            margin: 0;
+        }
+
+        .rx-price-cols {
+            display: flex;
+            gap: 10px;
+            flex-shrink: 0;
+        }
+
+        .rx-price-tag {
+            width: 100px;
+            text-align: center;
+            padding: 6px 10px;
+            border-radius: var(--radius-sm);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1px;
+        }
+
+        .rx-price-tag__label {
+            font-size: 9.5px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .07em;
+        }
+
+        .rx-price-tag__val {
+            font-size: 13.5px;
+            font-weight: 800;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .rx-price-tag--pats {
+            background: rgba(14, 122, 95, .09);
+        }
+        .rx-price-tag--pats .rx-price-tag__label,
+        .rx-price-tag--pats .rx-price-tag__val { color: #0e7a5f; }
+
+        .rx-price-tag--pub {
+            background: rgba(37, 99, 235, .08);
+        }
+        .rx-price-tag--pub .rx-price-tag__label,
+        .rx-price-tag--pub .rx-price-tag__val { color: var(--blue); }
+
+        /* ── Search bar ──────────────────────── */
+        .rx-search-wrap { position: relative; margin-bottom: 0; }
+        .rx-search {
+            width: 100%;
+            padding: 11px 14px 11px 44px;
+            font-size: 14px;
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius-sm);
+            background: var(--navy);
+            color: var(--text);
+            outline: none;
+            transition: border-color .18s;
+        }
+        .rx-search:focus { border-color: var(--blue); }
+        .rx-search::placeholder { color: var(--text-muted); }
+        .rx-search-icon {
+            position: absolute; left: 13px; top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted); font-size: 19px; pointer-events: none;
+        }
+
+        @media (max-width: 560px) {
+            .rx-price-header__price { width: 70px; font-size: 9px; }
+            .rx-price-tag { width: 62px; padding: 4px 4px; }
+            .rx-price-tag__val { font-size: 11.5px; }
+        }
+
+        /* Stack prices below name on narrow phones */
+        @media (max-width: 430px) {
+            .rx-price-header { display: none; }
+            .rx-estudio {
+                flex-wrap: wrap;
+                row-gap: 6px;
+                align-items: flex-start;
+            }
+            .rx-estudio__body { min-width: 0; }
+            .rx-price-cols {
+                width: 100%;
+                padding-left: 46px;
+                justify-content: flex-start;
+            }
+            .rx-price-tag {
+                flex: 1;
+                width: auto;
+                min-width: 0;
+            }
+            .rx-price-tag__val { font-size: 13px; }
         }
     </style>
 
@@ -659,51 +1037,128 @@
 
         {{-- Stats ──────────────────────────────────────── --}}
         <div class="rx-stats">
+
             <div class="rx-stat">
-                <div class="rx-stat__icon rx-stat__icon--rec">
-                    <i class="mdi mdi-radioactive"></i>
+                <div class="rx-stat__icon" style="background:rgba(37,99,235,.10);color:var(--blue);">
+                    <i class="mdi mdi-file-image"></i>
                 </div>
                 <div>
-                    <div class="rx-stat__num">{{ $recursos->count() }}</div>
-                    <div class="rx-stat__label">Equipos activos</div>
-                </div>
-            </div>
-            <div class="rx-stat">
-                <div class="rx-stat__icon rx-stat__icon--disp">
-                    <i class="mdi mdi-calendar-check"></i>
-                </div>
-                <div>
-                    <div class="rx-stat__num">{{ $agendaHoy->where('tipo_bloque', 'DISPONIBLE')->count() }}</div>
-                    <div class="rx-stat__label">Libres hoy</div>
-                </div>
-            </div>
-            <div class="rx-stat">
-                <div class="rx-stat__icon rx-stat__icon--scan">
-                    <i class="mdi mdi-clock-outline"></i>
-                </div>
-                <div>
-                    <div class="rx-stat__num">{{ $agendaHoy->where('tipo_bloque', 'RESERVADO')->count() }}</div>
-                    <div class="rx-stat__label">Reservados hoy</div>
-                </div>
-            </div>
-            <div class="rx-stat">
-                <div class="rx-stat__icon rx-stat__icon--hoy">
-                    <i class="mdi mdi-account-clock"></i>
-                </div>
-                <div>
-                    <div class="rx-stat__num">{{ $citasHoy->count() }}</div>
-                    <div class="rx-stat__label">Citas hoy</div>
+                    <div class="rx-stat__num">{{ $estudios->count() }}</div>
+                    <div class="rx-stat__label">Estudios RX</div>
                 </div>
             </div>
         </div>
+                {{-- Buscador --}}
+                <div class="rx-search-wrap">
+                    <i class="mdi mdi-magnify rx-search-icon"></i>
+                    <input type="text" id="rxSearch" class="rx-search"
+                        placeholder="Buscar estudio (ej: Radiografía, TAC, Ultrasonido...)" autocomplete="off">
+                    <button class="rx-search-clear" id="rxClear">
+                        <i class="mdi mdi-close" style="font-size:15px;"></i>
+                    </button>
+                </div>
 
-        <div class="rx-layout">
+                <div class="rx-layout">
 
             {{-- COL IZQUIERDA ───────────────────────────────── --}}
             <div>
 
+                {{-- Tabs Imagenología --}}
+                <div class="rx-tabs-wrap">
+                    <div class="rx-tabs-nav">
+                        <button class="rx-tab-btn is-active" data-tab="imagen">
+                            <i class="mdi mdi-file-image"></i>
+                            Imagenología
+                            <span class="rx-tab-count">{{ $estudios->count() }}</span>
+                        </button>
+                    </div>
+
+                    {{-- ── PANEL IMAGEN ── --}}
+                    <div class="rx-tab-panel is-active" id="panel-imagen">
+                        @php
+                            $gruposRx = $estudios->groupBy(fn($est) => $est->proveedor ? $est->proveedor->nombre_unidad : 'Proveedor General');
+                        @endphp
+
+                        @forelse($gruposRx as $proveedorNombre => $grupoEstudios)
+                            @php 
+                                $accordionId = 'rxacc-' . Str::slug($proveedorNombre); 
+                                $proveedor = $grupoEstudios->first()->proveedor;
+                            @endphp
+                            <div class="rx-proveedor-group">
+
+                                <button class="rx-accordion-btn" data-target="#{{ $accordionId }}" aria-expanded="true">
+                                    <span class="rx-accordion-btn__left">
+                                        <i class="mdi mdi-hospital-building"></i>
+                                        {{ $proveedorNombre }}
+                                    </span>
+                                    <span class="rx-accordion-btn__right">
+                                        <span style="font-size:11px;font-weight:700;background:rgba(37,99,235,.10);color:var(--blue);padding:2px 8px;border-radius:100px;">
+                                            {{ $grupoEstudios->count() }} estudios
+                                        </span>
+                                        <i class="mdi mdi-chevron-down rx-accordion-chevron"></i>
+                                    </span>
+                                </button>
+
+                                <div class="rx-accordion-panel" id="{{ $accordionId }}">
+                                    @if($proveedor && ($proveedor->direccion || $proveedor->telefono))
+                                                                        <div style="padding: 12px 18px; background: rgba(37,99,235,0.04); border-bottom: 1px solid var(--border); font-size: 12.5px; color: var(--text-muted); display: flex; gap: 20px; flex-wrap: wrap;">
+                                        @if($proveedor->direccion)
+                                        <a href="https://maps.google.com/?q={{ urlencode($proveedor->direccion) }}" target="_blank"
+                                            class="digi-btn digi-btn--secondary digi-btn--sm">
+                                            <i class="mdi mdi-directions"></i>
+                                            Ubicación
+                                        </a>
+                                        <!-- <span><i class="mdi mdi-map-marker" style="color:var(--blue); font-size:14px; vertical-align:middle; margin-right:4px;"></i>{{ $proveedor->direccion }}</span> -->
+                                        @endif
+                                        @if($proveedor->telefono)
+                                        <a href="tel:{{ $proveedor->telefono }}" class="digi-btn digi-btn--outline digi-btn--sm">
+                                        <span><i class="mdi mdi-phone" style="color:var(--blue); font-size:14px; vertical-align:middle; margin-right:4px;"></i>{{ $proveedor->telefono }}</span>
+                                        </a>
+                                        @endif
+                                    </div>
+                                    @endif
+                                    <div class="rx-price-header">
+                                        <span class="rx-price-header__name">Estudio</span>
+                                        <span class="rx-price-header__price">Sin pasaporte</span>
+                                        <span class="rx-price-header__price">Con pasaporte</span>
+                                    </div>
+
+                                    @foreach ($grupoEstudios as $est)
+                                        <div class="rx-estudio" data-nombre="{{ strtolower($est->nombre_estudio) }}">
+                                            <div class="rx-estudio__icon">
+                                                <i class="mdi mdi-scan-helper"></i>
+                                            </div>
+                                            <div class="rx-estudio__body">
+                                                <p class="rx-estudio__nombre">{{ $est->nombre_estudio }}</p>
+                                            </div>
+                                            <div class="rx-price-cols">
+                                                <div class="rx-price-tag rx-price-tag--pub">
+                                                    <span class="rx-price-tag__val">
+                                                        ${{ number_format($est->precio_nopats, 2) }}
+                                                    </span>
+                                                </div>
+                                                <div class="rx-price-tag rx-price-tag--pats">
+                                                    <span class="rx-price-tag__val">
+                                                        ${{ number_format($est->precio_pats, 2) }}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                </div>
+
+                            </div>
+                        @empty
+                            <div class="rx-empty">
+                                <i class="mdi mdi-file-image"></i>
+                                Sin estudios de imagenología registrados.
+                            </div>
+                        @endforelse
+                    </div>
+                </div>
+
                 {{-- Equipos / recursos de imagen --}}
-                <div class="rx-card">
+                <!-- <div class="rx-card">
                     <div class="rx-card__head">
                         <i class="mdi mdi-radioactive rx-card__head-icon"></i>
                         <div>
@@ -740,10 +1195,10 @@
                             </div>
                         @endforelse
                     </div>
-                </div>
+                </div> -->
 
                 {{-- Agenda de HOY (timeline) --}}
-                <div class="rx-card">
+                <!-- <div class="rx-card">
                     <div class="rx-card__head">
                         <i class="mdi mdi-calendar-today rx-card__head-icon"></i>
                         <div>
@@ -792,10 +1247,10 @@
                             </div>
                         @endif
                     </div>
-                </div>
+                </div> -->
 
                 {{-- Disponibilidad próximos días --}}
-                @if ($proximaDisp->isNotEmpty())
+                <!-- @if ($proximaDisp->isNotEmpty())
                     <div class="rx-card">
                         <div class="rx-card__head">
                             <i class="mdi mdi-calendar-clock rx-card__head-icon"></i>
@@ -833,12 +1288,12 @@
                             </a>
                         </div>
                     </div>
-                @endif
+                @endif -->
 
             </div>{{-- /col izq --}}
 
             {{-- PANEL DERECHO ───────────────────────────── --}}
-            <div class="rx-panel">
+            <!-- <div class="rx-panel">
 
                 {{-- Citas de hoy --}}
                 <div class="rx-panel-card">
@@ -914,20 +1369,101 @@
                     </div>
                 </div>
 
-            </div>{{-- /rx-panel --}}
+            </div>{{-- /rx-panel --}} -->
 
         </div>{{-- /rx-layout --}}
     </div>{{-- /rx-wrap --}}
 
+    <style>
+        .rx-search-wrap { position: relative; margin-bottom: 20px; }
+        .rx-search-input { width: 100%; padding: 12px 40px 12px 16px; border: 1px solid var(--border); border-radius: var(--radius-sm); }
+        .rx-search-clear { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); display: none; background: none; border: none; cursor: pointer; }
+        .rx-search-clear.visible { display: block; }
+        .rx-tabs-wrap { display: flex; flex-direction: column; gap: 15px; }
+    </style>
+
     <script>
         const reloj = document.getElementById('reloj');
         if (reloj) {
-            function tick() {
+            // ── Búsqueda ──────────────────────────────────
+            function filterEstudios(term) {
+                document.querySelectorAll('.rx-proveedor-group').forEach(group => {
+                    let visibleCount = 0;
+                    group.querySelectorAll('.rx-estudio').forEach(el => {
+                        const nombre = el.dataset.nombre ? el.dataset.nombre.toLowerCase() : '';
+                        const match = !term || nombre.includes(term);
+                        el.style.display = match ? 'flex' : 'none';
+                        if (match) visibleCount++;
+                    });
+                    group.style.display = (term && visibleCount === 0) ? 'none' : 'block';
+                });
+            }
+
+            const inp = document.getElementById('rxSearch');
+            const clear = document.getElementById('rxClear');
+
+            if (inp && clear) {
+                inp.addEventListener('input', () => {
+                    const term = inp.value.toLowerCase().trim();
+                    clear.classList.toggle('visible', term.length > 0);
+                    filterEstudios(term);
+                });
+
+                clear.addEventListener('click', () => {
+                    inp.value = '';
+                    inp.focus();
+                    clear.classList.remove('visible');
+                    filterEstudios('');
+                });
+
+                inp.addEventListener('keydown', e => {
+                    if (e.key === 'Escape') clear.click();
+                });
+            }         function tick() {
                 const n = new Date();
                 reloj.textContent = `${String(n.getHours()).padStart(2,'0')}:${String(n.getMinutes()).padStart(2,'0')}`;
             }
             tick();
             setInterval(tick, 30000);
+        }
+
+        // ── Acordeón RX por proveedor ────────────────
+        document.querySelectorAll('.rx-accordion-btn').forEach(btn => {
+            const panel = document.querySelector(btn.dataset.target);
+            if (!panel) return;
+            btn.classList.add('is-open');
+            panel.classList.add('is-open');
+            btn.addEventListener('click', () => {
+                const isOpen = btn.classList.toggle('is-open');
+                panel.classList.toggle('is-open', isOpen);
+                btn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+            });
+        });
+
+        // ── Búsqueda RX ────────────────────────
+        const rxSearch = document.getElementById('rxSearch');
+        if (rxSearch) {
+            rxSearch.addEventListener('input', () => {
+                const term = rxSearch.value.toLowerCase().trim();
+                document.querySelectorAll('.rx-proveedor-group').forEach(group => {
+                    let visible = 0;
+                    group.querySelectorAll('.rx-estudio').forEach(el => {
+                        const match = !term || el.dataset.nombre.includes(term);
+                        el.style.display = match ? '' : 'none';
+                        if (match) visible++;
+                    });
+                    group.style.display = (term && visible === 0) ? 'none' : '';
+                    // Auto-open accordion when searching
+                    if (term && visible > 0) {
+                        const btn = group.querySelector('.rx-accordion-btn');
+                        const panel = group.querySelector('.rx-accordion-panel');
+                        if (btn && panel) {
+                            btn.classList.add('is-open');
+                            panel.classList.add('is-open');
+                        }
+                    }
+                });
+            });
         }
     </script>
 @endsection

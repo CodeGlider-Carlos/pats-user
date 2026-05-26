@@ -31,6 +31,7 @@
             max-width: 1160px;
             margin: 0 auto;
             padding: 0 28px 80px;
+            overflow-x: hidden;
         }
 
         /* ── Header ─────────────────────────────────── */
@@ -487,7 +488,7 @@
         /* ── Citas de hoy (panel lateral) ───────────── */
         .ec-layout {
             display: grid;
-            grid-template-columns: 1fr 300px;
+            /* grid-template-columns: 1fr 300px; */
             gap: 24px;
             align-items: start;
         }
@@ -611,7 +612,7 @@
 
         @media (max-width:600px) {
             .ec-wrap {
-                padding: 0 16px 60px;
+                padding: 0 12px 60px;
             }
 
             .ec-header {
@@ -624,6 +625,235 @@
 
             .ec-tabs-nav {
                 flex-direction: column;
+            }
+
+            .ec-tab-panel {
+                padding: 14px 10px;
+            }
+
+            .ec-accordion-btn {
+                padding: 11px 12px;
+                font-size: 13px;
+            }
+
+            .ec-accordion-btn__left {
+                flex: 1;
+                min-width: 0;
+                overflow: hidden;
+            }
+        }
+
+        /* ── Acordeón por proveedor ──────────────────── */
+        .ec-accordion-btn {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 13px 18px;
+            background: var(--white);
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            font-size: 14.5px;
+            font-weight: 700;
+            color: var(--cream);
+            transition: background .15s, border-color .15s, box-shadow .15s;
+            box-shadow: var(--shadow-sm);
+            text-align: left;
+        }
+
+        .ec-accordion-btn:hover {
+            background: var(--navy);
+            border-color: rgba(37, 99, 235, .28);
+        }
+
+        .ec-accordion-btn.is-open {
+            border-color: var(--blue);
+            background: rgba(37, 99, 235, .04);
+            border-bottom-left-radius: 0;
+            border-bottom-right-radius: 0;
+        }
+
+        .ec-accordion-btn__left {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            color: var(--cream);
+        }
+
+        .ec-accordion-btn__left i {
+            color: var(--blue);
+            font-size: 18px;
+        }
+
+        .ec-accordion-btn__right {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-shrink: 0;
+        }
+
+        .ec-accordion-chevron {
+            font-size: 20px;
+            color: var(--text-muted);
+            transition: transform .22s ease;
+        }
+
+        .ec-accordion-btn.is-open .ec-accordion-chevron {
+            transform: rotate(180deg);
+            color: var(--blue);
+        }
+
+        .ec-accordion-panel {
+            border: 1.5px solid var(--blue);
+            border-top: none;
+            border-bottom-left-radius: var(--radius-sm);
+            border-bottom-right-radius: var(--radius-sm);
+            overflow: hidden;
+            display: none;
+        }
+
+        .ec-accordion-panel.is-open {
+            display: block;
+        }
+
+        /* ── Cabecera de precios ─────────────────── */
+        .ec-price-header {
+            display: flex;
+            align-items: center;
+            padding: 8px 16px;
+            background: var(--navy-light);
+            border-bottom: 1px solid var(--border);
+            font-size: 10.5px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .07em;
+            color: var(--text-muted);
+        }
+
+        .ec-price-header__name {
+            flex: 1;
+        }
+
+        .ec-price-header__price {
+            width: 110px;
+            text-align: center;
+        }
+
+        /* ── Fila estudio con precios ────────────── */
+        .ec-estudio--price {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: var(--white);
+            border: none;
+            border-bottom: 1px solid var(--border);
+            border-radius: 0;
+            padding: 11px 16px;
+        }
+
+        .ec-estudio--price:last-child {
+            border-bottom: none;
+        }
+
+        .ec-estudio--price:hover {
+            background: var(--navy);
+            border-color: var(--border);
+        }
+
+        .ec-estudio--price .ec-estudio__body {
+            flex: 1;
+        }
+
+        .ec-price-cols {
+            display: flex;
+            gap: 10px;
+            flex-shrink: 0;
+        }
+
+        .ec-price-tag {
+            width: 100px;
+            text-align: center;
+            padding: 6px 10px;
+            border-radius: var(--radius-sm);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1px;
+        }
+
+        .ec-price-tag__label {
+            font-size: 9.5px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .07em;
+        }
+
+        .ec-price-tag__val {
+            font-size: 14px;
+            font-weight: 800;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .ec-price-tag--pats {
+            background: rgba(14, 122, 95, .09);
+        }
+
+        .ec-price-tag--pats .ec-price-tag__label {
+            color: #0e7a5f;
+        }
+
+        .ec-price-tag--pats .ec-price-tag__val {
+            color: #0e7a5f;
+        }
+
+        .ec-price-tag--pub {
+            background: rgba(37, 99, 235, .08);
+        }
+
+        .ec-price-tag--pub .ec-price-tag__label {
+            color: var(--blue);
+        }
+
+        .ec-price-tag--pub .ec-price-tag__val {
+            color: var(--blue);
+        }
+
+        @media (max-width: 560px) {
+            .ec-price-header__price {
+                width: 70px;
+                font-size: 9px;
+            }
+            .ec-price-tag {
+                width: 62px;
+                padding: 4px 4px;
+            }
+            .ec-price-tag__val {
+                font-size: 11.5px;
+            }
+        }
+
+        /* Stack prices below name on narrow phones */
+        @media (max-width: 430px) {
+            .ec-price-header {
+                display: none;
+            }
+            .ec-estudio--price {
+                flex-wrap: wrap;
+                row-gap: 6px;
+            }
+            .ec-price-cols {
+                width: 100%;
+                padding-left: 48px;
+                justify-content: flex-start;
+            }
+            .ec-price-tag {
+                flex: 1;
+                width: auto;
+                min-width: 0;
+            }
+            .ec-price-tag__val {
+                font-size: 13px;
             }
         }
     </style>
@@ -670,7 +900,7 @@
                             <div class="ec-stat__label">Imagenología</div>
                         </div>
                     </div> --}}
-                    <div class="ec-stat">
+                    {{-- <div class="ec-stat">
                         <div class="ec-stat__icon ec-stat__icon--lab"
                             style="background:rgba(37,99,235,.10);color:var(--blue);">
                             <i class="mdi mdi-calendar-check"></i>
@@ -679,8 +909,8 @@
                             <div class="ec-stat__num">{{ $totalBloqLab + $totalBloqImagen }}</div>
                             <div class="ec-stat__label">Horarios disp.</div>
                         </div>
-                    </div>
-                    <div class="ec-stat">
+                    </div> --}}
+                    {{-- <div class="ec-stat">
                         <div class="ec-stat__icon ec-stat__icon--hoy">
                             <i class="mdi mdi-clock-outline"></i>
                         </div>
@@ -688,7 +918,7 @@
                             <div class="ec-stat__num">{{ $citasHoy->count() }}</div>
                             <div class="ec-stat__label">Citas hoy</div>
                         </div>
-                    </div>
+                    </div> --}}
                 </div>
 
                 {{-- Buscador --}}
@@ -719,38 +949,78 @@
                     {{-- ── PANEL LABORATORIO ── --}}
                     <div class="ec-tab-panel is-active" id="panel-lab">
 
-                        {{-- Lista de estudios --}}
-                        @forelse($estudiosLab as $est)
-                            <div class="ec-estudio" data-nombre="{{ strtolower($est->nombre_estudio) }}">
-                                <div class="ec-estudio__icon">
-                                    <i class="mdi mdi-test-tube"></i>
-                                </div>
-                                <div class="ec-estudio__body">
-                                    <p class="ec-estudio__nombre">{{ $est->nombre_estudio }}</p>
-                                    @if ($est->preparacion_resumen)
-                                        <p class="ec-estudio__prep">
-                                            <i class="mdi mdi-information-outline"
-                                                style="font-size:13px;color:var(--blue);"></i>
-                                            {{ $est->preparacion_resumen }}
-                                        </p>
-                                    @endif
-                                    <div class="ec-estudio__meta">
-                                        <span class="ec-pill ec-pill--dur">
-                                            <i class="mdi mdi-clock-outline" style="font-size:11px;"></i>
-                                            {{ $est->duracion_min }} min
-                                        </span>
-                                        @if ($est->requiere_cita)
-                                            <span class="ec-pill ec-pill--cita">
-                                                <i class="mdi mdi-calendar" style="font-size:11px;"></i>
-                                                Requiere cita
-                                            </span>
-                                        @else
-                                            <span class="ec-pill ec-pill--libre">
-                                                <i class="mdi mdi-check" style="font-size:11px;"></i>
-                                                Sin cita
-                                            </span>
+                        {{-- Acordeones por proveedor --}}
+                        @php
+                            $gruposLab = $estudiosLab->groupBy(fn($est) => $est->proveedor ? $est->proveedor->nombre_unidad : 'Proveedor General');
+                        @endphp
+
+                        @forelse($gruposLab as $proveedorNombre => $estudios)
+                            @php 
+                                $accordionId = 'acc-' . Str::slug($proveedorNombre); 
+                                $proveedor = $estudios->first()->proveedor;
+                            @endphp
+                            <div class="ec-proveedor-group" style="margin-bottom: 10px;">
+
+                                {{-- Botón desplegable del proveedor --}}
+                                <button class="ec-accordion-btn" data-target="#{{ $accordionId }}" aria-expanded="true">
+                                    <span class="ec-accordion-btn__left">
+                                        <i class="mdi mdi-hospital-building"></i>
+                                        {{ $proveedorNombre }}
+                                    </span>
+                                    <span class="ec-accordion-btn__right">
+                                        <span class="ec-tab-count">{{ $estudios->count() }} estudios</span>
+                                        <i class="mdi mdi-chevron-down ec-accordion-chevron"></i>
+                                    </span>
+                                </button>
+
+                                {{-- Panel colapsable --}}
+                                <div class="ec-accordion-panel" id="{{ $accordionId }}">
+                                    @if($proveedor && ($proveedor->direccion || $proveedor->telefono))
+                                                                        <div style="padding: 12px 18px; background: rgba(37,99,235,0.04); border-bottom: 1px solid var(--border); font-size: 12.5px; color: var(--text-muted); display: flex; gap: 20px; flex-wrap: wrap;">
+                                        @if($proveedor->direccion)
+                                        <a href="https://maps.google.com/?q={{ urlencode($proveedor->direccion) }}" target="_blank"
+                                            class="digi-btn digi-btn--secondary digi-btn--sm">
+                                            <i class="mdi mdi-directions"></i>
+                                            Ubicación
+                                        </a>
+                                        <!-- <span><i class="mdi mdi-map-marker" style="color:var(--blue); font-size:14px; vertical-align:middle; margin-right:4px;"></i>{{ $proveedor->direccion }}</span> -->
+                                        @endif
+                                        @if($proveedor->telefono)
+                                        <a href="tel:{{ $proveedor->telefono }}" class="digi-btn digi-btn--outline digi-btn--sm">
+                                        <span><i class="mdi mdi-phone" style="color:var(--blue); font-size:14px; vertical-align:middle; margin-right:4px;"></i>{{ $proveedor->telefono }}</span>
+                                        </a>
                                         @endif
                                     </div>
+                                    @endif
+                                    {{-- Cabecera de tabla de precios --}}
+                                    <div class="ec-price-header">
+                                        <span class="ec-price-header__name">Estudio</span>
+                                        <span class="ec-price-header__price">Precio sin pasaporte</span>
+                                        <span class="ec-price-header__price">Precio con pasaporte</span>
+                                    </div>
+
+                                    @foreach ($estudios as $est)
+                                        <div class="ec-estudio ec-estudio--price" data-nombre="{{ strtolower($est->nombre_estudio) }}">
+                                            <div class="ec-estudio__icon">
+                                                <i class="mdi mdi-test-tube"></i>
+                                            </div>
+                                            <div class="ec-estudio__body">
+                                                <p class="ec-estudio__nombre">{{ $est->nombre_estudio }}</p>
+                                            </div>
+                                            <div class="ec-price-cols">
+                                                <div class="ec-price-tag ec-price-tag--pub">
+                                                   <span class="ec-price-tag__val">
+                                                        ${{ number_format($est->precio_nopats, 2) }}
+                                                    </span>
+                                                </div>
+                                                <div class="ec-price-tag ec-price-tag--pats">
+                                                    <span class="ec-price-tag__val">
+                                                        ${{ number_format($est->precio_pats, 2) }}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    @endforeach
                                 </div>
                             </div>
                         @empty
@@ -760,47 +1030,12 @@
                             </div>
                         @endforelse
 
-                        {{-- Disponibilidad lab --}}
-                        <div class="ec-disp-section">
-                            <div class="ec-disp-title">
-                                <i class="mdi mdi-calendar-clock"></i>
-                                Próximos horarios disponibles — Laboratorio
-                            </div>
-                            @forelse($proximoLab as $fechaStr => $bloques)
-                                @php $carbon = Carbon::parse($fechaStr); @endphp
-                                <div class="ec-fecha-group">
-                                    <div class="ec-fecha-label">
-                                        <i class="mdi mdi-calendar-outline"></i>
-                                        {{ ucfirst($carbon->isoFormat('dddd D [de] MMMM')) }}
-                                        @if ($fechaStr === $fecha['fecha_hoy'])
-                                            · <strong style="color:var(--blue)">Hoy</strong>
-                                        @endif
-                                    </div>
-                                    <div class="ec-slots">
-                                        @foreach ($bloques->sortBy('fecha_inicio') as $bloque)
-                                            <div class="ec-slot">
-                                                <span
-                                                    class="ec-slot__hora">{{ Carbon::parse($bloque->fecha_inicio)->format('H:i') }}</span>
-                                                <span
-                                                    class="ec-slot__rec">{{ \Illuminate\Support\Str::limit($bloque->nombre_recurso, 16) }}</span>
-                                            </div>
-                                        @endforeach
-                                    </div>
-                                </div>
-                            @empty
-                                <div class="ec-disp-empty">
-                                    <i class="mdi mdi-calendar-remove"></i>
-                                    Sin horarios disponibles próximamente.
-                                </div>
-                            @endforelse
-                        </div>
-
                     </div>{{-- /panel-lab --}}
 
                     {{-- ── PANEL IMAGENOLOGÍA ── --}}
                     <div class="ec-tab-panel" id="panel-imagen">
 
-                        @forelse($estudiosImagen as $est)
+                       {{-- @forelse($estudiosImagen as $est)
                             <div class="ec-estudio" data-nombre="{{ strtolower($est->nombre_estudio) }}">
                                 <div class="ec-estudio__icon" style="color:#28c7e8;">
                                     <i
@@ -839,116 +1074,18 @@
                                 <i class="mdi mdi-scan-helper"></i>
                                 Sin estudios de imagen registrados.
                             </div>
-                        @endforelse
+                        @endforelse--}}
 
-                        {{-- Disponibilidad imagen --}}
-                        <div class="ec-disp-section">
-                            <div class="ec-disp-title">
-                                <i class="mdi mdi-calendar-clock"></i>
-                                Próximos horarios disponibles — Imagenología
-                            </div>
-                            @forelse($proximoImagen as $fechaStr => $bloques)
-                                @php $carbon = Carbon::parse($fechaStr); @endphp
-                                <div class="ec-fecha-group">
-                                    <div class="ec-fecha-label">
-                                        <i class="mdi mdi-calendar-outline"></i>
-                                        {{ ucfirst($carbon->isoFormat('dddd D [de] MMMM')) }}
-                                        @if ($fechaStr === $fecha['fecha_hoy'])
-                                            · <strong style="color:var(--blue)">Hoy</strong>
-                                        @endif
-                                    </div>
-                                    <div class="ec-slots">
-                                        @foreach ($bloques->sortBy('fecha_inicio') as $bloque)
-                                            <div class="ec-slot">
-                                                <span
-                                                    class="ec-slot__hora">{{ Carbon::parse($bloque->fecha_inicio)->format('H:i') }}</span>
-                                                <span
-                                                    class="ec-slot__rec">{{ \Illuminate\Support\Str::limit($bloque->nombre_recurso, 16) }}</span>
-                                            </div>
-                                        @endforeach
-                                    </div>
-                                </div>
-                            @empty
-                                <div class="ec-disp-empty">
-                                    <i class="mdi mdi-calendar-remove"></i>
-                                    Sin horarios disponibles próximamente.
-                                </div>
-                            @endforelse
-                        </div>
+                      
 
                     </div>{{-- /panel-imagen --}}
                 </div>{{-- /tabs-wrap --}}
 
-                {{-- Link a agenda completa --}}
-                <a href="{{ route('agenda.index') }}"
-                    style="display:flex;align-items:center;justify-content:center;gap:8px;padding:13px;background:var(--blue);color:#fff;border-radius:var(--radius);font-size:14px;font-weight:700;text-decoration:none;transition:background .15s;box-shadow:0 4px 16px rgba(37,99,235,.22);">
-                    <i class="mdi mdi-calendar-month" style="font-size:18px;"></i>
-                    Ver calendario completo de estudios
-                </a>
 
             </div>{{-- /col izq --}}
 
             {{-- COL DERECHA: Citas de hoy ───────────────── --}}
-            <div>
-                <div class="ec-panel-card">
-                    <div class="ec-panel-head">
-                        <i class="mdi mdi-calendar-today" style="color:var(--blue);font-size:22px;"></i>
-                        <div>
-                            <div class="ec-panel-head__title">Citas de hoy</div>
-                            <div class="ec-panel-head__sub">
-                                {{ ucfirst(Carbon::parse($fecha['fecha_hoy'])->isoFormat('dddd D [de] MMMM')) }}
-                            </div>
-                        </div>
-                    </div>
-                    <div class="ec-panel-body">
-                        @forelse($citasHoy as $cita)
-                            @php
-                                $esLab = $cita->id_servicio == $idLab;
-                            @endphp
-                            <div class="ec-cita-row">
-                                <div class="ec-cita-row__hora">
-                                    {{ \Illuminate\Support\Str::limit($cita->hora_inicio, 5, '') }}
-                                </div>
-                                <div class="ec-cita-row__pac">{{ $cita->nombre_paciente }}</div>
-                                <span class="ec-cita-badge {{ $esLab ? 'ec-cita-badge--lab' : 'ec-cita-badge--img' }}">
-                                    {{ $esLab ? 'LAB' : 'IMG' }}
-                                </span>
-                            </div>
-                        @empty
-                            <div class="ec-panel-empty">
-                                <i class="mdi mdi-calendar-blank"></i>
-                                Sin citas de estudios para hoy.
-                            </div>
-                        @endforelse
-                    </div>
-                </div>
 
-                {{-- Recursos disponibles --}}
-                <div class="ec-panel-card" style="margin-top:16px;">
-                    <div class="ec-panel-head">
-                        <i class="mdi mdi-hospital-box" style="color:var(--blue);font-size:22px;"></i>
-                        <div>
-                            <div class="ec-panel-head__title">Recursos disponibles</div>
-                            <div class="ec-panel-head__sub">Unidades activas en la red</div>
-                        </div>
-                    </div>
-                    <div class="ec-panel-body">
-                        @foreach ($recursosLab->merge($recursosImagen) as $rec)
-                            <div class="ec-cita-row" style="gap:12px;">
-                                <i class="mdi mdi-{{ $rec->tipo_recurso === 'LABORATORIO' ? 'flask' : 'radioactive' }}"
-                                    style="color:var(--blue);font-size:18px;flex-shrink:0;"></i>
-                                <div style="flex:1;min-width:0;">
-                                    <div
-                                        style="font-size:12.5px;font-weight:700;color:var(--cream);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
-                                        {{ $rec->nombre_recurso }}
-                                    </div>
-                                    <div style="font-size:11px;color:var(--text-muted);">{{ $rec->tipo_recurso }}</div>
-                                </div>
-                            </div>
-                        @endforeach
-                    </div>
-                </div>
-            </div>
 
         </div>{{-- /ec-layout --}}
     </div>{{-- /ec-wrap --}}
@@ -991,8 +1128,23 @@
             // ── Búsqueda ──────────────────────────────────
             function filterEstudios(term) {
                 const activePanel = document.querySelector('.ec-tab-panel.is-active');
+
+                // Filter studies inside provider groups
+                activePanel.querySelectorAll('.ec-proveedor-group').forEach(group => {
+                    let visibleCount = 0;
+                    group.querySelectorAll('.ec-estudio').forEach(el => {
+                        const match = !term || el.dataset.nombre.includes(term);
+                        el.classList.toggle('hidden', !match);
+                        if (match) visibleCount++;
+                    });
+                    group.classList.toggle('hidden', term && visibleCount === 0);
+                });
+
+                // Filter studies directly under the panel (if any)
                 activePanel.querySelectorAll('.ec-estudio').forEach(el => {
-                    el.classList.toggle('hidden', term && !el.dataset.nombre.includes(term));
+                    if (!el.closest('.ec-proveedor-group')) {
+                        el.classList.toggle('hidden', term && !el.dataset.nombre.includes(term));
+                    }
                 });
             }
 
@@ -1014,6 +1166,23 @@
 
             inp.addEventListener('keydown', e => {
                 if (e.key === 'Escape') clear.click();
+            });
+
+            // ── Acordeón proveedores ──────────────────
+            document.querySelectorAll('.ec-accordion-btn').forEach(btn => {
+                const targetSel = btn.dataset.target;
+                const panel = document.querySelector(targetSel);
+                if (!panel) return;
+
+                // Start open
+                btn.classList.add('is-open');
+                panel.classList.add('is-open');
+
+                btn.addEventListener('click', () => {
+                    const isOpen = btn.classList.toggle('is-open');
+                    panel.classList.toggle('is-open', isOpen);
+                    btn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+                });
             });
 
         })();

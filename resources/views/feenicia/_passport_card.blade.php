@@ -101,6 +101,6 @@
 <div class="digi-passport-card" style="text-align:center;padding:2rem;">
     <i class="mdi mdi-card-off-outline" style="font-size:3rem;color:#cbd5e1;display:block;margin-bottom:.75rem;"></i>
     <h4 style="font-family:'Syne',sans-serif;color:#1e3a5f;margin-bottom:.5rem;">No tienes un pasaporte activo</h4>
-    <p style="color:#64748b;font-size:.88rem;">Realiza tu primer pago para activar tu membresía PATS.</p>
+    <p style="color:#64748b;font-size:.88rem;">Realiza tu primer pago para activar tu pasaporte PATS.</p>
 </div>
 @endif

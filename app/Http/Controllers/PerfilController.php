@@ -65,4 +65,46 @@ class PerfilController extends Controller
 
         return back()->with('password_ok', 'Contraseña actualizada correctamente.');
     }
+
+    public function actualizarFoto(Request $request)
+    {
+        $request->validate([
+            'foto' => ['required', 'image', 'mimes:jpeg,png,jpg', 'max:5120'],
+        ]);
+
+        $user = auth()->user();
+        if (!$user->id_pasaporte) {
+            return response()->json(['error' => 'No tiene un pasaporte asignado para actualizar la foto.'], 403);
+        }
+
+        $file = $request->file('foto');
+        $filename = 'user_' . $user->id_acceso . '_' . time() . '.' . $file->getClientOriginalExtension();
+        $directory = public_path('images/users/' . $user->id_acceso);
+
+        if (!file_exists($directory)) {
+            mkdir($directory, 0755, true);
+        }
+
+        // Obtener pasaporte actual para borrar foto vieja
+        $pasaporte = DB::table('pats_pasaportes')->where('id_pasaporte', $user->id_pasaporte)->first();
+        if ($pasaporte && $pasaporte->foto_usuario) {
+            $oldPath = public_path($pasaporte->foto_usuario);
+            if (file_exists($oldPath) && is_file($oldPath)) {
+                @unlink($oldPath);
+            }
+        }
+
+        $file->move($directory, $filename);
+
+        $fotoPath = 'images/users/' . $user->id_acceso . '/' . $filename;
+
+        DB::table('pats_pasaportes')
+            ->where('id_pasaporte', $user->id_pasaporte)
+            ->update([
+                'foto_usuario' => $fotoPath,
+                'updated_at' => now(),
+            ]);
+
+        return response()->json(['success' => true, 'url' => asset($fotoPath)]);
+    }
 }

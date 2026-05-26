@@ -578,10 +578,59 @@
 
             .esp-grid {
                 grid-template-columns: 1fr;
+                gap: 12px;
             }
 
             .esp-stats {
                 flex-direction: column;
+                gap: 10px;
+            }
+
+            .esp-stat {
+                padding: 14px 18px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .esp-wrap {
+                padding: 0 12px 60px;
+            }
+
+            .esp-header {
+                padding: 18px 0 14px;
+                gap: 10px;
+            }
+
+            .esp-fecha {
+                display: none;
+            }
+
+            .esp-title {
+                font-size: 26px;
+            }
+
+            .esp-stat__num {
+                font-size: 22px;
+            }
+
+            .esp-search {
+                padding: 12px 14px 12px 44px;
+                font-size: 14px;
+            }
+
+            .esp-card {
+                padding: 18px;
+            }
+
+            .esp-card__icon {
+                width: 44px;
+                height: 44px;
+                font-size: 20px;
+                margin-bottom: 10px;
+            }
+
+            .esp-card__esp {
+                font-size: 14px;
             }
         }
     </style>
@@ -750,9 +799,7 @@
                                         <p class="med-card__esp">
                                             <i class="mdi mdi-tag-outline" style="font-size:13px;color:var(--blue);"></i>
                                             {{ $medico->especialidad ?? $especialidad }}
-                                            @if ($medico->capacidad > 1)
-                                                · Capacidad: {{ $medico->capacidad }}
-                                            @endif
+
                                         </p>
                                     </div>
                                 </div>

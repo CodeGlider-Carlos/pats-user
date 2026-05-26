@@ -262,10 +262,52 @@
         @media (max-width: 560px) {
             .db-grid {
                 grid-template-columns: 1fr;
+                gap: 14px;
             }
 
             .db-wrap {
-                padding: 28px 16px 60px;
+                padding: 24px 16px 60px;
+            }
+
+            .db-header {
+                flex-direction: column;
+                align-items: flex-start;
+                margin-bottom: 28px;
+                gap: 12px;
+            }
+
+            .db-badges {
+                flex-wrap: wrap;
+            }
+
+            .db-card__body {
+                padding: 22px 20px 18px;
+            }
+
+            .db-header__greeting {
+                font-size: 28px;
+            }
+        }
+
+        @media (max-width: 400px) {
+            .db-card__icon-wrap {
+                width: 58px;
+                height: 58px;
+                border-radius: 14px;
+                margin-bottom: 14px;
+            }
+
+            .db-card__icon-img {
+                width: 34px;
+                height: 34px;
+            }
+
+            .db-card__title {
+                font-size: 15px;
+            }
+
+            .db-card__body {
+                padding: 18px 16px 16px;
             }
         }
     </style>
@@ -315,7 +357,7 @@
                     'subtitle' => 'Atención médica básica con nuestros médicos',
                     'color' => '#87a924',
                     'icon' => 'consulta-general.svg',
-                    'url' => '/servicios/hospitales',
+                    'url' => '/hospitales',
                     'label' => 'Ver hospitales',
                 ],
                 [

@@ -5,27 +5,27 @@
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Syne:wght@600;700&display=swap');
 
 :root {
-  --navy:        #f0f4fb;
-  --navy-light:  #e2eaf6;
-  --blue:        #2563eb;
-  --blue-light:  #60a5fa;
-  --cream:       #1e3a5f;
-  --cream-dark:  #2d4a6e;
-  --text:        #1e3a5f;
-  --text-muted:  #6b85a8;
-  --white:       #ffffff;
-  --success:     #0e7a5f;
-  --border:      rgba(37, 99, 235, 0.12);
+  --navy: #f0f4fb;
+  --navy-light: #e2eaf6;
+  --blue: #2563eb;
+  --blue-light: #60a5fa;
+  --cream: #1e3a5f;
+  --cream-dark: #2d4a6e;
+  --text: #1e3a5f;
+  --text-muted: #6b85a8;
+  --white: #ffffff;
+  --success: #0e7a5f;
+  --border: rgba(37, 99, 235, 0.12);
 
-  --topbar-h:    64px;
-  --subnav-h:    48px;
-  --radius-sm:   8px;
-  --radius-md:   12px;
-  --radius-lg:   16px;
-  --shadow-sm:   0 1px 3px rgba(30,58,95,0.08), 0 1px 2px rgba(30,58,95,0.06);
-  --shadow-md:   0 4px 16px rgba(30,58,95,0.12), 0 2px 6px rgba(30,58,95,0.08);
-  --shadow-lg:   0 8px 32px rgba(30,58,95,0.14), 0 4px 12px rgba(30,58,95,0.08);
-  --transition:  0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  --topbar-h: 64px;
+  --subnav-h: 48px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --shadow-sm: 0 1px 3px rgba(30, 58, 95, 0.08), 0 1px 2px rgba(30, 58, 95, 0.06);
+  --shadow-md: 0 4px 16px rgba(30, 58, 95, 0.12), 0 2px 6px rgba(30, 58, 95, 0.08);
+  --shadow-lg: 0 8px 32px rgba(30, 58, 95, 0.14), 0 4px 12px rgba(30, 58, 95, 0.08);
+  --transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* ---- LAYOUT ---- */
@@ -46,11 +46,12 @@
 
 /* ---- TOPBAR ---- */
 .digi-topbar {
-  background: var(--white);
+  /* background: var(--white); */
   height: var(--topbar-h);
   border-bottom: 1px solid var(--border);
   box-shadow: var(--shadow-sm);
   position: relative;
+  background: radial-gradient(circle at 90% 0%, rgba(0, 217, 200, .16), transparent 30%), linear-gradient(135deg, rgba(7, 17, 39, .96), rgba(11, 29, 83, .95) 54%, rgba(15, 48, 128, .94));
 }
 
 .digi-topbar .digi-container {
@@ -62,7 +63,7 @@
 .digi-brand {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 0px;
   text-decoration: none;
   color: var(--text);
 }
@@ -119,7 +120,7 @@
 }
 
 .digi-icon-btn:hover {
-  background: var(--navy);
+  background: rgba(255, 255, 255, .10);
   color: var(--blue);
 }
 
@@ -158,7 +159,7 @@
 }
 
 .digi-user-btn:hover {
-  background: var(--navy);
+  background: rgba(255, 255, 255, .10);
   border-color: var(--border);
 }
 
@@ -192,7 +193,7 @@
 .digi-user-info__name {
   font-size: 13px;
   font-weight: 600;
-  color: var(--text);
+  color: var(--white);
   line-height: 1.2;
 }
 
@@ -285,7 +286,7 @@
 }
 
 .digi-notif-item:hover {
-  background: var(--navy);
+  background: rgba(255, 255, 255, .10);
 }
 
 .digi-notif-item__icon {
@@ -314,13 +315,18 @@
   color: #b45309;
 }
 
-.digi-notif-item__body { flex: 1; min-width: 0; }
+.digi-notif-item__body {
+  flex: 1;
+  min-width: 0;
+}
+
 .digi-notif-item__title {
   font-size: 13px;
   font-weight: 600;
   color: var(--text);
   margin: 0 0 2px;
 }
+
 .digi-notif-item__desc {
   font-size: 12px;
   color: var(--text-muted);
@@ -329,6 +335,7 @@
   overflow: hidden;
   text-overflow: ellipsis;
 }
+
 .digi-notif-item__time {
   font-size: 11px;
   color: var(--text-muted);
@@ -347,7 +354,9 @@
   transition: background var(--transition);
 }
 
-.digi-dropdown__footer:hover { background: var(--navy); }
+.digi-dropdown__footer:hover {
+  background: var(--navy);
+}
 
 /* ---- USER DROPDOWN ---- */
 .digi-dropdown__profile {
@@ -391,12 +400,25 @@
   border-radius: var(--radius-sm);
 }
 
-.digi-dropdown__item:hover { background: var(--navy); }
-.digi-dropdown__item svg { color: var(--text-muted); }
+.digi-dropdown__item:hover {
+  background: var(--navy);
+}
 
-.digi-dropdown__item--danger { color: #dc2626; }
-.digi-dropdown__item--danger:hover { background: #fef2f2; }
-.digi-dropdown__item--danger svg { color: #dc2626; }
+.digi-dropdown__item svg {
+  color: var(--text-muted);
+}
+
+.digi-dropdown__item--danger {
+  color: #dc2626;
+}
+
+.digi-dropdown__item--danger:hover {
+  background: #fef2f2;
+}
+
+.digi-dropdown__item--danger svg {
+  color: #dc2626;
+}
 
 /* ---- SUBNAV ---- */
 .digi-subnav {
@@ -419,7 +441,11 @@
   height: 100%;
 }
 
-.digi-nav__item { height: 100%; display: flex; align-items: center; }
+.digi-nav__item {
+  height: 100%;
+  display: flex;
+  align-items: center;
+}
 
 .digi-nav__link {
   display: flex;
@@ -437,7 +463,9 @@
   white-space: nowrap;
 }
 
-.digi-nav__link svg { transition: color var(--transition); }
+.digi-nav__link svg {
+  transition: color var(--transition);
+}
 
 .digi-nav__link:hover {
   color: var(--blue);
@@ -450,7 +478,9 @@
   font-weight: 600;
 }
 
-.digi-nav__link.is-active svg { color: var(--blue); }
+.digi-nav__link.is-active svg {
+  color: var(--blue);
+}
 
 /* ---- FAB MOBILE ---- */
 .digi-fab {
@@ -545,14 +575,163 @@
 }
 
 /* ---- UTILITIES ---- */
-.d-none { display: none !important; }
-.d-lg-none { display: flex !important; }
+.d-none {
+  display: none !important;
+}
+
+.d-lg-none {
+  display: flex !important;
+}
 
 @media (min-width: 992px) {
-  .d-lg-none { display: none !important; }
-  .d-none.d-md-block { display: flex !important; }
+  .d-lg-none {
+    display: none !important;
+  }
+
+  .d-none.d-md-block {
+    display: flex !important;
+  }
 }
 
 @media (min-width: 768px) {
-  .d-none.d-md-block { display: flex !important; }
+  .d-none.d-md-block {
+    display: flex !important;
+  }
+}
+
+/* ======================================================
+   MOBILE BOTTOM TAB BAR
+   Oculta subnav + FAB y muestra bottom nav nativa
+   Solo activo en ≤ 767px — desktop no se toca
+   ====================================================== */
+
+/* Oculto por defecto en desktop */
+.digi-bottom-nav {
+  display: none;
+}
+
+@media (max-width: 767px) {
+
+  /* ── Compactar topbar ─────────────────────── */
+  .digi-navbar {
+    --topbar-h: 56px;
+  }
+
+  .digi-topbar {
+    height: 56px;
+  }
+
+  /* Logo más chico en pantallas pequeñas — height controls size, width stays auto */
+  .digi-brand img {
+    height: 26px !important;
+    width: auto !important;
+  }
+
+  /* ── Ocultar subnav y FAB ─────────────────── */
+  .digi-subnav {
+    display: none !important;
+  }
+
+  .digi-fab {
+    display: none !important;
+  }
+
+  /* ── Arreglar dropdown de notif en móvil ─── */
+  /* En desktop: left:0 → en móvil va fuera de pantalla */
+  .digi-dropdown .digi-dropdown__panel:not(.digi-dropdown__panel--right) {
+    left: auto;
+    right: -8px;
+    min-width: min(300px, calc(100vw - 20px));
+  }
+
+  /* User dropdown: ajustar por si se recorta */
+  .digi-dropdown__panel--right {
+    right: -8px;
+    min-width: min(220px, calc(100vw - 20px));
+  }
+
+  /* Texto de notificaciones que no se corte */
+  .digi-notif-item__desc {
+    white-space: normal;
+  }
+
+  /* ── Añadir padding al contenido para la bottom nav ── */
+  .content-wrapper {
+    padding-bottom: calc(64px + env(safe-area-inset-bottom, 0px));
+  }
+
+  /* ══════════════════════════════════════════
+     BOTTOM TAB BAR
+     ══════════════════════════════════════════ */
+  .digi-bottom-nav {
+    display: flex;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 1100;
+    background: var(--white);
+    border-top: 1px solid var(--border);
+    box-shadow: 0 -4px 24px rgba(30, 58, 95, 0.10);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
+  .digi-bottom-nav__item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    padding: 10px 4px 8px;
+    text-decoration: none;
+    color: var(--text-muted);
+    font-size: 10px;
+    font-weight: 500;
+    font-family: 'DM Sans', sans-serif;
+    letter-spacing: 0.01em;
+    transition: color var(--transition);
+    min-height: 58px;
+    position: relative;
+  }
+
+  /* Indicador activo: píldora detrás del ícono */
+  .digi-bottom-nav__icon-wrap {
+    position: relative;
+    width: 40px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 14px;
+    transition: background var(--transition);
+  }
+
+  .digi-bottom-nav__item.is-active .digi-bottom-nav__icon-wrap {
+    background: rgba(37, 99, 235, 0.10);
+  }
+
+  .digi-bottom-nav__item svg {
+    width: 20px;
+    height: 20px;
+    stroke: currentColor;
+  }
+
+  .digi-bottom-nav__item.is-active {
+    color: var(--blue);
+  }
+
+  .digi-bottom-nav__item:hover {
+    color: var(--blue);
+  }
+
+  .digi-bottom-nav__item:hover .digi-bottom-nav__icon-wrap {
+    background: rgba(37, 99, 235, 0.07);
+  }
+
+  /* Etiqueta debajo del ícono */
+  .digi-bottom-nav__item span {
+    font-size: 10px;
+    line-height: 1;
+  }
 }

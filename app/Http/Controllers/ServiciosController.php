@@ -3,6 +3,13 @@
 namespace App\Http\Controllers;
 
 use Carbon\Carbon;
+use App\Models\PatsCatMedicamento;
+use App\Models\PatsCatEstudioLaboratorio;
+use App\Models\PatsCatEstudioRx;
+use App\Models\PatsCatProveedor;
+use App\Models\PatsCatCx;
+
+
 
 class ServiciosController extends Controller
 {
@@ -19,12 +26,28 @@ class ServiciosController extends Controller
             'timestamp'     => $now->toDateTimeString(),
         ];
     }
+    public function hospitales()
+    {
+        $hospitales = PatsCatProveedor::where('categoria', 'hospital')->where('activo', true)->get();
 
+        return view('servicios.hospitales', compact('hospitales'));
+    }
     // ── 1. Atención Médica  →  /atencion-medica ─────────────────
-    // View defines all its own mock data inline; nothing to pass.
     public function atencionMedica()
     {
-        return view('servicios.atencion-medica');
+        // Proveedores activos (categoría Hospitales) para el banner de urgencias
+        $hospitales = PatsCatProveedor::where('categoria', 'hospital')
+            ->where('activo', true)
+            ->get();
+        // Procedimientos activos con su proveedor, agrupados por especialidad
+        $serviciosMedicos = PatsCatCx::with('proveedor')
+            ->where('activo', true)
+            ->orderBy('especialidad')
+            ->orderBy('procedimiento')
+            ->get()
+            ->groupBy('especialidad');
+
+        return view('servicios.atencion-medica', compact('hospitales', 'serviciosMedicos'));
     }
 
     // ── 2. Estudios Clínicos  →  /estudios-clinicos ─────────────
@@ -34,21 +57,10 @@ class ServiciosController extends Controller
         $now   = Carbon::now('America/Mexico_City');
         $idLab = 5; $idImagen = 3;
 
-        $estudiosLab = collect([
-            (object)['nombre_estudio' => 'Biometría Hemática Completa',        'preparacion_resumen' => 'Ayuno de 8 horas',              'duracion_min' => 15, 'requiere_cita' => false],
-            (object)['nombre_estudio' => 'Química Sanguínea 6 elementos',      'preparacion_resumen' => 'Ayuno de 8 horas',              'duracion_min' => 15, 'requiere_cita' => false],
-            (object)['nombre_estudio' => 'Perfil de Lípidos',                  'preparacion_resumen' => 'Ayuno de 12 horas',             'duracion_min' => 20, 'requiere_cita' => false],
-            (object)['nombre_estudio' => 'Glucosa en ayunas',                  'preparacion_resumen' => 'Ayuno de 8 horas',              'duracion_min' => 10, 'requiere_cita' => false],
-            (object)['nombre_estudio' => 'Hemoglobina Glicosilada (HbA1c)',    'preparacion_resumen' => null,                            'duracion_min' => 10, 'requiere_cita' => false],
-            (object)['nombre_estudio' => 'Examen General de Orina',            'preparacion_resumen' => 'Primera orina del día',         'duracion_min' => 10, 'requiere_cita' => false],
-            (object)['nombre_estudio' => 'Prueba de Embarazo (hCG)',           'preparacion_resumen' => null,                            'duracion_min' => 10, 'requiere_cita' => false],
-            (object)['nombre_estudio' => 'TSH (Tiroides)',                     'preparacion_resumen' => 'Sin ayuno necesario',           'duracion_min' => 10, 'requiere_cita' => false],
-            (object)['nombre_estudio' => 'Ácido Úrico',                        'preparacion_resumen' => 'Ayuno de 4 horas',              'duracion_min' => 10, 'requiere_cita' => false],
-            (object)['nombre_estudio' => 'Cultivo de orina',                   'preparacion_resumen' => 'Muestra de primera orina',      'duracion_min' => 15, 'requiere_cita' => true],
-            (object)['nombre_estudio' => 'Perfil Hepático',                    'preparacion_resumen' => 'Ayuno de 8 horas',              'duracion_min' => 20, 'requiere_cita' => false],
-            (object)['nombre_estudio' => 'Antígeno Prostático Específico (PSA)','preparacion_resumen' => 'Sin contacto sexual 48 h antes','duracion_min' => 10, 'requiere_cita' => false],
-        ]);
+        $estudiosLab = PatsCatEstudioLaboratorio::with('proveedor')->where('activo', true)->get();
 
+        // The following variables are commented out as they are unused in the active parts of the view.
+        /*
         $estudiosImagen = collect([
             (object)['nombre_estudio' => 'Ultrasonido Abdominal',  'preparacion_resumen' => 'Ayuno de 4 horas',     'duracion_min' => 30, 'requiere_cita' => true],
             (object)['nombre_estudio' => 'TAC de Cráneo',          'preparacion_resumen' => null,                   'duracion_min' => 20, 'requiere_cita' => true],
@@ -94,18 +106,21 @@ class ServiciosController extends Controller
             (object)['id_servicio' => $idLab,    'hora_inicio' => '08:00:00', 'nombre_paciente' => 'Marcos Lima Vega'],
             (object)['id_servicio' => $idImagen, 'hora_inicio' => '09:00:00', 'nombre_paciente' => 'Elena Soto Mora'],
         ]);
+        */
 
         return view('servicios.estudios-clinicos', compact(
-            'fecha', 'estudiosLab', 'estudiosImagen',
-            'recursosLab', 'recursosImagen',
-            'proximoLab', 'proximoImagen',
-            'citasHoy', 'idLab', 'idImagen'
-        ) + [
+            'fecha', 'estudiosLab'
+            // 'estudiosImagen',
+            // 'recursosLab', 'recursosImagen',
+            // 'proximoLab', 'proximoImagen',
+            // 'citasHoy', 'idLab', 'idImagen'
+        ) /* + [
             'totalBloqLab'    => $proximoLab->flatten()->count(),
             'totalBloqImagen' => $proximoImagen->flatten()->count(),
             'servicios'       => collect(),
-        ]);
+        ] */);
     }
+
 
     // ── 3. Rayos / Imagenología  →  /rayos ──────────────────────
     public function rayos()
@@ -115,41 +130,29 @@ class ServiciosController extends Controller
 
         $servicio = (object)['id_servicio' => 3, 'clave' => 'IMAGEN', 'region' => 'JAL', 'unidad' => 'ZR'];
 
-        $estudios = collect([
-            (object)['nombre_estudio' => 'Radiografía de Tórax AP/PA',    'preparacion_resumen' => null,                    'duracion_min' => 15, 'requiere_cita' => false],
-            (object)['nombre_estudio' => 'Radiografía de Columna Lumbar', 'preparacion_resumen' => null,                    'duracion_min' => 15, 'requiere_cita' => false],
-            (object)['nombre_estudio' => 'Ultrasonido Abdominal',         'preparacion_resumen' => 'Ayuno de 4 horas',      'duracion_min' => 30, 'requiere_cita' => true],
-            (object)['nombre_estudio' => 'Ultrasonido Pélvico',           'preparacion_resumen' => 'Vejiga llena',          'duracion_min' => 30, 'requiere_cita' => true],
-            (object)['nombre_estudio' => 'TAC de Cráneo simple',          'preparacion_resumen' => null,                    'duracion_min' => 20, 'requiere_cita' => true],
-            (object)['nombre_estudio' => 'TAC de Tórax',                  'preparacion_resumen' => null,                    'duracion_min' => 25, 'requiere_cita' => true],
-            (object)['nombre_estudio' => 'TAC de Abdomen contrastada',    'preparacion_resumen' => 'Ayuno de 4 horas',      'duracion_min' => 30, 'requiere_cita' => true],
-            (object)['nombre_estudio' => 'Resonancia Magnética Cerebral', 'preparacion_resumen' => 'Sin objetos metálicos', 'duracion_min' => 45, 'requiere_cita' => true],
-            (object)['nombre_estudio' => 'Resonancia Magnética de Rodilla','preparacion_resumen' => null,                   'duracion_min' => 40, 'requiere_cita' => true],
-            (object)['nombre_estudio' => 'Mamografía',                    'preparacion_resumen' => null,                    'duracion_min' => 20, 'requiere_cita' => true],
-            (object)['nombre_estudio' => 'Densitometría Ósea',            'preparacion_resumen' => null,                    'duracion_min' => 20, 'requiere_cita' => true],
-        ]);
+        $estudios = PatsCatEstudioRx::with('proveedor')->where('activo', true)->get();
 
         $recursos = collect([
-            (object)['nombre_recurso' => 'TAC 64 cortes',       'tipo_recurso' => 'TAC'],
-            (object)['nombre_recurso' => 'Ultrasonido General', 'tipo_recurso' => 'ULTRASONIDO'],
-            (object)['nombre_recurso' => 'Mamógrafo Digital',   'tipo_recurso' => 'MAMOGRAFIA'],
-            (object)['nombre_recurso' => 'Densitómetro DXA',    'tipo_recurso' => 'DENSITOMETRIA'],
-            (object)['nombre_recurso' => 'Rayos X Digital 1',   'tipo_recurso' => 'RAYOS_X'],
-            (object)['nombre_recurso' => 'Rayos X Digital 2',   'tipo_recurso' => 'RAYOS_X'],
+            (object)['id_recurso'=>'001','nombre_recurso' => 'TAC 64 cortes',       'tipo_recurso' => 'TAC', 'capacidad' => '1'],
+            (object)['id_recurso'=>'002','nombre_recurso' => 'Ultrasonido General', 'tipo_recurso' => 'ULTRASONIDO', 'capacidad' => '1'],
+            (object)['id_recurso'=>'003','nombre_recurso' => 'Mamógrafo Digital',   'tipo_recurso' => 'MAMOGRAFIA', 'capacidad' => '1'],
+            (object)['id_recurso'=>'004','nombre_recurso' => 'Densitómetro DXA',    'tipo_recurso' => 'DENSITOMETRIA', 'capacidad' => '1'],
+            (object)['id_recurso'=>'005','nombre_recurso' => 'Rayos X Digital 1',   'tipo_recurso' => 'RAYOS_X', 'capacidad' => '1'],
+            (object)['id_recurso'=>'006','nombre_recurso' => 'Rayos X Digital 2',   'tipo_recurso' => 'RAYOS_X', 'capacidad' => '1'],
         ]);
 
         $agendaHoy = collect([
-            (object)['tipo_bloque' => 'RESERVADO',   'fecha_inicio' => $now->copy()->setTime(8,  0)->toDateTimeString(), 'nombre_recurso' => 'TAC 64 cortes',       'tipo_recurso' => 'TAC'],
-            (object)['tipo_bloque' => 'DISPONIBLE',  'fecha_inicio' => $now->copy()->setTime(9,  0)->toDateTimeString(), 'nombre_recurso' => 'TAC 64 cortes',       'tipo_recurso' => 'TAC'],
-            (object)['tipo_bloque' => 'DISPONIBLE',  'fecha_inicio' => $now->copy()->setTime(9, 30)->toDateTimeString(), 'nombre_recurso' => 'Ultrasonido General', 'tipo_recurso' => 'ULTRASONIDO'],
-            (object)['tipo_bloque' => 'RESERVADO',   'fecha_inicio' => $now->copy()->setTime(10, 0)->toDateTimeString(), 'nombre_recurso' => 'Ultrasonido General', 'tipo_recurso' => 'ULTRASONIDO'],
-            (object)['tipo_bloque' => 'DISPONIBLE',  'fecha_inicio' => $now->copy()->setTime(10,30)->toDateTimeString(), 'nombre_recurso' => 'Rayos X Digital 1',   'tipo_recurso' => 'RAYOS_X'],
-            (object)['tipo_bloque' => 'DISPONIBLE',  'fecha_inicio' => $now->copy()->setTime(11, 0)->toDateTimeString(), 'nombre_recurso' => 'Rayos X Digital 1',   'tipo_recurso' => 'RAYOS_X'],
+            (object)['tipo_bloque' => 'RESERVADO',   'fecha_inicio' => $now->copy()->setTime(8,  0)->toDateTimeString(),'fecha_fin' => $now->copy()->setTime(9,  0)->toDateTimeString(), 'id_recurso'=>'001','nombre_recurso' => 'TAC 64 cortes',       'tipo_recurso' => 'TAC'],
+            (object)['tipo_bloque' => 'DISPONIBLE',  'fecha_inicio' => $now->copy()->setTime(9,  0)->toDateTimeString(),'fecha_fin' => $now->copy()->setTime(9,  30)->toDateTimeString(), 'id_recurso'=>'001','nombre_recurso' => 'TAC 64 cortes',       'tipo_recurso' => 'TAC'],
+            (object)['tipo_bloque' => 'DISPONIBLE',  'fecha_inicio' => $now->copy()->setTime(9, 30)->toDateTimeString(),'fecha_fin' => $now->copy()->setTime(10,  0)->toDateTimeString(), 'id_recurso'=>'002','nombre_recurso' => 'Ultrasonido General', 'tipo_recurso' => 'ULTRASONIDO'],
+            (object)['tipo_bloque' => 'RESERVADO',   'fecha_inicio' => $now->copy()->setTime(10, 0)->toDateTimeString(),'fecha_fin' => $now->copy()->setTime(10,  30)->toDateTimeString(), 'id_recurso'=>'002','nombre_recurso' => 'Ultrasonido General', 'tipo_recurso' => 'ULTRASONIDO'],
+            (object)['tipo_bloque' => 'DISPONIBLE',  'fecha_inicio' => $now->copy()->setTime(10,30)->toDateTimeString(),'fecha_fin' => $now->copy()->setTime(11,  0)->toDateTimeString(), 'id_recurso'=>'005','nombre_recurso' => 'Rayos X Digital 1',   'tipo_recurso' => 'RAYOS_X'],
+            (object)['tipo_bloque' => 'DISPONIBLE',  'fecha_inicio' => $now->copy()->setTime(11, 0)->toDateTimeString(),'fecha_fin' => $now->copy()->setTime(11,  30)->toDateTimeString(), 'id_recurso'=>'005','nombre_recurso' => 'Rayos X Digital 1',   'tipo_recurso' => 'RAYOS_X'],
         ]);
 
         $citasHoy = collect([
-            (object)['hora_inicio' => '08:00:00', 'nombre_paciente' => 'Silvia Moreno Castro'],
-            (object)['hora_inicio' => '10:00:00', 'nombre_paciente' => 'Felipe Ríos Blanco'],
+            (object)['hora_inicio' => '08:00:00', 'nombre_paciente' => 'Silvia Moreno Castro', 'estatus'=>'CONFIRMADO'],
+            (object)['hora_inicio' => '10:00:00', 'nombre_paciente' => 'Felipe Ríos Blanco', 'estatus'=>'EN PROCESO'],
         ]);
 
         $proximaDispRaw = [];
@@ -183,41 +186,18 @@ class ServiciosController extends Controller
     {
         $fecha = $this->fechaContexto();
 
-        $medicamentos = collect([
-            (object)['medicamento' => 'Acetaminofén 500mg (Paracetamol)',     'precio' => 45.00],
-            (object)['medicamento' => 'Amoxicilina 500mg',                    'precio' => 120.00],
-            (object)['medicamento' => 'Atorvastatina 20mg',                   'precio' => 180.00],
-            (object)['medicamento' => 'Azitromicina 500mg',                   'precio' => 95.00],
-            (object)['medicamento' => 'Captopril 25mg',                       'precio' => 55.00],
-            (object)['medicamento' => 'Clonazepam 0.5mg',                     'precio' => 85.00],
-            (object)['medicamento' => 'Diclofenaco Sódico 100mg',             'precio' => 60.00],
-            (object)['medicamento' => 'Enalapril 10mg',                       'precio' => 75.00],
-            (object)['medicamento' => 'Fluconazol 150mg',                     'precio' => 110.00],
-            (object)['medicamento' => 'Ibuprofeno 400mg',                     'precio' => 50.00],
-            (object)['medicamento' => 'Losartán 50mg',                        'precio' => 140.00],
-            (object)['medicamento' => 'Metformina 850mg',                     'precio' => 65.00],
-            (object)['medicamento' => 'Metoprolol 50mg',                      'precio' => 90.00],
-            (object)['medicamento' => 'Naproxeno Sódico 275mg',               'precio' => 55.00],
-            (object)['medicamento' => 'Omeprazol 20mg',                       'precio' => 70.00],
-            (object)['medicamento' => 'Pantoprazol 40mg',                     'precio' => 95.00],
-            (object)['medicamento' => 'Ranitidina 150mg',                     'precio' => 45.00],
-            (object)['medicamento' => 'Sertralina 50mg',                      'precio' => 160.00],
-            (object)['medicamento' => 'Sildenafil 50mg',                      'precio' => 200.00],
-            (object)['medicamento' => 'Trimetoprim/Sulfametoxazol 800/160mg', 'precio' => 80.00],
-        ]);
+        $medicamentos = PatsCatMedicamento::where('activo', true)->get();
 
-        $medicamentosInactivos = collect([
-            (object)['medicamento' => 'Codeína 30mg (baja temporal)', 'precio' => 0],
-            (object)['medicamento' => 'Tramadol 50mg (sin stock)',    'precio' => 0],
-        ]);
+        $medicamentosInactivos = PatsCatMedicamento::where('activo', false)->get();
 
         $stats = [
             'total_activos'   => $medicamentos->count(),
             'total_inactivos' => $medicamentosInactivos->count(),
-            'precio_promedio' => round($medicamentos->avg('precio'), 2),
-            'precio_max'      => $medicamentos->max('precio'),
-            'precio_min'      => $medicamentos->min('precio'),
+            'precio_promedio' => round($medicamentos->avg('precio_pats') ?? 0, 2),
+            'precio_max'      => $medicamentos->max('precio_pats') ?? 0,
+            'precio_min'      => $medicamentos->min('precio_pats') ?? 0,
         ];
+
 
         $entregasHoy = collect([
             (object)['hora_inicio' => '09:00', 'nombre_paciente' => 'Carlos Méndez Torres'],
@@ -232,8 +212,7 @@ class ServiciosController extends Controller
         ]);
 
         return view('servicios.farmacia', compact(
-            'fecha', 'medicamentos', 'medicamentosInactivos',
-            'stats', 'entregasHoy', 'unidades'
+            'fecha', 'medicamentos', 'medicamentosInactivos', 'stats','entregasHoy', 'unidades'
         ) + [
             'totalUnidades'       => $unidades->count(),
             'preordenesPendientes'=> collect(),
