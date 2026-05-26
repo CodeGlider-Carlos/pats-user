@@ -188,3 +188,4 @@ Route::prefix('portal')->name('portal.')->group(function () {
 
 Route::get('/contrato/franquicia',     fn () => view('pats.contrato_franq'))->name('franq.contrato');
 Route::get('/contrato/franquicia/en',  fn () => view('pats.contrato_dist_en'))->name('franq.contrato.en');
+Route::get('/contrato/distribucion',   fn () => view('pats.contrato_dist'))->name('dist.contrato');
