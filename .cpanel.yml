@@ -1,0 +1,16 @@
+---
+deployment:
+  tasks:
+    # Copy public/ contents to the subdomain document root
+    - /bin/cp -R public/. /home2/monologi/userpats.codeglider.com.mx/
+
+    # Patch index.php so it can find the app files in ~/user-pats/
+    - /bin/sed -i "s|__DIR__.'/../|__DIR__.'/../user-pats/|g" /home2/monologi/userpats.codeglider.com.mx/index.php
+
+    # Install production Composer dependencies
+    - /usr/local/bin/composer install --no-dev --optimize-autoloader --no-interaction
+
+    # Cache config and routes for performance
+    - /usr/local/bin/php artisan config:cache
+    - /usr/local/bin/php artisan route:cache
+    - /usr/local/bin/php artisan view:cache
