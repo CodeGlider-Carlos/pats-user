@@ -15,7 +15,7 @@
             <div class="digi-actions">
 
                 {{-- CAMPANA --}}
-                <div class="digi-dropdown">
+                {{-- <div class="digi-dropdown">
                     <button class="digi-icon-btn" data-dropdown="notif">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white"
                             stroke-width="2">
@@ -79,7 +79,7 @@
                         </div>
                         <a href="#" class="digi-dropdown__footer">Ver todas las notificaciones →</a>
                     </div>
-                </div>
+                </div> --}}
 
                 <div class="digi-divider-v"></div>
 

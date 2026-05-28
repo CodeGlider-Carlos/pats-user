@@ -31,6 +31,7 @@
             max-width: 1160px;
             margin: 0 auto;
             padding: 0 28px 80px;
+            overflow-x: hidden;
         }
 
         /* ── Header ─────────────────────────────────── */
@@ -171,10 +172,13 @@
         .ec-search-wrap {
             position: relative;
             margin-bottom: 24px;
+            box-sizing: border-box;
+            width: 100%;
         }
 
         .ec-search {
             width: 100%;
+            box-sizing: border-box;
             padding: 13px 16px 13px 48px;
             font-size: 15px;
             border: 1.5px solid var(--border);
@@ -611,7 +615,7 @@
 
         @media (max-width:600px) {
             .ec-wrap {
-                padding: 0 16px 60px;
+                padding: 0 12px 60px;
             }
 
             .ec-header {
@@ -624,6 +628,21 @@
 
             .ec-tabs-nav {
                 flex-direction: column;
+            }
+
+            .ec-tab-panel {
+                padding: 14px 10px;
+            }
+
+            .ec-accordion-btn {
+                padding: 11px 12px;
+                font-size: 13px;
+            }
+
+            .ec-accordion-btn__left {
+                flex: 1;
+                min-width: 0;
+                overflow: hidden;
             }
         }
 
@@ -805,14 +824,39 @@
 
         @media (max-width: 560px) {
             .ec-price-header__price {
-                width: 80px;
+                width: 70px;
+                font-size: 9px;
             }
             .ec-price-tag {
-                width: 72px;
-                padding: 5px 6px;
+                width: 62px;
+                padding: 4px 4px;
             }
             .ec-price-tag__val {
-                font-size: 12px;
+                font-size: 11.5px;
+            }
+        }
+
+        /* Stack prices below name on narrow phones */
+        @media (max-width: 430px) {
+            .ec-price-header {
+                display: none;
+            }
+            .ec-estudio--price {
+                flex-wrap: wrap;
+                row-gap: 6px;
+            }
+            .ec-price-cols {
+                width: 100%;
+                padding-left: 48px;
+                justify-content: flex-start;
+            }
+            .ec-price-tag {
+                flex: 1;
+                width: auto;
+                min-width: 0;
+            }
+            .ec-price-tag__val {
+                font-size: 13px;
             }
         }
     </style>

@@ -31,6 +31,7 @@
             max-width: 1160px;
             margin: 0 auto;
             padding: 0 28px 80px;
+            overflow-x: hidden;
         }
 
         /* ── Header ─────────────────────────────────── */
@@ -184,10 +185,13 @@
         .far-search-wrap {
             position: relative;
             margin-bottom: 20px;
+            box-sizing: border-box;
+            width: 100%;
         }
 
         .far-search {
             width: 100%;
+            box-sizing: border-box;
             padding: 13px 16px 13px 48px;
             font-size: 15px;
             border: 1.5px solid var(--border);
@@ -749,7 +753,7 @@
 
         @media (max-width:600px) {
             .far-wrap {
-                padding: 0 16px 60px;
+                padding: 0 12px 60px;
             }
 
             .far-header {
@@ -758,6 +762,73 @@
 
             .far-stats {
                 flex-direction: column;
+            }
+
+            .far-tab-panel {
+                padding: 14px 10px;
+            }
+
+            .far-accordion-btn {
+                padding: 12px;
+            }
+
+            .far-accordion-btn__left {
+                flex: 1;
+                min-width: 0;
+                overflow: hidden;
+                font-size: 13px;
+            }
+
+            .far-price-header__price {
+                width: 72px;
+                font-size: 9px;
+            }
+
+            .far-price-tag {
+                width: 64px;
+                padding: 4px 5px;
+            }
+
+            .far-price-tag__val {
+                font-size: 12px;
+            }
+
+            .far-estudio__nombre {
+                white-space: normal;
+            }
+        }
+
+        /* Stack prices below name on narrow phones */
+        @media (max-width: 430px) {
+            .far-price-header { display: none; }
+
+            .far-estudio {
+                flex-wrap: wrap;
+                row-gap: 6px;
+                align-items: flex-start;
+            }
+
+            /* flex-basis:100% forces info onto its own line so it never collapses to 0 */
+            .far-estudio__info {
+                flex: 0 0 100%;
+                padding-right: 0;
+                min-width: 0;
+            }
+
+            .far-price-cols {
+                width: 100%;
+                padding-left: 50px;
+                justify-content: flex-start;
+            }
+
+            .far-price-tag {
+                flex: 1;
+                width: auto;
+                min-width: 0;
+            }
+
+            .far-price-tag__val {
+                font-size: 13px;
             }
         }
     </style>

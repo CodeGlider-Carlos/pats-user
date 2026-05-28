@@ -8,6 +8,8 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ asset('assets/vendors/mdi/css/materialdesignicons.min.css') }}">
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#1b1f6f">
     <style>
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -569,6 +571,84 @@
             icon.className = 'mdi mdi-eye-outline';
         }
     }
+</script>
+
+{{-- PWA --}}
+<script>
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', function () {
+            navigator.serviceWorker.register('/sw.js').catch(function () {});
+        });
+    }
+
+    (function () {
+        var isStandalone = window.matchMedia('(display-mode: standalone)').matches
+                        || window.navigator.standalone === true;
+        if (isStandalone) return;
+
+        var isIos = /iphone|ipad|ipod/.test(navigator.userAgent.toLowerCase());
+        var deferredPrompt = null;
+
+        var banner = document.createElement('div');
+        banner.setAttribute('style', [
+            'position:fixed', 'bottom:0', 'left:0', 'right:0', 'z-index:99999',
+            'background:#1b1f6f', 'color:#fff', 'padding:12px 16px',
+            'display:flex', 'flex-direction:column', 'gap:0',
+            'box-shadow:0 -2px 12px rgba(0,0,0,0.3)', 'font-family:sans-serif'
+        ].join(';'));
+
+        banner.innerHTML =
+            '<div style="display:flex;align-items:center;justify-content:space-between;gap:12px;">' +
+                '<div style="display:flex;align-items:center;gap:10px;">' +
+                    '<div style="width:36px;height:36px;background:#87a924;border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:16px;color:#fff;flex-shrink:0;">P</div>' +
+                    '<div>' +
+                        '<div style="font-weight:700;font-size:14px;">Instalar PATS</div>' +
+                        '<div style="font-size:12px;opacity:.85;">Accede más rápido desde tu dispositivo</div>' +
+                    '</div>' +
+                '</div>' +
+                '<div style="display:flex;gap:8px;flex-shrink:0;">' +
+                    '<button id="pwa-install" style="background:#87a924;color:#fff;border:none;border-radius:8px;padding:8px 16px;font-weight:700;font-size:13px;cursor:pointer;">Instalar</button>' +
+                    '<button id="pwa-close" style="background:transparent;color:#fff;border:1px solid rgba(255,255,255,.4);border-radius:8px;padding:8px 10px;font-size:13px;cursor:pointer;">✕</button>' +
+                '</div>' +
+            '</div>' +
+            '<div id="pwa-ios-steps" style="display:none;margin-top:10px;padding-top:10px;border-top:1px solid rgba(255,255,255,.25);font-size:13px;line-height:1.7;">' +
+                '1. Toca el ícono <strong style="font-size:15px;">⎙</strong> de compartir en la barra de Safari<br>' +
+                '2. Desplázate y selecciona <strong>"Agregar a pantalla de inicio"</strong>' +
+            '</div>';
+
+        document.body.appendChild(banner);
+
+        if (!isIos) {
+            window.addEventListener('beforeinstallprompt', function (e) {
+                e.preventDefault();
+                deferredPrompt = e;
+            });
+        }
+
+        document.getElementById('pwa-install').addEventListener('click', async function () {
+            if (isIos) {
+                var steps = document.getElementById('pwa-ios-steps');
+                steps.style.display = steps.style.display === 'none' ? 'block' : 'none';
+                return;
+            }
+            if (!deferredPrompt) {
+                this.textContent = 'Menú → Instalar app';
+                return;
+            }
+            banner.style.display = 'none';
+            deferredPrompt.prompt();
+            await deferredPrompt.userChoice;
+            deferredPrompt = null;
+        });
+
+        document.getElementById('pwa-close').addEventListener('click', function () {
+            banner.style.display = 'none';
+        });
+
+        window.addEventListener('appinstalled', function () {
+            banner.style.display = 'none';
+        });
+    })();
 </script>
 
 </body>
