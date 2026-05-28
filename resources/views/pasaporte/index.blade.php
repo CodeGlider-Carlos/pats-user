@@ -652,9 +652,16 @@
                         <div class="digi-passport-grid">
 
                             <div class="digi-passport-photo-section">
-                                <div class="digi-avatar--placeholder">
-                                    <i class="mdi mdi-account"></i>
-                                </div>
+                                @if (!empty($pasaporte->foto_usuario))
+                                    <img src="{{ asset('storage/' . $pasaporte->foto_usuario) }}"
+                                         class="digi-avatar--placeholder"
+                                         style="object-fit:cover;"
+                                         alt="Foto de perfil">
+                                @else
+                                    <div class="digi-avatar--placeholder">
+                                        <i class="mdi mdi-account"></i>
+                                    </div>
+                                @endif
                                 <div style="text-align:center;">
                                     <span class="info-pill info-pill--highlight">ID Pasaporte</span>
                                     <span style="display:block;margin-top:.5rem;font-weight:600;color:var(--text);">

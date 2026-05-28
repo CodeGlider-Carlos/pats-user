@@ -7,6 +7,7 @@ use App\Models\PatsHistoriaClinica;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 
 class PerfilController extends Controller
 {
@@ -85,33 +86,28 @@ class PerfilController extends Controller
 
         $file = $request->file('foto');
         $filename = 'user_'.$user->id_acceso.'_'.time().'.'.$file->getClientOriginalExtension();
-        $directory = public_path('images/users/'.$user->id_acceso);
+        $storagePath = 'users/'.$user->id_acceso.'/'.$filename;
 
-        if (! file_exists($directory)) {
-            mkdir($directory, 0755, true);
-        }
-
-        // Obtener pasaporte actual para borrar foto vieja
+        // Borrar foto anterior del disco
         $pasaporte = DB::table('pats_pasaportes')->where('id_pasaporte', $user->id_pasaporte)->first();
-        if ($pasaporte && isset($pasaporte->foto_usuario) && $pasaporte->foto_usuario) {
-            $oldPath = public_path($pasaporte->foto_usuario);
-            if (file_exists($oldPath) && is_file($oldPath)) {
-                @unlink($oldPath);
-            }
+        if ($pasaporte && ! empty($pasaporte->foto_usuario)) {
+            Storage::disk('public')->delete($pasaporte->foto_usuario);
         }
 
-        $file->move($directory, $filename);
-
-        $fotoPath = 'images/users/'.$user->id_acceso.'/'.$filename;
+        Storage::disk('public')->putFileAs(
+            'users/'.$user->id_acceso,
+            $file,
+            $filename
+        );
 
         DB::table('pats_pasaportes')
             ->where('id_pasaporte', $user->id_pasaporte)
             ->update([
-                'foto_usuario' => $fotoPath,
+                'foto_usuario' => $storagePath,
                 'updated_at' => now(),
             ]);
 
-        return response()->json(['success' => true, 'url' => asset($fotoPath)]);
+        return response()->json(['success' => true, 'url' => Storage::disk('public')->url($storagePath)]);
     }
 
     public function guardarHistoriaClinica(GuardarHistoriaClinicaRequest $request)
