@@ -1,10 +1,10 @@
 {
-    "name": "PATS - Portal de Pacientes",
-    "short_name": "PATS",
+    "name": "Pasaporte a tu Salud",
+    "short_name": "Pasaporte a tu Salud",
     "description": "Portal de gestión de citas y servicios médicos",
     "start_url": "/",
     "display": "standalone",
-    "background_color": "#f0f4fb",
+    "background_color": "#FFFFFF",
     "theme_color": "#1b1f6f",
     "orientation": "portrait-primary",
     "scope": "/",
@@ -20,7 +20,7 @@
             "src": "/assets/images/icon-512.png",
             "sizes": "512x512",
             "type": "image/png",
-            "purpose": "maskable"
+            "purpose": "any"
         }
     ],
     "screenshots": [

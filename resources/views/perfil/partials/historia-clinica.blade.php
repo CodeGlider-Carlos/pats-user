@@ -581,7 +581,6 @@
         ];
 
         $antecedentes = ['Diabetes', 'Hipertensión', 'Cáncer', 'Ninguno'];
-        $estadosSalud = ['Excelente', 'Buena', 'Regular', 'Mala'];
     @endphp
 
     <div class="digi-container-perfil py-4">
@@ -781,6 +780,9 @@
         </div>
 
         {{-- Bloque 4: Historia clínica --}}
+        @php
+            $hf = $historiaClinica?->heredo_familiares ?? [];
+        @endphp
         <div class="digi-card">
             <div class="digi-card__header">
                 <h3 class="digi-card__title">
@@ -789,6 +791,22 @@
                 </h3>
             </div>
             <div class="digi-card__body">
+
+                @if(session('historia_ok'))
+                    <div style="background:#ecfdf5;border:1px solid #6ee7b7;border-radius:8px;padding:.75rem 1rem;margin-bottom:1.5rem;color:#065f46;font-size:.9rem;">
+                        <i class="mdi mdi-check-circle"></i> {{ session('historia_ok') }}
+                    </div>
+                @endif
+
+                @if($errors->any())
+                    <div style="background:#fff1f2;border:1px solid #fecdd3;border-radius:8px;padding:.75rem 1rem;margin-bottom:1.5rem;color:#dc2626;font-size:.9rem;">
+                        <i class="mdi mdi-alert-circle-outline"></i> {{ $errors->first() }}
+                    </div>
+                @endif
+
+                <form method="POST" action="{{ route('perfil.historia-clinica') }}">
+                @csrf
+
                 {{-- Perfil social y hábitos --}}
                 <div class="digi-section-block">
                     <h4 class="digi-section-title">
@@ -798,25 +816,61 @@
                     <div class="row g-4">
                         <div class="col-md-4">
                             <label class="digi-form-label">Ocupación</label>
-                            <input class="digi-form-control" placeholder="Ej. Empleado administrativo"
-                                value="Empleado administrativo">
+                            <input class="digi-form-control" name="ocupacion" placeholder="Ej. Empleado administrativo"
+                                value="{{ old('ocupacion', $historiaClinica->ocupacion ?? '') }}">
                         </div>
                         <div class="col-md-4">
                             <label class="digi-form-label">Estado civil</label>
-                            <select class="digi-form-select">
-                                <option>Seleccionar</option>
-                                <option selected>Casado</option>
-                                <option>Soltero</option>
-                                <option>Divorciado</option>
+                            <select class="digi-form-select" name="estado_civil">
+                                <option value="">Seleccionar</option>
+                                @foreach (['Soltero', 'Casado', 'Divorciado', 'Viudo', 'Unión libre'] as $opt)
+                                    <option {{ old('estado_civil', $historiaClinica->estado_civil ?? '') === $opt ? 'selected' : '' }}>{{ $opt }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="digi-form-label">Escolaridad</label>
+                            <select class="digi-form-select" name="escolaridad">
+                                <option value="">Seleccionar</option>
+                                @foreach (['Sin estudios', 'Primaria', 'Secundaria', 'Bachillerato', 'Licenciatura', 'Posgrado'] as $opt)
+                                    <option {{ old('escolaridad', $historiaClinica->escolaridad ?? '') === $opt ? 'selected' : '' }}>{{ $opt }}</option>
+                                @endforeach
                             </select>
                         </div>
                         <div class="col-md-4">
                             <label class="digi-form-label">Actividad física</label>
-                            <select class="digi-form-select">
-                                <option>Seleccionar</option>
-                                <option>Alta</option>
-                                <option selected>Moderada</option>
-                                <option>Baja</option>
+                            <select class="digi-form-select" name="actividad_fisica">
+                                <option value="">Seleccionar</option>
+                                @foreach (['Alta (5+ días/semana)', 'Moderada (2-3 veces/semana)', 'Baja (1 vez/semana)', 'Sedentario'] as $opt)
+                                    <option {{ old('actividad_fisica', $historiaClinica->actividad_fisica ?? '') === $opt ? 'selected' : '' }}>{{ $opt }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="digi-form-label">Tabaquismo</label>
+                            <select class="digi-form-select" name="tabaquismo">
+                                <option value="">Seleccionar</option>
+                                @foreach (['No', 'Sí', 'Ex-fumador'] as $opt)
+                                    <option {{ old('tabaquismo', $historiaClinica->tabaquismo ?? '') === $opt ? 'selected' : '' }}>{{ $opt }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="digi-form-label">Consumo de alcohol</label>
+                            <select class="digi-form-select" name="alcohol">
+                                <option value="">Seleccionar</option>
+                                @foreach (['No', 'Ocasional', 'Frecuente'] as $opt)
+                                    <option {{ old('alcohol', $historiaClinica->alcohol ?? '') === $opt ? 'selected' : '' }}>{{ $opt }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="digi-form-label">Alimentación</label>
+                            <select class="digi-form-select" name="alimentacion">
+                                <option value="">Seleccionar</option>
+                                @foreach (['Balanceada', 'Desequilibrada', 'Vegetariana', 'Vegana'] as $opt)
+                                    <option {{ old('alimentacion', $historiaClinica->alimentacion ?? '') === $opt ? 'selected' : '' }}>{{ $opt }}</option>
+                                @endforeach
                             </select>
                         </div>
                     </div>
@@ -830,16 +884,37 @@
                         <i class="mdi mdi-family-tree"></i>
                         Antecedentes médicos
                     </h4>
-                    <div class="row g-3">
-                        @foreach ($antecedentes as $item)
-                            <div class="col-md-3">
-                                <div class="digi-check-card">
-                                    <input type="checkbox" class="form-check-input" id="ant-{{ $loop->index }}"
-                                        {{ $item == 'Ninguno' ? 'checked' : '' }}>
-                                    <label for="ant-{{ $loop->index }}">{{ $item }}</label>
-                                </div>
+                    <div class="row g-4">
+                        <div class="col-12">
+                            <label class="digi-form-label">Antecedentes heredo-familiares <small style="font-weight:400;color:var(--text-muted);">(selecciona todos los que apliquen)</small></label>
+                            <div class="row g-3 mt-1">
+                                @foreach (['Diabetes', 'Hipertensión', 'Cáncer', 'Enfermedades cardíacas', 'Obesidad', 'Ninguno'] as $item)
+                                    <div class="col-md-2 col-6">
+                                        <div class="digi-check-card">
+                                            <input type="checkbox" class="form-check-input" name="heredo_familiares[]"
+                                                id="hf-{{ $loop->index }}" value="{{ $item }}"
+                                                {{ in_array($item, old('heredo_familiares', $hf)) ? 'checked' : '' }}>
+                                            <label for="hf-{{ $loop->index }}">{{ $item }}</label>
+                                        </div>
+                                    </div>
+                                @endforeach
                             </div>
-                        @endforeach
+                        </div>
+                        <div class="col-md-4">
+                            <label class="digi-form-label">Antecedentes personales patológicos</label>
+                            <input class="digi-form-control" name="personales_patologicos" placeholder="Ej. Ninguno, Asma..."
+                                value="{{ old('personales_patologicos', $historiaClinica->personales_patologicos ?? '') }}">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="digi-form-label">Antecedentes personales no patológicos</label>
+                            <input class="digi-form-control" name="personales_no_patologicos" placeholder="Ej. Vacunas completas..."
+                                value="{{ old('personales_no_patologicos', $historiaClinica->personales_no_patologicos ?? '') }}">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="digi-form-label">Enfermedades previas</label>
+                            <input class="digi-form-control" name="enfermedades_previas" placeholder="Ej. Varicela (infancia)..."
+                                value="{{ old('enfermedades_previas', $historiaClinica->enfermedades_previas ?? '') }}">
+                        </div>
                     </div>
                 </div>
 
@@ -852,17 +927,21 @@
                         Alertas de seguridad
                     </h4>
                     <div class="row g-4">
-                        <div class="col-md-4">
+                        <div class="col-md-3">
                             <label class="digi-form-label">Alergias</label>
-                            <textarea class="digi-form-control" rows="3" placeholder="Ej. Penicilina, mariscos...">Penicilina, Polen</textarea>
+                            <textarea class="digi-form-control" name="alergias" rows="3" placeholder="Ej. Penicilina, mariscos...">{{ old('alergias', $historiaClinica->alergias ?? '') }}</textarea>
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-md-3">
                             <label class="digi-form-label">Cirugías</label>
-                            <textarea class="digi-form-control" rows="3" placeholder="Ej. Apendicectomía 2018">Apendicectomía 2018</textarea>
+                            <textarea class="digi-form-control" name="cirugias" rows="3" placeholder="Ej. Apendicectomía 2018, ninguna...">{{ old('cirugias', $historiaClinica->cirugias ?? '') }}</textarea>
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-md-3">
                             <label class="digi-form-label">Medicamentos actuales</label>
-                            <textarea class="digi-form-control" rows="3" placeholder="Ej. Metformina 500mg diaria">Paracetamol ocasional</textarea>
+                            <textarea class="digi-form-control" name="medicamentos" rows="3" placeholder="Ej. Metformina 500mg diaria...">{{ old('medicamentos', $historiaClinica->medicamentos ?? '') }}</textarea>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="digi-form-label">Intolerancias</label>
+                            <textarea class="digi-form-control" name="intolerancias" rows="3" placeholder="Ej. Lactosa, gluten...">{{ old('intolerancias', $historiaClinica->intolerancias ?? '') }}</textarea>
                         </div>
                     </div>
                 </div>
@@ -873,25 +952,39 @@
                 <div class="digi-section-block">
                     <h4 class="digi-section-title">
                         <i class="mdi mdi-heart-pulse"></i>
-                        Estado general percibido
+                        Estado general
                     </h4>
-                    <div class="d-flex flex-wrap gap-3">
-                        @foreach ($estadosSalud as $opt)
-                            <label class="digi-radio-option">
-                                <input type="radio" name="estado_general" {{ $opt == 'Buena' ? 'checked' : '' }}>
-                                <span>{{ $opt }}</span>
-                            </label>
-                        @endforeach
+                    <div class="row g-4">
+                        <div class="col-md-4">
+                            <label class="digi-form-label">Peso (kg)</label>
+                            <input type="number" class="digi-form-control" name="peso" id="campoPeso"
+                                min="20" max="300" step="0.1" placeholder="Ej. 78"
+                                value="{{ old('peso', $historiaClinica->peso ?? '') }}">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="digi-form-label">Altura (m)</label>
+                            <input type="number" class="digi-form-control" name="altura" id="campoAltura"
+                                min="0.5" max="2.5" step="0.01" placeholder="Ej. 1.75"
+                                value="{{ old('altura', $historiaClinica->altura ?? '') }}">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="digi-form-label">IMC <small style="font-weight:400;color:var(--text-muted);">(calculado automáticamente)</small></label>
+                            <input type="text" class="digi-form-control" id="campoImc" name="imc" readonly
+                                placeholder="—" style="background:var(--navy);cursor:default;"
+                                value="{{ $historiaClinica && $historiaClinica->imc ? $historiaClinica->imc : '' }}">
+                        </div>
                     </div>
                 </div>
 
                 {{-- Botón guardar --}}
                 <div class="text-end mt-5">
-                    <button class="digi-btn digi-btn--primary">
+                    <button type="submit" class="digi-btn digi-btn--primary">
                         <i class="mdi mdi-content-save"></i>
                         Guardar historia clínica
                     </button>
                 </div>
+
+                </form>
             </div>
         </div>
     </div>
@@ -918,6 +1011,43 @@
 
     <script>
         document.addEventListener("DOMContentLoaded", function() {
+            // IMC auto-calculation
+            const campoPeso   = document.getElementById('campoPeso');
+            const campoAltura = document.getElementById('campoAltura');
+            const campoImc    = document.getElementById('campoImc');
+
+            function calcularImc() {
+                const peso   = parseFloat(campoPeso.value);
+                const altura = parseFloat(campoAltura.value);
+                if (!peso || !altura || altura <= 0) { campoImc.value = ''; return; }
+                const imc = peso / (altura * altura);
+                let categoria = '';
+                if      (imc < 18.5) categoria = 'Bajo peso';
+                else if (imc < 25)   categoria = 'Normal';
+                else if (imc < 30)   categoria = 'Sobrepeso';
+                else                 categoria = 'Obesidad';
+                campoImc.value = imc.toFixed(1) + ' (' + categoria + ')';
+            }
+
+            if (campoPeso && campoAltura) {
+                campoPeso.addEventListener('input', calcularImc);
+                campoAltura.addEventListener('input', calcularImc);
+            }
+
+            // Heredo-familiares: Ninguno deselects others; others deselect Ninguno
+            const hfCheckboxes = document.querySelectorAll('input[name="heredo_familiares[]"]');
+            const ninguno = [...hfCheckboxes].find(cb => cb.value === 'Ninguno');
+
+            hfCheckboxes.forEach(cb => {
+                cb.addEventListener('change', () => {
+                    if (cb === ninguno && cb.checked) {
+                        hfCheckboxes.forEach(other => { if (other !== ninguno) { other.checked = false; } });
+                    } else if (cb !== ninguno && cb.checked) {
+                        ninguno.checked = false;
+                    }
+                });
+            });
+
             // Editable fields
             document.querySelectorAll(".digi-editable-field").forEach(field => {
                 const editBtn = field.querySelector(".edit-btn");
