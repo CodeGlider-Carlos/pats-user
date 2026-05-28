@@ -90,7 +90,7 @@
                         $navFoto = null;
                         if ($navUser && $navUser->id_pasaporte) {
                             $navPasaporte = \Illuminate\Support\Facades\DB::table('pats_pasaportes')->where('id_pasaporte', $navUser->id_pasaporte)->first();
-                            if ($navPasaporte && $navPasaporte->foto_usuario) {
+                            if ($navPasaporte && isset($navPasaporte->foto_usuario) && $navPasaporte->foto_usuario) {
                                 $navFoto = $navPasaporte->foto_usuario;
                             }
                         }

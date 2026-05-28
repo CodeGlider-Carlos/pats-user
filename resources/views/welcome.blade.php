@@ -538,7 +538,7 @@
                     <input type="checkbox" name="remember" {{ old('remember') ? 'checked' : '' }}>
                     Mantener sesión activa
                 </label>
-                <a href="#" class="forgot">¿Olvidaste tu contraseña?</a>
+                <a href="{{ route('password.olvide') }}" class="forgot">¿Olvidaste tu contraseña?</a>
             </div>
 
             {{-- Submit --}}

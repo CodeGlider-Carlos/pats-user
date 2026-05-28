@@ -603,7 +603,7 @@
             <div class="row align-items-center">
                 <div class="col-md-4 text-center mb-4 mb-md-0">
                     <div class="position-relative text-center mb-3" style="cursor: pointer; display: inline-block;" onclick="openCamera()">
-                        @if($pasaporte && $pasaporte->foto_usuario)
+                        @if($pasaporte && isset($pasaporte->foto_usuario) && $pasaporte->foto_usuario)
                             <img id="userPhotoPreview" src="{{ asset($pasaporte->foto_usuario) }}" width="100" height="100" style="object-fit:cover; border-radius:50%; border: 3px solid #dde8ff; margin:0 auto; display:block;" alt="Foto">
                             <div id="userPhotoInitials" style="display:none;"></div>
                         @else

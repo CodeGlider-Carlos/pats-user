@@ -87,7 +87,7 @@ class PerfilController extends Controller
 
         // Obtener pasaporte actual para borrar foto vieja
         $pasaporte = DB::table('pats_pasaportes')->where('id_pasaporte', $user->id_pasaporte)->first();
-        if ($pasaporte && $pasaporte->foto_usuario) {
+        if ($pasaporte && isset($pasaporte->foto_usuario) && $pasaporte->foto_usuario) {
             $oldPath = public_path($pasaporte->foto_usuario);
             if (file_exists($oldPath) && is_file($oldPath)) {
                 @unlink($oldPath);

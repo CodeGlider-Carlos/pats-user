@@ -5,6 +5,7 @@ use App\Http\Controllers\Admin\DistribucionLinkAdminController;
 use App\Http\Controllers\Admin\SolicitudDistribuidorAdminController;
 use App\Http\Controllers\AgendaController;
 use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\Auth\PasswordResetController;
 use App\Http\Controllers\EspecialidadesController;
 use App\Http\Controllers\PagoDistribucionController;
 use App\Http\Controllers\PagosController;
@@ -38,6 +39,12 @@ Route::middleware('guest:pasaporte')->group(function () {
     Route::get( '/login', [LoginController::class, 'showForm'])->name('login');
     Route::post('/login', [LoginController::class, 'login'])->name('login.post');
 });
+
+// Recuperación de contraseña — accesibles sin importar si hay sesión activa
+Route::get( '/password/olvide',       [PasswordResetController::class, 'showSolicitud'])->name('password.olvide');
+Route::post('/password/olvide',        [PasswordResetController::class, 'enviar'])->name('password.enviar');
+Route::get( '/password/reset/{token}', [PasswordResetController::class, 'showReset'])->name('password.reset');
+Route::post('/password/reset',         [PasswordResetController::class, 'resetear'])->name('password.resetear');
 
 Route::post('/logout', [LoginController::class, 'logout'])
     ->name('logout')
