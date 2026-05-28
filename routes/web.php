@@ -5,6 +5,7 @@ use App\Http\Controllers\Admin\SolicitudDistribuidorAdminController;
 use App\Http\Controllers\AdquirirController;
 use App\Http\Controllers\AgendaController;
 use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\Auth\PasswordResetController;
 use App\Http\Controllers\EspecialidadesController;
 use App\Http\Controllers\PagoDistribucionController;
 use App\Http\Controllers\PagosController;
@@ -40,6 +41,12 @@ Route::middleware('guest:pasaporte')->group(function () {
     Route::get('/login', [LoginController::class, 'showForm'])->name('login');
     Route::post('/login', [LoginController::class, 'login'])->name('login.post');
 });
+
+// Recuperación de contraseña — accesibles sin importar si hay sesión activa
+Route::get( '/password/olvide',       [PasswordResetController::class, 'showSolicitud'])->name('password.olvide');
+Route::post('/password/olvide',        [PasswordResetController::class, 'enviar'])->name('password.enviar');
+Route::get( '/password/reset/{token}', [PasswordResetController::class, 'showReset'])->name('password.reset');
+Route::post('/password/reset',         [PasswordResetController::class, 'resetear'])->name('password.resetear');
 
 Route::post('/logout', [LoginController::class, 'logout'])
     ->name('logout')
@@ -189,5 +196,6 @@ Route::prefix('portal')->name('portal.')->group(function () {
 //  CONTRATOS (públicos — usados por iframes)
 // ──────────────────────────────────────────────────────────────────────────────
 
-Route::get('/contrato/franquicia', fn () => view('pats.contrato_franq'))->name('franq.contrato');
-Route::get('/contrato/franquicia/en', fn () => view('pats.contrato_dist_en'))->name('franq.contrato.en');
+Route::get('/contrato/franquicia',     fn () => view('pats.contrato_franq'))->name('franq.contrato');
+Route::get('/contrato/franquicia/en',  fn () => view('pats.contrato_dist_en'))->name('franq.contrato.en');
+Route::get('/contrato/distribucion',   fn () => view('pats.contrato_dist'))->name('dist.contrato');

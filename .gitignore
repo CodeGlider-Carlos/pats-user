@@ -18,7 +18,7 @@ yarn-error.log
 /.fleet
 /.idea
 /.vscode
-.zip
+*.zip
 /pats_final
 /.claude
 .vercel
