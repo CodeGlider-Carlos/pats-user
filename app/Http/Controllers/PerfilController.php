@@ -73,6 +73,30 @@ class PerfilController extends Controller
         return back()->with('password_ok', 'Contraseña actualizada correctamente.');
     }
 
+    public function servirFoto(): mixed
+    {
+        $user = auth()->user();
+        abort_if(! $user->id_pasaporte, 404);
+
+        $path = DB::table('pats_pasaportes')
+            ->where('id_pasaporte', $user->id_pasaporte)
+            ->value('foto_usuario');
+
+        abort_if(! $path || ! Storage::disk('local')->exists($path), 404, 'Foto no encontrada.');
+
+        $ext = strtolower(pathinfo($path, PATHINFO_EXTENSION));
+        $mime = match ($ext) {
+            'png' => 'image/png',
+            'jpg',
+            'jpeg' => 'image/jpeg',
+            default => 'image/jpeg',
+        };
+
+        return response()->file(Storage::disk('local')->path($path), [
+            'Content-Type' => $mime,
+        ]);
+    }
+
     public function actualizarFoto(Request $request)
     {
         $request->validate([
@@ -85,29 +109,26 @@ class PerfilController extends Controller
         }
 
         $file = $request->file('foto');
-        $filename = 'user_'.$user->id_acceso.'_'.time().'.'.$file->getClientOriginalExtension();
-        $storagePath = 'users/'.$user->id_acceso.'/'.$filename;
+        $ext = preg_replace('/[^a-z0-9]/i', '', strtolower($file->getClientOriginalExtension())) ?: 'jpg';
+        $filename = now()->format('YmdHis').'_foto.'.$ext;
+        $path = "private/usuarios/{$user->id_acceso}/{$filename}";
 
         // Borrar foto anterior del disco
         $pasaporte = DB::table('pats_pasaportes')->where('id_pasaporte', $user->id_pasaporte)->first();
         if ($pasaporte && ! empty($pasaporte->foto_usuario)) {
-            Storage::disk('public')->delete($pasaporte->foto_usuario);
+            Storage::disk('local')->delete($pasaporte->foto_usuario);
         }
 
-        Storage::disk('public')->putFileAs(
-            'users/'.$user->id_acceso,
-            $file,
-            $filename
-        );
+        Storage::disk('local')->put($path, file_get_contents($file->getRealPath()));
 
         DB::table('pats_pasaportes')
             ->where('id_pasaporte', $user->id_pasaporte)
             ->update([
-                'foto_usuario' => $storagePath,
+                'foto_usuario' => $path,
                 'updated_at' => now(),
             ]);
 
-        return response()->json(['success' => true, 'url' => Storage::disk('public')->url($storagePath)]);
+        return response()->json(['success' => true, 'url' => route('perfil.foto')]);
     }
 
     public function guardarHistoriaClinica(GuardarHistoriaClinicaRequest $request)

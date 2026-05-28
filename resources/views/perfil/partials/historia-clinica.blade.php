@@ -603,7 +603,7 @@
                 <div class="col-md-4 text-center mb-4 mb-md-0">
                     <div class="position-relative text-center mb-3" style="cursor: pointer; display: inline-block;" onclick="openCamera()">
                         @if($pasaporte && isset($pasaporte->foto_usuario) && $pasaporte->foto_usuario)
-                            <img id="userPhotoPreview" src="{{ asset('storage/' . $pasaporte->foto_usuario) }}" width="100" height="100" style="object-fit:cover; border-radius:50%; border: 3px solid #dde8ff; margin:0 auto; display:block;" alt="Foto">
+                            <img id="userPhotoPreview" src="{{ route('perfil.foto') }}" width="100" height="100" style="object-fit:cover; border-radius:50%; border: 3px solid #dde8ff; margin:0 auto; display:block;" alt="Foto">
                             <div id="userPhotoInitials" style="display:none;"></div>
                         @else
                             <div id="userPhotoInitials" class="digi-passport-photo d-flex align-items-center justify-content-center"
@@ -1233,7 +1233,7 @@
             preview.style.display = 'block';
 
             // Subir al servidor
-            fetch('{{ route("perfil.foto") }}', {
+            fetch('{{ route("perfil.foto.actualizar") }}', {
                 method: 'POST',
                 body: formData,
                 headers: {

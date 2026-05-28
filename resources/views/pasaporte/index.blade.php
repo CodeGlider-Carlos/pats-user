@@ -653,7 +653,7 @@
 
                             <div class="digi-passport-photo-section">
                                 @if (!empty($pasaporte->foto_usuario))
-                                    <img src="{{ asset('storage/' . $pasaporte->foto_usuario) }}"
+                                    <img src="{{ route('perfil.foto') }}"
                                          class="digi-avatar--placeholder"
                                          style="object-fit:cover;"
                                          alt="Foto de perfil">

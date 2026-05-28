@@ -43,10 +43,10 @@ Route::middleware('guest:pasaporte')->group(function () {
 });
 
 // Recuperación de contraseña — accesibles sin importar si hay sesión activa
-Route::get( '/password/olvide',       [PasswordResetController::class, 'showSolicitud'])->name('password.olvide');
-Route::post('/password/olvide',        [PasswordResetController::class, 'enviar'])->name('password.enviar');
-Route::get( '/password/reset/{token}', [PasswordResetController::class, 'showReset'])->name('password.reset');
-Route::post('/password/reset',         [PasswordResetController::class, 'resetear'])->name('password.resetear');
+Route::get('/password/olvide', [PasswordResetController::class, 'showSolicitud'])->name('password.olvide');
+Route::post('/password/olvide', [PasswordResetController::class, 'enviar'])->name('password.enviar');
+Route::get('/password/reset/{token}', [PasswordResetController::class, 'showReset'])->name('password.reset');
+Route::post('/password/reset', [PasswordResetController::class, 'resetear'])->name('password.resetear');
 
 Route::post('/logout', [LoginController::class, 'logout'])
     ->name('logout')
@@ -75,8 +75,9 @@ Route::middleware('auth:pasaporte')->group(function () {
     Route::get('/pagos', [PagosController::class,      'index'])->name('pagos');
 
     Route::get('/perfil', [PerfilController::class, 'show'])->name('perfil');
+    Route::get('/perfil/foto', [PerfilController::class, 'servirFoto'])->name('perfil.foto');
     Route::post('/perfil/campo', [PerfilController::class, 'actualizarCampo'])->name('perfil.campo');
-    Route::post('/perfil/foto', [PerfilController::class, 'actualizarFoto'])->name('perfil.foto');
+    Route::post('/perfil/foto', [PerfilController::class, 'actualizarFoto'])->name('perfil.foto.actualizar');
     Route::post('/perfil/password', [PerfilController::class, 'actualizarPassword'])->name('perfil.password');
     Route::post('/perfil/historia-clinica', [PerfilController::class, 'guardarHistoriaClinica'])->name('perfil.historia-clinica');
 });
@@ -196,6 +197,6 @@ Route::prefix('portal')->name('portal.')->group(function () {
 //  CONTRATOS (públicos — usados por iframes)
 // ──────────────────────────────────────────────────────────────────────────────
 
-Route::get('/contrato/franquicia',     fn () => view('pats.contrato_franq'))->name('franq.contrato');
-Route::get('/contrato/franquicia/en',  fn () => view('pats.contrato_dist_en'))->name('franq.contrato.en');
-Route::get('/contrato/distribucion',   fn () => view('pats.contrato_dist'))->name('dist.contrato');
+Route::get('/contrato/franquicia', fn () => view('pats.contrato_franq'))->name('franq.contrato');
+Route::get('/contrato/franquicia/en', fn () => view('pats.contrato_dist_en'))->name('franq.contrato.en');
+Route::get('/contrato/distribucion', fn () => view('pats.contrato_dist'))->name('dist.contrato');
