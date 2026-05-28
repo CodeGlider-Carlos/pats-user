@@ -671,14 +671,14 @@
                 <div class="esp-stat__num">{{ $totalMedicos }}</div>
                 <div class="esp-stat__label">Médicos activos</div>
             </div>
-            <div class="esp-stat">
+            {{-- <div class="esp-stat">
                 <div class="esp-stat__num">{{ $disponibilidad->sum() }}</div>
                 <div class="esp-stat__label">Citas disponibles</div>
             </div>
             <div class="esp-stat">
                 <div class="esp-stat__num">{{ $citasHoy->count() }}</div>
                 <div class="esp-stat__label">Citas hoy</div>
-            </div>
+            </div> --}}
         </div>
 
         {{-- Buscador ────────────────────────────────────── --}}

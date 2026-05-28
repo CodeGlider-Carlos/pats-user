@@ -100,16 +100,22 @@
             font-size: 1.1rem;
         }
 
-        .digi-tabs__link:hover {
+        /* .digi-tabs__link:hover {
             color: var(--blue);
             background: var(--navy);
             border-radius: var(--radius-md) var(--radius-md) 0 0;
-        }
+        } */
 
         .digi-tabs__link.active {
             color: var(--blue);
             border-bottom-color: var(--blue);
             font-weight: 600;
+        }
+
+        .digi-tabs__link:disabled {
+            color: #9ca3af;
+            cursor: not-allowed;
+            opacity: 0.6;
         }
 
         /* ── Panels ── */
@@ -593,9 +599,9 @@
                 <p class="digi-page-subtitle">Información general del pasaporte y acceso a servicios</p>
             </div>
             @if ($pasaporte)
-                <a href="{{ route('pagos') }}" class="digi-btn digi-btn--primary">
+                <button class="digi-btn digi-btn--primary" disabled style="background:#d1d5db;border-color:#d1d5db;color:#9ca3af;cursor:not-allowed;pointer-events:none;">
                     <i class="mdi mdi-credit-card-outline"></i> Renovar pasaporte
-                </a>
+                </button>
             @endif
         </div>
 
@@ -627,12 +633,12 @@
                     </li>
                     @endif
                     <li class="digi-tabs__item">
-                        <button class="digi-tabs__link" data-panel="pasaporteQR">
+                        <button class="digi-tabs__link" data-panel="pasaporteQR" disabled>
                             <i class="mdi mdi-qrcode"></i> Código QR
                         </button>
                     </li>
                     <li class="digi-tabs__item">
-                        <button class="digi-tabs__link" data-panel="beneficios">
+                        <button class="digi-tabs__link" data-panel="beneficios" disabled>
                             <i class="mdi mdi-gift"></i> Beneficios
                         </button>
                     </li>
@@ -748,11 +754,11 @@
                                 @endif
 
                                 <div style="margin-top:1rem;">
-                                    <a href="{{ route('pagos') }}" class="digi-btn digi-btn--primary"
-                                        style="width:100%;justify-content:center;">
+                                    <button class="digi-btn digi-btn--primary" disabled
+                                        style="width:100%;justify-content:center;background:#d1d5db;border-color:#d1d5db;color:#9ca3af;cursor:not-allowed;pointer-events:none;">
                                         <i class="mdi mdi-credit-card"></i>
                                         {{ $pasaporte->estatus === 'vencido' ? 'Reactivar' : 'Renovar' }}
-                                    </a>
+                                    </button>
                                 </div>
                             </div>
 
@@ -868,113 +874,136 @@
 
         @endif
 
-        @if (false) {{-- Historia clínica: temporalmente oculta --}}
-        {{-- Historia clínica --}}
+        @if (true) {{-- Historia clínica --}}
         @if ($pasaporte)
+            @php
+                $hc = $historiaClinica ?? null;
+                $hf = $hc?->heredo_familiares ?? [];
+                $sinInfo = '<span style="color:var(--text-muted);font-style:italic;">Sin información registrada</span>';
+            @endphp
             <div class="mt-5">
                 <h2 class="digi-section-title"><i class="mdi mdi-file-document-multiple"></i> Historia clínica</h2>
                 <div class="digi-card">
 
-                    {{-- Accordion: Resumen clínico --}}
+                    {{-- Accordion: Perfil social y hábitos --}}
                     <div class="digi-accordion__item">
-                        <button class="digi-accordion__button" data-accordion="collapseResumen">
-                            Resumen clínico del paciente
+                        <button class="digi-accordion__button collapsed" data-accordion="collapsePerfil">
+                            <i class="mdi mdi-account-group"></i> Perfil social y hábitos
                             <i class="mdi mdi-chevron-down digi-accordion__icon"></i>
                         </button>
-                        <div id="collapseResumen" style="display:block;">
+                        <div id="collapsePerfil" style="display:none;">
                             <div class="digi-accordion__body">
-                                <div class="digi-clinical-grid">
-                                    <div class="digi-clinical-section">
-                                        <h4 class="digi-clinical-section__title"><i class="mdi mdi-account-group"></i>
-                                            Perfil social y hábitos</h4>
-                                        @foreach ([['Ocupación', 'Empleado administrativo'], ['Estado civil', 'Casado'], ['Escolaridad', 'Licenciatura'], ['Actividad física', 'Moderada (2-3 veces/semana)'], ['Tabaquismo', 'No'], ['Alcohol', 'Ocasional'], ['Alimentación', 'Balanceada']] as [$lbl, $val])
-                                            <div class="digi-clinical-row">
-                                                <span class="digi-clinical-label">{{ $lbl }}:</span>
-                                                <span class="digi-clinical-value">{{ $val }}</span>
-                                            </div>
-                                        @endforeach
-                                    </div>
-                                    <div class="digi-clinical-section">
-                                        <h4 class="digi-clinical-section__title"><i class="mdi mdi-family-tree"></i>
-                                            Antecedentes médicos</h4>
+                                <div class="digi-clinical-section">
+                                    @foreach ([
+                                        ['Ocupación',      $hc->ocupacion       ?? null],
+                                        ['Estado civil',   $hc->estado_civil    ?? null],
+                                        ['Escolaridad',    $hc->escolaridad     ?? null],
+                                        ['Actividad física', $hc->actividad_fisica ?? null],
+                                        ['Tabaquismo',     $hc->tabaquismo      ?? null],
+                                        ['Alcohol',        $hc->alcohol         ?? null],
+                                        ['Alimentación',   $hc->alimentacion    ?? null],
+                                    ] as [$lbl, $val])
                                         <div class="digi-clinical-row">
-                                            <span class="digi-clinical-label">Heredo-familiares:</span>
+                                            <span class="digi-clinical-label">{{ $lbl }}:</span>
                                             <span class="digi-clinical-value">
-                                                <span class="info-icon info-icon--warning"><i class="mdi mdi-alert"></i>
-                                                    Diabetes (madre)</span>
-                                                <span class="info-icon info-icon--warning" style="margin-left:.5rem;"><i
-                                                        class="mdi mdi-alert"></i> Hipertensión (padre)</span>
+                                                {!! $val ? e($val) : $sinInfo !!}
                                             </span>
                                         </div>
-                                        @foreach ([['Personales patológicos', 'Ninguno'], ['Personales no patológicos', 'Vacunas completas'], ['Enfermedades previas', 'Varicela (infancia)']] as [$lbl, $val])
-                                            <div class="digi-clinical-row">
-                                                <span class="digi-clinical-label">{{ $lbl }}:</span>
-                                                <span class="digi-clinical-value">{{ $val }}</span>
-                                            </div>
-                                        @endforeach
-                                    </div>
-                                    <div class="digi-clinical-section digi-clinical-section--alert">
-                                        <h4 class="digi-clinical-section__title text-danger"><i
-                                                class="mdi mdi-alert-circle"></i> Alertas de seguridad</h4>
-                                        <div class="digi-clinical-row">
-                                            <span class="digi-clinical-label">Alergias:</span>
-                                            <span class="digi-clinical-value">
-                                                <span class="info-icon info-icon--danger"><i
-                                                        class="mdi mdi-alert-circle"></i> Penicilina</span>
-                                                <span class="info-icon info-icon--warning" style="margin-left:.5rem;"><i
-                                                        class="mdi mdi-alert"></i> Polen (leve)</span>
-                                            </span>
-                                        </div>
-                                        @foreach ([['Cirugías', 'No'], ['Medicamentos', 'Paracetamol (ocasional)'], ['Intolerancias', 'Lactosa (leve)']] as [$lbl, $val])
-                                            <div class="digi-clinical-row">
-                                                <span class="digi-clinical-label">{{ $lbl }}:</span>
-                                                <span class="digi-clinical-value">{{ $val }}</span>
-                                            </div>
-                                        @endforeach
-                                    </div>
-                                    <div class="digi-clinical-section">
-                                        <h4 class="digi-clinical-section__title"><i class="mdi mdi-heart-pulse"></i>
-                                            Estado general</h4>
-                                        @foreach ([['Peso', '78 kg'], ['Altura', '1.75 m'], ['IMC', '25.5 (Normal)']] as [$lbl, $val])
-                                            <div class="digi-clinical-row">
-                                                <span class="digi-clinical-label">{{ $lbl }}:</span>
-                                                <span class="digi-clinical-value">{{ $val }}</span>
-                                            </div>
-                                        @endforeach
-                                    </div>
+                                    @endforeach
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    {{-- Accordion: Vacunas --}}
+                    {{-- Accordion: Antecedentes médicos --}}
                     <div class="digi-accordion__item">
-                        <button class="digi-accordion__button collapsed" data-accordion="collapseVacunas">
-                            Historial de vacunación
+                        <button class="digi-accordion__button collapsed" data-accordion="collapseAntecedentes">
+                            <i class="mdi mdi-family-tree"></i> Antecedentes médicos
                             <i class="mdi mdi-chevron-down digi-accordion__icon"></i>
                         </button>
-                        <div id="collapseVacunas" style="display:none;">
+                        <div id="collapseAntecedentes" style="display:none;">
                             <div class="digi-accordion__body">
-                                <table style="width:100%;border-collapse:collapse;">
-                                    <thead>
-                                        <tr style="border-bottom:1px solid var(--border);">
-                                            <th style="text-align:left;padding:.5rem;">Vacuna</th>
-                                            <th style="text-align:left;padding:.5rem;">Fecha</th>
-                                            <th style="text-align:left;padding:.5rem;">Lugar</th>
-                                            <th style="text-align:left;padding:.5rem;">Próxima dosis</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        @foreach ([['Influenza', '15/10/2025', 'Hospital Central', '15/10/2026'], ['Tétanos', '20/05/2023', 'Clínica Reforma', '20/05/2033'], ['COVID-19', '10/03/2023', 'Centro de Vacunación', 'Refuerzo anual'], ['Neumococo', '05/02/2024', 'Hospital Central', '05/02/2029']] as [$v, $f, $l, $p])
-                                            <tr>
-                                                <td style="padding:.5rem;">{{ $v }}</td>
-                                                <td style="padding:.5rem;">{{ $f }}</td>
-                                                <td style="padding:.5rem;">{{ $l }}</td>
-                                                <td style="padding:.5rem;">{{ $p }}</td>
-                                            </tr>
-                                        @endforeach
-                                    </tbody>
-                                </table>
+                                <div class="digi-clinical-section">
+                                    <div class="digi-clinical-row">
+                                        <span class="digi-clinical-label">Heredo-familiares:</span>
+                                        <span class="digi-clinical-value">
+                                            @if (!empty($hf))
+                                                @foreach ($hf as $item)
+                                                    <span class="info-icon info-icon--warning" style="{{ !$loop->first ? 'margin-left:.5rem;' : '' }}">
+                                                        <i class="mdi mdi-alert"></i> {{ $item }}
+                                                    </span>
+                                                @endforeach
+                                            @else
+                                                {!! $sinInfo !!}
+                                            @endif
+                                        </span>
+                                    </div>
+                                    @foreach ([
+                                        ['Personales patológicos',     $hc->personales_patologicos    ?? null],
+                                        ['Personales no patológicos',  $hc->personales_no_patologicos ?? null],
+                                        ['Enfermedades previas',       $hc->enfermedades_previas      ?? null],
+                                    ] as [$lbl, $val])
+                                        <div class="digi-clinical-row">
+                                            <span class="digi-clinical-label">{{ $lbl }}:</span>
+                                            <span class="digi-clinical-value">
+                                                {!! $val ? e($val) : $sinInfo !!}
+                                            </span>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- Accordion: Alertas de seguridad --}}
+                    <div class="digi-accordion__item">
+                        <button class="digi-accordion__button collapsed" data-accordion="collapseAlertas">
+                            <i class="mdi mdi-alert-circle" style="color:#e74c3c;"></i> Alertas de seguridad
+                            <i class="mdi mdi-chevron-down digi-accordion__icon"></i>
+                        </button>
+                        <div id="collapseAlertas" style="display:none;">
+                            <div class="digi-accordion__body">
+                                <div class="digi-clinical-section digi-clinical-section--alert">
+                                    @foreach ([
+                                        ['Alergias',     $hc->alergias     ?? null],
+                                        ['Cirugías',     $hc->cirugias     ?? null],
+                                        ['Medicamentos', $hc->medicamentos ?? null],
+                                        ['Intolerancias', $hc->intolerancias ?? null],
+                                    ] as [$lbl, $val])
+                                        <div class="digi-clinical-row">
+                                            <span class="digi-clinical-label">{{ $lbl }}:</span>
+                                            <span class="digi-clinical-value">
+                                                {!! $val ? e($val) : $sinInfo !!}
+                                            </span>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- Accordion: Estado general --}}
+                    <div class="digi-accordion__item">
+                        <button class="digi-accordion__button collapsed" data-accordion="collapseEstado">
+                            <i class="mdi mdi-heart-pulse"></i> Estado general
+                            <i class="mdi mdi-chevron-down digi-accordion__icon"></i>
+                        </button>
+                        <div id="collapseEstado" style="display:none;">
+                            <div class="digi-accordion__body">
+                                <div class="digi-clinical-section">
+                                    @foreach ([
+                                        ['Peso',   $hc && $hc->peso   ? $hc->peso   . ' kg' : null],
+                                        ['Altura', $hc && $hc->altura ? $hc->altura . ' m'  : null],
+                                        ['IMC',    $hc && $hc->imc    ? $hc->imc           : null],
+                                    ] as [$lbl, $val])
+                                        <div class="digi-clinical-row">
+                                            <span class="digi-clinical-label">{{ $lbl }}:</span>
+                                            <span class="digi-clinical-value">
+                                                {!! $val ? e($val) : $sinInfo !!}
+                                            </span>
+                                        </div>
+                                    @endforeach
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -990,6 +1019,7 @@
         // ── Tabs custom — sin depender de Bootstrap JS ──
         document.querySelectorAll('#passportTabs .digi-tabs__link').forEach(btn => {
             btn.addEventListener('click', () => {
+                if (btn.disabled) return;
                 // Desactivar todos
                 document.querySelectorAll('#passportTabs .digi-tabs__link').forEach(b => b.classList.remove(
                     'active'));
