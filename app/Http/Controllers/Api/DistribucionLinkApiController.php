@@ -10,6 +10,7 @@ use Illuminate\Support\Str;
 class DistribucionLinkApiController extends Controller
 {
     private const PREFILL_FIELDS = [
+        'gestor_token',
         'nombre', 'apellido_paterno', 'apellido_materno',
         'correo', 'telefono',
         'pais', 'region', 'municipio', 'ciudad',

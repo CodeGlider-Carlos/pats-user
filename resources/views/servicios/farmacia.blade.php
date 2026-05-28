@@ -185,10 +185,13 @@
         .far-search-wrap {
             position: relative;
             margin-bottom: 20px;
+            box-sizing: border-box;
+            width: 100%;
         }
 
         .far-search {
             width: 100%;
+            box-sizing: border-box;
             padding: 13px 16px 13px 48px;
             font-size: 15px;
             border: 1.5px solid var(--border);

@@ -1,3 +1,4 @@
+/bootstrap/cache/*.php
 /.phpunit.cache
 /bootstrap/cache/*.php
 /node_modules
@@ -17,6 +18,12 @@ yarn-error.log
 /.fleet
 /.idea
 /.vscode
-.zip
+*.zip
 /pats_final
 /.claude
+.vercel
+vercel.json
+.vercelignore
+*.sql
+/api
+/public/images/users/*
