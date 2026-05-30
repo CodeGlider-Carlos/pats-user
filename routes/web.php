@@ -32,6 +32,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', fn () => view('welcome'));
 Route::post('/soporte/contacto', [SoporteController::class, 'contacto'])->name('soporte.contacto');
+Route::get('/chatbot/knowledge', fn () => response(file_get_contents(resource_path('chatbot.md')), 200, ['Content-Type' => 'text/plain']))->name('chatbot.knowledge');
 
 // ──────────────────────────────────────────────────────────────────────────────
 //  AUTENTICACIÓN (guard: pasaporte)

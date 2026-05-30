@@ -1,0 +1,1034 @@
+/* =========================================================
+   ez/pats/css/catbot_training.css
+   Estilo alineado a catbot.php / PATS visual system
+========================================================= */
+
+:root{
+  --cb-bg: #eef1f8;
+  --cb-shell: #dfe3ef;
+  --cb-surface: #f7f8fc;
+  --cb-surface-2: #eef2f8;
+  --cb-card: #f4f6fb;
+  --cb-card-strong: #e8ecf5;
+  --cb-line: #cfd6e6;
+  --cb-line-soft: #dde3ef;
+
+  --cb-text: #17244f;
+  --cb-text-2: #4f5f89;
+  --cb-text-3: #7180a8;
+
+  --cb-dark-1: #0c1f63;
+  --cb-dark-2: #172d8f;
+  --cb-dark-3: #5a39ff;
+
+  --cb-primary: #3d5afe;
+  --cb-primary-2: #7c3aed;
+  --cb-cyan: #32c8ff;
+  --cb-violet: #7158ff;
+  --cb-pink: #de61ff;
+
+  --cb-ok: #18b58f;
+  --cb-warn: #ffb84d;
+  --cb-danger: #d94b84;
+
+  --cb-shadow-sm: 0 8px 20px rgba(26, 39, 83, .08);
+  --cb-shadow-md: 0 18px 42px rgba(24, 34, 78, .12);
+  --cb-shadow-lg: 0 30px 80px rgba(16, 27, 70, .16);
+
+  --cb-radius-xl: 28px;
+  --cb-radius-lg: 22px;
+  --cb-radius-md: 16px;
+  --cb-radius-sm: 12px;
+  --cb-pill: 999px;
+
+  --cb-hero-grad:
+    linear-gradient(135deg, #0a1d63 0%, #1d2f96 44%, #5a39ff 100%);
+
+  --cb-btn-grad:
+    linear-gradient(135deg, #182985 0%, #4b35ff 58%, #7d47ff 100%);
+
+  --cb-btn-grad-soft:
+    linear-gradient(135deg, rgba(24,41,133,.96) 0%, rgba(75,53,255,.94) 58%, rgba(125,71,255,.94) 100%);
+}
+
+html,
+body{
+  background: var(--cb-bg) !important;
+  color: var(--cb-text) !important;
+}
+
+/* =========================================================
+   CONTENEDOR GENERAL
+========================================================= */
+
+.back_content .pats-train-page,
+.back_content .pats-training-page,
+.back_content .train-page-wrap{
+  width: min(1460px, calc(100% - 36px));
+  margin: 18px auto 34px auto;
+  padding: 18px;
+  border-radius: 34px;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.38) 0%, rgba(235,239,247,.78) 100%);
+  box-shadow: var(--cb-shadow-lg);
+  border: 1px solid rgba(255,255,255,.72);
+}
+
+/* por si el archivo usa un wrapper más genérico */
+.back_content .pats-training-shell{
+  width: min(1460px, calc(100% - 36px));
+  margin: 18px auto 34px auto;
+}
+
+/* =========================================================
+   HERO / HEADER
+========================================================= */
+
+.back_content .pats-train-hero,
+.back_content .pats-training-hero{
+  position: relative;
+  overflow: hidden;
+  border-radius: 30px;
+  padding: 24px 28px;
+  background: var(--cb-hero-grad);
+  box-shadow: var(--cb-shadow-md);
+  border: 1px solid rgba(255,255,255,.14);
+  color: #fff;
+}
+
+.back_content .pats-train-hero::before,
+.back_content .pats-training-hero::before{
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 84% 22%, rgba(255,255,255,.22), transparent 24%),
+    linear-gradient(135deg, rgba(255,255,255,.06) 25%, transparent 25%, transparent 50%, rgba(255,255,255,.04) 50%, rgba(255,255,255,.04) 75%, transparent 75%, transparent);
+  background-size: auto, 18px 18px;
+  pointer-events: none;
+  opacity: .7;
+}
+
+.back_content .pats-train-hero > *,
+.back_content .pats-training-hero > *{
+  position: relative;
+  z-index: 1;
+}
+
+.back_content .pats-train-hero h1,
+.back_content .pats-training-hero h1{
+  margin: 0 0 8px 0;
+  font-size: clamp(26px, 3vw, 52px);
+  line-height: 1.02;
+  letter-spacing: -.03em;
+  font-weight: 1000;
+  color: #fff;
+}
+
+.back_content .pats-train-hero p,
+.back_content .pats-training-hero p{
+  margin: 0;
+  font-size: 15.5px;
+  line-height: 1.65;
+  color: rgba(255,255,255,.86);
+  max-width: 980px;
+}
+
+/* =========================================================
+   GRID PRINCIPAL
+========================================================= */
+
+.back_content .pats-train-grid,
+.back_content .pats-training-grid{
+  display: grid;
+  grid-template-columns: 320px minmax(0, 1fr);
+  gap: 18px;
+  margin-top: 18px;
+}
+
+@media (max-width: 1120px){
+  .back_content .pats-train-grid,
+  .back_content .pats-training-grid{
+    grid-template-columns: 1fr;
+  }
+}
+
+/* =========================================================
+   SIDEBAR
+========================================================= */
+
+.back_content .pats-train-sidebar,
+.back_content .pats-training-sidebar{
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.back_content .pats-train-profile,
+.back_content .pats-training-profile{
+  border-radius: 28px;
+  background: linear-gradient(180deg, #0a295f 0%, #23176d 100%);
+  box-shadow: var(--cb-shadow-md);
+  color: #fff;
+  padding: 18px;
+  border: 1px solid rgba(255,255,255,.08);
+}
+
+.back_content .pats-train-profile .profile-user,
+.back_content .pats-training-profile .profile-user{
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px;
+  border-radius: 20px;
+  background: rgba(255,255,255,.08);
+  border: 1px solid rgba(255,255,255,.08);
+}
+
+.back_content .pats-train-avatar,
+.back_content .pats-training-avatar{
+  width: 54px;
+  height: 54px;
+  min-width: 54px;
+  border-radius: 18px;
+  display: grid;
+  place-items: center;
+  font-weight: 1000;
+  font-size: 24px;
+  background: rgba(255,255,255,.94);
+  color: var(--cb-dark-1);
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.6);
+}
+
+.back_content .pats-train-profile strong,
+.back_content .pats-training-profile strong{
+  display: block;
+  font-size: 13px;
+  line-height: 1.15;
+  font-weight: 1000;
+  letter-spacing: .01em;
+}
+
+.back_content .pats-train-profile small,
+.back_content .pats-training-profile small{
+  display: block;
+  margin-top: 4px;
+  color: rgba(255,255,255,.75);
+  font-size: 11.8px;
+  font-weight: 800;
+  letter-spacing: .04em;
+}
+
+/* cajas laterales */
+.back_content .pats-train-sidebox,
+.back_content .pats-training-sidebox,
+.back_content .pats-train-help,
+.back_content .pats-training-help{
+  border-radius: 24px;
+  background: var(--cb-surface);
+  border: 1px solid var(--cb-line-soft);
+  box-shadow: var(--cb-shadow-sm);
+  padding: 18px;
+}
+
+.back_content .pats-train-sidebox h3,
+.back_content .pats-training-sidebox h3,
+.back_content .pats-train-help h3,
+.back_content .pats-training-help h3{
+  margin: 0 0 12px 0;
+  font-size: 13px;
+  line-height: 1.1;
+  font-weight: 1000;
+  color: var(--cb-text);
+  letter-spacing: .1em;
+  text-transform: uppercase;
+}
+
+.back_content .pats-train-sidebox p,
+.back_content .pats-training-sidebox p,
+.back_content .pats-train-help p,
+.back_content .pats-training-help p{
+  margin: 0;
+  color: var(--cb-text-2);
+  line-height: 1.65;
+  font-size: 14px;
+}
+
+/* =========================================================
+   FILTROS
+========================================================= */
+
+.back_content .pats-train-filters,
+.back_content .pats-training-filters{
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.back_content .pats-train-filters select,
+.back_content .pats-train-filters input,
+.back_content .pats-training-filters select,
+.back_content .pats-training-filters input,
+.back_content .pats-train-mini-form input,
+.back_content .pats-train-mini-form textarea,
+.back_content .pats-train-mini-form select{
+  width: 100%;
+  border: 1px solid var(--cb-line);
+  background: #f8f9fd;
+  color: var(--cb-text);
+  border-radius: 18px;
+  min-height: 54px;
+  padding: 0 16px;
+  outline: none;
+  font-size: 14px;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.75);
+  transition: border-color .18s ease, box-shadow .18s ease, background .18s ease;
+}
+
+.back_content .pats-train-mini-form textarea{
+  min-height: 108px;
+  padding: 14px 16px;
+  resize: vertical;
+}
+
+.back_content .pats-train-filters select:focus,
+.back_content .pats-train-filters input:focus,
+.back_content .pats-training-filters select:focus,
+.back_content .pats-training-filters input:focus,
+.back_content .pats-train-mini-form input:focus,
+.back_content .pats-train-mini-form textarea:focus,
+.back_content .pats-train-mini-form select:focus{
+  border-color: rgba(76, 98, 255, .5);
+  background: #fff;
+  box-shadow: 0 0 0 4px rgba(98,120,255,.09);
+}
+
+.back_content .pats-train-filters input::placeholder,
+.back_content .pats-train-mini-form input::placeholder,
+.back_content .pats-train-mini-form textarea::placeholder{
+  color: #7d8aad;
+}
+
+/* =========================================================
+   BOTONES
+   REGLA: solo CTA principal con gradiente
+========================================================= */
+
+.back_content .pats-train-btn,
+.back_content .pats-training-btn{
+  appearance: none;
+  border: none;
+  border-radius: 18px;
+  min-height: 52px;
+  padding: 0 18px;
+  font-size: 14px;
+  font-weight: 950;
+  letter-spacing: .01em;
+  cursor: pointer;
+  transition:
+    transform .18s ease,
+    box-shadow .18s ease,
+    border-color .18s ease,
+    background .18s ease,
+    color .18s ease;
+}
+
+/* principal */
+.back_content .pats-train-btn,
+.back_content .pats-training-btn,
+.back_content .pats-train-btn.is-primary{
+  color: #fff;
+  background: var(--cb-btn-grad);
+  box-shadow: 0 16px 36px rgba(83, 67, 255, .22);
+}
+
+.back_content .pats-train-btn:hover,
+.back_content .pats-training-btn:hover,
+.back_content .pats-train-btn.is-primary:hover{
+  transform: translateY(-1px);
+  filter: saturate(1.04);
+}
+
+/* light / neutral */
+.back_content .pats-train-btn.is-light{
+  background: #f8f9fd;
+  color: var(--cb-text);
+  border: 1px solid var(--cb-line);
+  box-shadow: none;
+}
+
+/* semantic ok */
+.back_content .pats-train-btn.is-ok{
+  background: linear-gradient(135deg, rgba(24,181,143,.14) 0%, rgba(24,181,143,.22) 100%);
+  color: #157e67;
+  border: 1px solid rgba(24,181,143,.24);
+  box-shadow: none;
+}
+
+/* semantic danger */
+.back_content .pats-train-btn.is-danger{
+  background: linear-gradient(135deg, rgba(217,75,132,.10) 0%, rgba(217,75,132,.18) 100%);
+  color: #b12665;
+  border: 1px solid rgba(217,75,132,.24);
+  box-shadow: none;
+}
+
+/* los CTA del panel lateral NO deben verse todos "azules" */
+.back_content .pats-train-actions .pats-train-btn{
+  box-shadow: none;
+}
+
+.back_content .pats-train-actions [data-action="show-manual-form"]{
+  background: #f8f9fd;
+  color: var(--cb-text);
+  border: 1px solid var(--cb-line);
+}
+
+.back_content .pats-train-actions [data-action="show-ops-form"]{
+  background: linear-gradient(135deg, rgba(76,98,255,.08) 0%, rgba(125,71,255,.12) 100%);
+  color: #352f9a;
+  border: 1px solid rgba(106,92,255,.18);
+}
+
+.back_content .pats-train-actions [data-action="synonym"]{
+  background: linear-gradient(135deg, rgba(50,200,255,.10) 0%, rgba(125,71,255,.10) 100%);
+  color: #233c8f;
+  border: 1px solid rgba(76,98,255,.16);
+}
+
+.back_content .pats-train-actions [data-action="resolve"]{
+  background: linear-gradient(135deg, rgba(24,181,143,.13) 0%, rgba(24,181,143,.22) 100%);
+  color: #157e67;
+  border: 1px solid rgba(24,181,143,.24);
+}
+
+.back_content .pats-train-actions [data-action="discard"]{
+  background: linear-gradient(135deg, rgba(217,75,132,.10) 0%, rgba(217,75,132,.18) 100%);
+  color: #b12665;
+  border: 1px solid rgba(217,75,132,.24);
+}
+
+/* al publicar sí se permite CTA fuerte */
+.back_content .pats-train-mini-form [data-action="publish-manual"],
+.back_content .pats-train-mini-form [data-action="publish-ops"]{
+  background: var(--cb-btn-grad);
+  color: #fff;
+  border: none;
+  box-shadow: 0 16px 34px rgba(82,66,255,.22);
+}
+
+/* =========================================================
+   PANEL PRINCIPAL
+========================================================= */
+
+.back_content .pats-train-main,
+.back_content .pats-training-main{
+  border-radius: 28px;
+  background: var(--cb-surface);
+  border: 1px solid rgba(255,255,255,.72);
+  box-shadow: var(--cb-shadow-md);
+  padding: 18px;
+  overflow: hidden;
+}
+
+.back_content .pats-train-main-head,
+.back_content .pats-training-main-head{
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.back_content .pats-train-main-head h2,
+.back_content .pats-training-main-head h2{
+  margin: 0;
+  font-size: clamp(24px, 2.1vw, 40px);
+  line-height: 1.04;
+  letter-spacing: -.03em;
+  font-weight: 1000;
+  color: var(--cb-text);
+}
+
+.back_content .pats-train-main-head p,
+.back_content .pats-training-main-head p{
+  margin: 8px 0 0 0;
+  color: var(--cb-text-2);
+  line-height: 1.55;
+  font-size: 14px;
+}
+
+.back_content .pats-train-back{
+  border-radius: 18px;
+  min-height: 48px;
+  padding: 0 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #f1f4fb;
+  border: 1px solid var(--cb-line);
+  color: var(--cb-text);
+  font-weight: 900;
+  text-decoration: none;
+}
+
+/* =========================================================
+   KPIs
+========================================================= */
+
+.back_content .pats-train-summary{
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+@media (max-width: 1180px){
+  .back_content .pats-train-summary{
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 640px){
+  .back_content .pats-train-summary{
+    grid-template-columns: 1fr;
+  }
+}
+
+.back_content .pats-train-kpi{
+  border-radius: 22px;
+  background: #f8f9fd;
+  border: 1px solid var(--cb-line-soft);
+  padding: 18px 16px;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.9);
+}
+
+.back_content .pats-train-kpi strong{
+  display: block;
+  font-size: 18px;
+  line-height: 1;
+  color: var(--cb-text);
+  font-weight: 1000;
+  margin-bottom: 8px;
+}
+
+.back_content .pats-train-kpi span{
+  display: block;
+  font-size: 11.8px;
+  line-height: 1.1;
+  color: var(--cb-text-2);
+  letter-spacing: .11em;
+  text-transform: uppercase;
+  font-weight: 900;
+}
+
+/* =========================================================
+   CARDS DE ENTRENAMIENTO
+========================================================= */
+
+.back_content .pats-train-card{
+  border-radius: 28px;
+  background: var(--cb-card);
+  border: 1px solid var(--cb-line-soft);
+  overflow: hidden;
+  box-shadow: var(--cb-shadow-sm);
+  margin-bottom: 16px;
+}
+
+.back_content .pats-train-card-head{
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 18px 20px;
+  border-bottom: 1px solid var(--cb-line-soft);
+  background: rgba(255,255,255,.36);
+}
+
+.back_content .pats-train-card-head h3{
+  margin: 0 0 6px 0;
+  font-size: clamp(18px, 1.8vw, 28px);
+  line-height: 1.15;
+  font-weight: 1000;
+  color: var(--cb-text);
+  letter-spacing: -.02em;
+}
+
+.back_content .pats-train-card-head small{
+  color: var(--cb-text-3);
+  font-size: 12.5px;
+  font-weight: 800;
+}
+
+.back_content .pats-train-pillrow{
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.back_content .pats-train-pill{
+  min-height: 34px;
+  padding: 0 14px;
+  display: inline-flex;
+  align-items: center;
+  border-radius: var(--cb-pill);
+  background: #eef2fa;
+  border: 1px solid #d8deec;
+  color: var(--cb-text);
+  font-size: 12px;
+  font-weight: 950;
+  letter-spacing: .02em;
+}
+
+.back_content .pats-train-pill.is-warn{
+  background: linear-gradient(135deg, rgba(255,184,77,.15), rgba(255,184,77,.08));
+  border-color: rgba(255,184,77,.28);
+  color: #9b6b0d;
+}
+
+.back_content .pats-train-pill.is-bad{
+  background: linear-gradient(135deg, rgba(217,75,132,.12), rgba(217,75,132,.06));
+  border-color: rgba(217,75,132,.25);
+  color: #a52c61;
+}
+
+.back_content .pats-train-pill.is-ok{
+  background: linear-gradient(135deg, rgba(24,181,143,.14), rgba(24,181,143,.08));
+  border-color: rgba(24,181,143,.22);
+  color: #157e67;
+}
+
+.back_content .pats-train-card-body{
+  display: grid;
+  grid-template-columns: minmax(0, 1.6fr) minmax(320px, .95fr);
+  gap: 16px;
+  padding: 16px 18px 18px 18px;
+}
+
+@media (max-width: 1120px){
+  .back_content .pats-train-card-body{
+    grid-template-columns: 1fr;
+  }
+}
+
+.back_content .pats-train-textbox{
+  border-radius: 22px;
+  padding: 16px 18px;
+  background: #f9faff;
+  border: 1px solid var(--cb-line-soft);
+  margin-bottom: 12px;
+}
+
+.back_content .pats-train-textbox label{
+  display: block;
+  margin-bottom: 10px;
+  color: var(--cb-text);
+  font-size: 12px;
+  line-height: 1.1;
+  letter-spacing: .11em;
+  text-transform: uppercase;
+  font-weight: 1000;
+}
+
+.back_content .pats-train-textbox p{
+  margin: 0;
+  color: var(--cb-text-2);
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+/* =========================================================
+   COLUMNA DE ACCIONES
+========================================================= */
+
+.back_content .pats-train-actions{
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.back_content .pats-train-mini-form{
+  border-radius: 24px;
+  background: #f8f9fd;
+  border: 1px solid var(--cb-line-soft);
+  padding: 16px;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.9);
+}
+
+.back_content .pats-train-mini-form label{
+  display: block;
+  margin: 0 0 12px 0;
+  color: var(--cb-text);
+  font-size: 12px;
+  line-height: 1.1;
+  letter-spacing: .11em;
+  text-transform: uppercase;
+  font-weight: 1000;
+}
+
+.back_content .pats-train-mini-form .pats-train-btn + .pats-train-btn{
+  margin-top: 8px;
+}
+
+.back_content .train-form-slot:empty{
+  display: none;
+}
+
+/* =========================================================
+   EMPTY / TOAST
+========================================================= */
+
+.back_content .pats-train-empty{
+  border-radius: 24px;
+  padding: 26px 20px;
+  background: #f8f9fd;
+  border: 1px dashed var(--cb-line);
+  color: var(--cb-text-2);
+  text-align: center;
+  font-size: 14px;
+}
+
+.back_content .pats-train-toast{
+  position: fixed;
+  right: 22px;
+  bottom: 22px;
+  z-index: 9999;
+  min-width: 280px;
+  max-width: 420px;
+  padding: 14px 16px;
+  border-radius: 18px;
+  background: rgba(18, 31, 90, .92);
+  color: #fff;
+  box-shadow: 0 22px 50px rgba(12,20,52,.28);
+  transform: translateY(14px);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .22s ease, transform .22s ease;
+  backdrop-filter: blur(10px);
+}
+
+.back_content .pats-train-toast.is-visible{
+  transform: translateY(0);
+  opacity: 1;
+}
+
+/* =========================================================
+   AJUSTES FINOS PARA NO "AZULEAR" TODO
+========================================================= */
+
+/* botones del bloque de gestión: semánticos, no gradiente */
+.back_content .pats-train-card .pats-train-mini-form:last-child .pats-train-btn{
+  box-shadow: none !important;
+}
+
+/* botón actualizar del panel lateral sí puede ser principal */
+.back_content #trainReloadBtn{
+  background: var(--cb-btn-grad) !important;
+  color: #fff !important;
+  border: none !important;
+  box-shadow: 0 16px 36px rgba(83, 67, 255, .22) !important;
+}
+
+/* botón volver al catbot neutro */
+.back_content .pats-train-main-head .pats-train-btn,
+.back_content .pats-training-main-head .pats-train-btn,
+.back_content .pats-train-main-head a,
+.back_content .pats-training-main-head a{
+  background: #f2f5fb;
+  color: var(--cb-text);
+  border: 1px solid var(--cb-line);
+  box-shadow: none;
+}
+
+/* si tu HTML usa esta clase para el botón volver */
+.back_content .pats-train-back-btn{
+  background: #f2f5fb !important;
+  color: var(--cb-text) !important;
+  border: 1px solid var(--cb-line) !important;
+  box-shadow: none !important;
+}
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 820px){
+  .back_content .pats-train-page,
+  .back_content .pats-training-page,
+  .back_content .train-page-wrap{
+    width: calc(100% - 18px);
+    padding: 12px;
+    border-radius: 24px;
+  }
+
+  .back_content .pats-train-hero,
+  .back_content .pats-training-hero{
+    padding: 20px 18px;
+    border-radius: 22px;
+  }
+
+  .back_content .pats-train-main,
+  .back_content .pats-training-main{
+    padding: 14px;
+    border-radius: 22px;
+  }
+
+  .back_content .pats-train-card-head{
+    padding: 16px;
+  }
+
+  .back_content .pats-train-card-body{
+    padding: 14px;
+  }
+
+  .back_content .pats-train-pillrow{
+    justify-content: flex-start;
+  }
+}
+
+/* =========================================================
+   MANUAL COLAPSABLE DE ENTRENAMIENTO
+========================================================= */
+
+.back_content .pats-train-manual{
+  border-radius: 26px;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.84), rgba(244,246,252,.94));
+  border: 1px solid rgba(205,214,232,.92);
+  box-shadow: 0 18px 42px rgba(24,34,78,.10);
+  overflow: hidden;
+}
+
+.back_content .pats-train-manual-toggle{
+  width: 100%;
+  min-height: 74px;
+  padding: 16px 17px;
+  border: 0;
+  background:
+    radial-gradient(circle at 96% 12%, rgba(106,92,255,.16), transparent 30%),
+    linear-gradient(135deg, rgba(10,29,99,.98) 0%, rgba(31,47,150,.96) 52%, rgba(90,57,255,.95) 100%);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  cursor: pointer;
+  text-align: left;
+}
+
+.back_content .pats-train-manual-toggle span{
+  min-width: 0;
+}
+
+.back_content .pats-train-manual-toggle strong{
+  display: block;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 1000;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  line-height: 1.15;
+}
+
+.back_content .pats-train-manual-toggle small{
+  display: block;
+  margin-top: 5px;
+  color: rgba(255,255,255,.72);
+  font-size: 11.5px;
+  font-weight: 750;
+  line-height: 1.25;
+}
+
+.back_content .pats-train-chevron{
+  width: 38px;
+  height: 38px;
+  min-width: 38px;
+  border-radius: 15px;
+  display: grid;
+  place-items: center;
+  background: rgba(255,255,255,.12);
+  border: 1px solid rgba(255,255,255,.16);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.16);
+  transition: transform .22s ease, background .22s ease, box-shadow .22s ease;
+}
+
+.back_content .pats-train-chevron svg{
+  width: 22px;
+  height: 22px;
+  display: block;
+  fill: #fff;
+}
+
+.back_content .pats-train-manual.is-open .pats-train-chevron{
+  transform: rotate(180deg);
+  background: rgba(255,255,255,.18);
+  box-shadow: 0 14px 34px rgba(0,0,0,.14), inset 0 1px 0 rgba(255,255,255,.20);
+}
+
+.back_content .pats-train-manual-body{
+  padding: 16px;
+  background:
+    linear-gradient(180deg, rgba(248,249,253,.98), rgba(240,243,250,.98));
+}
+
+.back_content .pats-train-manual-body[hidden]{
+  display: none !important;
+}
+
+.back_content .pats-train-manual-block,
+.back_content .pats-train-manual-step{
+  border-radius: 22px;
+  background: #fff;
+  border: 1px solid rgba(205,214,232,.88);
+  box-shadow: 0 10px 24px rgba(24,34,78,.06);
+  padding: 14px;
+  margin-bottom: 12px;
+}
+
+.back_content .pats-train-manual-block:last-child,
+.back_content .pats-train-manual-step:last-child{
+  margin-bottom: 0;
+}
+
+.back_content .pats-train-manual-step{
+  display: grid;
+  grid-template-columns: 34px minmax(0,1fr);
+  gap: 12px;
+}
+
+.back_content .pats-train-step-num{
+  width: 34px;
+  height: 34px;
+  border-radius: 14px;
+  display: grid;
+  place-items: center;
+  color: #fff;
+  background: linear-gradient(135deg, #172d8f 0%, #5a39ff 100%);
+  font-size: 13px;
+  font-weight: 1000;
+  box-shadow: 0 12px 24px rgba(83,67,255,.18);
+}
+
+.back_content .pats-train-manual h4{
+  margin: 0 0 7px;
+  color: #17244f;
+  font-size: 13px;
+  line-height: 1.2;
+  font-weight: 1000;
+  letter-spacing: -.01em;
+}
+
+.back_content .pats-train-manual p{
+  margin: 0;
+  color: #4f5f89;
+  font-size: 12.5px;
+  line-height: 1.58;
+  font-weight: 650;
+}
+
+.back_content .pats-train-manual ul{
+  margin: 8px 0 0;
+  padding-left: 17px;
+  color: #4f5f89;
+}
+
+.back_content .pats-train-manual li{
+  margin: 0 0 6px;
+  color: #4f5f89;
+  font-size: 12.2px;
+  line-height: 1.45;
+  font-weight: 650;
+}
+
+.back_content .pats-train-manual li:last-child{
+  margin-bottom: 0;
+}
+
+.back_content .pats-train-manual b{
+  color: #17244f;
+  font-weight: 950;
+}
+
+.back_content .pats-train-example{
+  margin-top: 8px !important;
+  padding: 10px 11px;
+  border-radius: 16px;
+  color: #33427c !important;
+  background:
+    linear-gradient(135deg, rgba(76,98,255,.08), rgba(125,71,255,.08));
+  border: 1px solid rgba(106,92,255,.16);
+  font-style: italic;
+}
+
+.back_content .pats-train-mini-grid{
+  display: grid;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.back_content .pats-train-mini-grid div{
+  padding: 10px 11px;
+  border-radius: 16px;
+  background: #f7f8fd;
+  border: 1px solid rgba(205,214,232,.80);
+}
+
+.back_content .pats-train-mini-grid b{
+  display: block;
+  margin-bottom: 3px;
+  font-size: 12px;
+  color: #17244f;
+  font-weight: 1000;
+}
+
+.back_content .pats-train-mini-grid span{
+  display: block;
+  color: #607098;
+  font-size: 11.5px;
+  line-height: 1.35;
+  font-weight: 650;
+}
+
+.back_content .pats-train-manual-block.is-intro{
+  background:
+    radial-gradient(circle at 92% 20%, rgba(50,200,255,.12), transparent 34%),
+    #ffffff;
+}
+
+.back_content .pats-train-manual-block.is-warning{
+  background:
+    radial-gradient(circle at 92% 20%, rgba(255,184,77,.16), transparent 34%),
+    #fffaf1;
+  border-color: rgba(255,184,77,.28);
+}
+
+.back_content .pats-train-manual-block.is-warning h4{
+  color: #8a5b08;
+}
+
+.back_content .pats-train-manual-block.is-done{
+  background:
+    radial-gradient(circle at 92% 20%, rgba(24,181,143,.14), transparent 34%),
+    #f2fffb;
+  border-color: rgba(24,181,143,.25);
+}
+
+.back_content .pats-train-manual-block.is-done h4{
+  color: #147b66;
+}
+
+@media (max-width: 820px){
+  .back_content .pats-train-manual-toggle{
+    min-height: 68px;
+    padding: 14px;
+  }
+
+  .back_content .pats-train-manual-step{
+    grid-template-columns: 1fr;
+  }
+
+  .back_content .pats-train-step-num{
+    width: 32px;
+    height: 32px;
+  }
+}

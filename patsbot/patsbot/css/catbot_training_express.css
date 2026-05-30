@@ -1,0 +1,951 @@
+/* =========================================================
+   ez/pats/css/catbot_training_express.css
+   Entrenador Express PATS
+   Visual alineado a CAT BOT / EZ premium claro
+========================================================= */
+
+.back_content .pats-xtrain-page{
+  width:min(1460px, calc(100% - 42px));
+  margin:22px auto 42px;
+  font-family:Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+/* =========================================================
+   HERO
+========================================================= */
+
+.back_content .pats-xtrain-hero{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  gap:18px;
+  align-items:center;
+  padding:24px 28px;
+  border-radius:30px;
+  color:#fff;
+  background:
+    radial-gradient(circle at 88% 20%, rgba(0,212,255,.20), transparent 34%),
+    linear-gradient(135deg, #071438 0%, #17206b 52%, #632bd4 100%);
+  box-shadow:0 24px 60px rgba(20,28,68,.18);
+  overflow:hidden;
+}
+
+.back_content .pats-xtrain-hero-main{
+  min-width:0;
+}
+
+.back_content .pats-xtrain-kicker{
+  display:inline-flex;
+  width:auto;
+  padding:6px 10px;
+  border-radius:999px;
+  color:#bdf7ff;
+  background:rgba(255,255,255,.10);
+  border:1px solid rgba(255,255,255,.16);
+  font-size:10.5px;
+  line-height:1;
+  font-weight:950;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+}
+
+.back_content .pats-xtrain-hero h1{
+  margin:10px 0 7px;
+  color:#fff;
+  font-size:clamp(31px,3vw,48px);
+  line-height:1.02;
+  letter-spacing:-.055em;
+  font-weight:950;
+}
+
+.back_content .pats-xtrain-hero p{
+  max-width:930px;
+  margin:0;
+  color:rgba(255,255,255,.76);
+  font-size:13.5px;
+  line-height:1.5;
+  font-weight:650;
+}
+
+.back_content .pats-xtrain-hero-actions{
+  display:flex;
+  align-items:center;
+  justify-content:flex-end;
+  gap:10px;
+  flex-wrap:wrap;
+}
+
+.back_content .pats-xtrain-status{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  min-width:170px;
+  padding:11px 13px;
+  border-radius:19px;
+  background:rgba(255,255,255,.12);
+  border:1px solid rgba(255,255,255,.16);
+}
+
+.back_content .pats-xtrain-dot{
+  width:13px;
+  height:13px;
+  border-radius:999px;
+  background:#28f1d1;
+  box-shadow:0 0 0 7px rgba(40,241,209,.12);
+}
+
+.back_content .pats-xtrain-status strong{
+  display:block;
+  color:#fff;
+  font-size:12px;
+  line-height:1.1;
+  font-weight:950;
+}
+
+.back_content .pats-xtrain-status small{
+  display:block;
+  margin-top:2px;
+  color:rgba(255,255,255,.70);
+  font-size:10.5px;
+  font-weight:850;
+}
+
+.back_content .pats-xtrain-back{
+  min-height:38px;
+  padding:0 14px;
+  border-radius:999px;
+  color:#17244f;
+  background:#f6f8fd;
+  border:1px solid rgba(255,255,255,.42);
+  box-shadow:none;
+  font-size:11.5px;
+  font-weight:950;
+  cursor:pointer;
+}
+
+/* =========================================================
+   SHELL
+========================================================= */
+
+.back_content .pats-xtrain-shell{
+  display:grid;
+  grid-template-columns:320px minmax(0,1fr);
+  gap:18px;
+  margin-top:18px;
+  align-items:start;
+}
+
+.back_content .pats-xtrain-side{
+  display:flex;
+  flex-direction:column;
+  gap:14px;
+}
+
+.back_content .pats-xtrain-user,
+.back_content .pats-xtrain-panel,
+.back_content .pats-xtrain-manual,
+.back_content .pats-xtrain-main{
+  border-radius:28px;
+  background:rgba(255,255,255,.84);
+  border:1px solid rgba(91,104,145,.20);
+  box-shadow:0 18px 44px rgba(23,29,68,.10);
+  backdrop-filter:blur(14px);
+}
+
+/* =========================================================
+   USER CARD
+========================================================= */
+
+.back_content .pats-xtrain-user{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  padding:14px;
+  color:#fff;
+  background:
+    radial-gradient(circle at 90% 20%, rgba(124,61,255,.28), transparent 32%),
+    linear-gradient(135deg,#071438,#24115d);
+}
+
+.back_content .pats-xtrain-avatar{
+  width:48px;
+  height:48px;
+  border-radius:17px;
+  display:grid;
+  place-items:center;
+  background:#fff;
+  color:#071438;
+  font-size:20px;
+  font-weight:950;
+}
+
+.back_content .pats-xtrain-user strong{
+  display:block;
+  color:#fff;
+  font-size:12.5px;
+  font-weight:950;
+}
+
+.back_content .pats-xtrain-user span{
+  display:block;
+  margin-top:3px;
+  color:rgba(255,255,255,.68);
+  font-size:10.5px;
+  font-weight:850;
+}
+
+/* =========================================================
+   FILTER PANEL
+========================================================= */
+
+.back_content .pats-xtrain-panel{
+  padding:16px;
+}
+
+.back_content .pats-xtrain-panel h3,
+.back_content .pats-xtrain-manual h3{
+  margin:0 0 12px;
+  color:#0b1742;
+  font-size:12px;
+  font-weight:950;
+  letter-spacing:.1em;
+  text-transform:uppercase;
+}
+
+.back_content .pats-xtrain-tabs{
+  display:grid;
+  gap:8px;
+}
+
+.back_content .pats-xtrain-tabs button,
+.back_content .pats-xtrain-search,
+.back_content .pats-xtrain-primary,
+.back_content .pats-xtrain-soft{
+  min-height:42px;
+  border-radius:16px;
+  font-family:inherit;
+  font-size:12px;
+  font-weight:900;
+}
+
+.back_content .pats-xtrain-tabs button{
+  border:1px solid rgba(91,104,145,.20);
+  background:#f5f7fc;
+  color:#23305c;
+  cursor:pointer;
+  transition:transform .16s ease, box-shadow .16s ease, background .16s ease;
+}
+
+.back_content .pats-xtrain-tabs button:hover{
+  transform:translateY(-1px);
+  box-shadow:0 10px 22px rgba(23,29,68,.08);
+}
+
+.back_content .pats-xtrain-tabs button.is-active{
+  color:#fff;
+  border-color:rgba(255,255,255,.14);
+  background:linear-gradient(135deg,#0b1a55,#2822b8 56%,#7c3dff);
+  box-shadow:0 14px 30px rgba(40,34,184,.18);
+}
+
+.back_content .pats-xtrain-search{
+  width:100%;
+  margin-top:10px;
+  padding:0 13px;
+  outline:none;
+  border:1px solid rgba(91,104,145,.22);
+  background:#f8f9fd;
+  color:#17244f;
+}
+
+.back_content .pats-xtrain-search::placeholder{
+  color:#7784a6;
+}
+
+.back_content .pats-xtrain-search:focus{
+  background:#fff;
+  border-color:rgba(76,98,255,.46);
+  box-shadow:0 0 0 4px rgba(98,120,255,.08);
+}
+
+.back_content .pats-xtrain-primary{
+  width:100%;
+  margin-top:10px;
+  border:0;
+  color:#fff;
+  cursor:pointer;
+  background:linear-gradient(135deg,#0b1a55,#2822b8 56%,#7c3dff);
+  box-shadow:0 16px 32px rgba(40,34,184,.18);
+}
+
+.back_content .pats-xtrain-primary:hover{
+  transform:translateY(-1px);
+  filter:saturate(1.06);
+}
+
+.back_content .pats-xtrain-soft{
+  border:1px solid rgba(91,104,145,.22);
+  color:#17244f;
+  background:#f5f7fc;
+  cursor:pointer;
+}
+
+.back_content .pats-xtrain-soft:hover{
+  transform:translateY(-1px);
+  box-shadow:0 10px 22px rgba(23,29,68,.08);
+}
+
+/* =========================================================
+   MANUAL COLAPSABLE
+========================================================= */
+
+.back_content .pats-xtrain-manual{
+  overflow:hidden;
+}
+
+.back_content .pats-xtrain-manual-head{
+  width:100%;
+  min-height:66px;
+  padding:14px 16px;
+  border:0;
+  cursor:pointer;
+  text-align:left;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  color:#fff;
+  background:
+    radial-gradient(circle at 90% 18%, rgba(50,200,255,.16), transparent 32%),
+    linear-gradient(135deg,#0a1d63,#1d2f96 52%,#5a39ff);
+}
+
+.back_content .pats-xtrain-manual-head strong{
+  display:block;
+  color:#fff;
+  font-size:12px;
+  font-weight:950;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+}
+
+.back_content .pats-xtrain-manual-head small{
+  display:block;
+  margin-top:4px;
+  color:rgba(255,255,255,.72);
+  font-size:11px;
+  font-weight:750;
+}
+
+.back_content .pats-xtrain-manual-head i{
+  width:36px;
+  height:36px;
+  min-width:36px;
+  border-radius:14px;
+  display:grid;
+  place-items:center;
+  background:rgba(255,255,255,.12);
+  border:1px solid rgba(255,255,255,.16);
+  transition:.2s ease;
+}
+
+.back_content .pats-xtrain-manual-head svg{
+  width:22px;
+  height:22px;
+  fill:#fff;
+}
+
+.back_content .pats-xtrain-manual.is-open .pats-xtrain-manual-head i{
+  transform:rotate(180deg);
+}
+
+.back_content .pats-xtrain-manual-body{
+  padding:14px;
+}
+
+.back_content .pats-xtrain-manual-body[hidden]{
+  display:none !important;
+}
+
+.back_content .pats-xtrain-manual-body div{
+  padding:12px;
+  border-radius:17px;
+  background:#f8f9fd;
+  border:1px solid rgba(205,214,232,.78);
+  margin-bottom:9px;
+}
+
+.back_content .pats-xtrain-manual-body div:last-child{
+  margin-bottom:0;
+}
+
+.back_content .pats-xtrain-manual-body div.is-warning{
+  background:#fff8eb;
+  border-color:rgba(255,184,77,.26);
+}
+
+.back_content .pats-xtrain-manual-body b{
+  display:block;
+  color:#17244f;
+  font-size:12px;
+  font-weight:950;
+  margin-bottom:4px;
+}
+
+.back_content .pats-xtrain-manual-body p{
+  margin:0;
+  color:#4f5f89;
+  font-size:11.5px;
+  line-height:1.45;
+  font-weight:650;
+}
+
+.back_content .pats-xtrain-manual-body em{
+  display:block;
+  margin-top:7px;
+  color:#3652b7;
+  font-size:11px;
+  line-height:1.35;
+  font-weight:750;
+}
+
+/* =========================================================
+   MAIN
+========================================================= */
+
+.back_content .pats-xtrain-main{
+  padding:18px;
+  min-height:640px;
+  background: radial-gradient(circle at top left, rgba(71,115,255,.12) 0%, rgba(71,115,255,0) 24%), radial-gradient(circle at bottom right, rgba(100,74,255,.10) 0%, rgba(100,74,255,0) 26%), linear-gradient(180deg, #2d3556 0%, #26304f 52%, #212a45 100%);
+  box-shadow: 0 34px 74px rgba(4,10,24,.46), 0 14px 28px rgba(12,22,54,.24), inset 0 1px 0 rgba(255,255,255,.05);
+  color: #eef4ff;
+}
+
+.back_content .pats-xtrain-main-head{
+  margin-bottom:15px;
+}
+
+.back_content .pats-xtrain-main-head span{
+  display:inline-flex;
+  padding:6px 10px;
+  border-radius:999px;
+  color:#3652b7;
+  background:#eef3ff;
+  border:1px solid rgba(91,104,145,.16);
+  font-size:10px;
+  font-weight:950;
+  letter-spacing:.09em;
+  text-transform:uppercase;
+}
+
+.back_content .pats-xtrain-main-head h2{
+  margin:10px 0 5px;
+  color:#c1ceff;
+  font-size:clamp(26px,2.5vw,40px);
+  line-height:1.05;
+  letter-spacing:-.04em;
+  font-weight:950;
+}
+
+.back_content .pats-xtrain-main-head p{
+  margin:0;
+  color:#caced8;
+  font-size:12.5px;
+  line-height:1.45;
+  font-weight:700;
+}
+
+/* =========================================================
+   SUMMARY
+========================================================= */
+
+.back_content .pats-xtrain-summary{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:10px;
+  margin-bottom:16px;
+}
+
+.back_content .pats-xtrain-summary div{
+  padding:13px;
+  border-radius:20px;
+  background:#f8f9fd;
+  border:1px solid rgba(205,214,232,.78);
+}
+
+.back_content .pats-xtrain-summary strong{
+  display:block;
+  color:#0b1742;
+  font-size:20px;
+  line-height:1;
+  font-weight:950;
+}
+
+.back_content .pats-xtrain-summary span{
+  display:block;
+  margin-top:6px;
+  color:#66708e;
+  font-size:10px;
+  font-weight:950;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+}
+
+/* =========================================================
+   LIST / CARDS
+========================================================= */
+
+.back_content .pats-xtrain-list{
+  display:grid;
+  gap:14px;
+}
+
+.back_content .pats-xtrain-card{
+  overflow:hidden;
+  border-radius:26px;
+  background:#f8f9fd;
+  border:1px solid rgba(205,214,232,.86);
+  box-shadow:0 12px 30px rgba(23,29,68,.08);
+  border-radius: 32px !important;
+  border: 1px solid rgba(201, 210, 229, .62) !important;
+  box-shadow: 0 16px 32px rgba(2, 8, 24, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.4);
+  background: #cfd1dd;
+}
+
+.back_content .pats-xtrain-card-head{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:14px;
+  padding:16px 18px;
+  background:rgba(255,255,255,.58);
+  border-bottom:1px solid rgba(205,214,232,.74);
+}
+
+.back_content .pats-xtrain-card-kicker{
+  display:inline-flex;
+  color:#3652b7;
+  font-size:10px;
+  font-weight:950;
+  letter-spacing:.09em;
+  text-transform:uppercase;
+}
+
+.back_content .pats-xtrain-card h3{
+  margin:5px 0 4px;
+  color:#0b1742;
+  font-size:clamp(17px,1.7vw,25px);
+  line-height:1.16;
+  font-weight:950;
+}
+
+.back_content .pats-xtrain-card-head p{
+  margin:0;
+  color:#66708e;
+  font-size:11px;
+  font-weight:800;
+}
+
+.back_content .pats-xtrain-pills{
+  display:flex;
+  flex-wrap:wrap;
+  gap:6px;
+  justify-content:flex-end;
+}
+
+.back_content .pats-xtrain-pills span{
+  min-height:28px;
+  display:inline-flex;
+  align-items:center;
+  padding:0 10px;
+  border-radius:999px;
+  color:#17244f;
+  background:#eef2fb;
+  border:1px solid rgba(205,214,232,.92);
+  font-size:10.5px;
+  font-weight:950;
+  white-space:nowrap;
+}
+
+.back_content .pats-xtrain-pills span.is-warn{
+  color:#8a5b08;
+  background:#fff5df;
+  border-color:rgba(255,184,77,.24);
+}
+
+.back_content .pats-xtrain-pills span.is-bad{
+  color:#9c2659;
+  background:#fff0f6;
+  border-color:rgba(217,75,132,.22);
+}
+
+.back_content .pats-xtrain-pills span.is-empty{
+  color:#3550a6;
+  background:#edf3ff;
+  border-color:rgba(76,98,255,.18);
+}
+
+.back_content .pats-xtrain-card-body{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) 245px;
+  gap:14px;
+  padding:16px 18px;
+}
+
+.back_content .pats-xtrain-info{
+  min-width:0;
+}
+
+.back_content .pats-xtrain-box{
+  padding:14px;
+  border-radius:20px;
+  background:#fff;
+  border:1px solid rgba(205,214,232,.78);
+  margin-bottom:10px;
+}
+
+.back_content .pats-xtrain-box:last-child{
+  margin-bottom:0;
+}
+
+.back_content .pats-xtrain-box.is-suggestion{
+  background:
+    radial-gradient(circle at 92% 20%, rgba(50,200,255,.12), transparent 34%),
+    #ffffff;
+}
+
+.back_content .pats-xtrain-box label{
+  display:block;
+  margin-bottom:8px;
+  color:#17244f;
+  font-size:10.5px;
+  font-weight:950;
+  letter-spacing:.09em;
+  text-transform:uppercase;
+}
+
+.back_content .pats-xtrain-box p{
+  margin:0;
+  color:#4f5f89;
+  font-size:12.5px;
+  line-height:1.55;
+  font-weight:650;
+}
+
+.back_content .pats-xtrain-box small{
+  display:block;
+  margin-top:8px;
+  color:#3652b7;
+  font-size:11px;
+  font-weight:850;
+}
+
+/* =========================================================
+   ACTION BUTTONS
+========================================================= */
+
+.back_content .pats-xtrain-actions{
+  display:grid;
+  gap:8px;
+  align-content:start;
+}
+
+.back_content .pats-xtrain-actions button{
+  min-height:42px;
+  border-radius:16px;
+  border:1px solid rgba(205,214,232,.84);
+  background:#fff;
+  color:#17244f;
+  cursor:pointer;
+  font-size:11.5px;
+  font-weight:950;
+  text-align:left;
+  padding:0 12px;
+  display:flex;
+  align-items:center;
+  gap:8px;
+  transition:transform .16s ease, box-shadow .16s ease, background .16s ease;
+}
+
+.back_content .pats-xtrain-actions button:hover{
+  transform:translateY(-1px);
+  box-shadow:0 10px 22px rgba(23,29,68,.08);
+}
+
+.back_content .pats-xtrain-actions button.is-ok{
+  color:#157e67;
+  background:#effffb;
+  border-color:rgba(24,181,143,.24);
+}
+
+.back_content .pats-xtrain-actions button.is-danger{
+  color:#b12665;
+  background:#fff2f7;
+  border-color:rgba(217,75,132,.22);
+}
+
+/* =========================================================
+   FORM SLOT
+========================================================= */
+
+.back_content .pats-xtrain-slot{
+  padding:0 18px 18px;
+}
+
+.back_content .pats-xtrain-slot:empty{
+  display:none;
+}
+
+.back_content .pats-xtrain-form{
+  padding:15px;
+  border-radius:22px;
+  background:#fff;
+  border:1px solid rgba(205,214,232,.86);
+  box-shadow:0 10px 24px rgba(23,29,68,.06);
+}
+
+.back_content .pats-xtrain-form h4{
+  margin:0 0 5px;
+  color:#0b1742;
+  font-size:16px;
+  font-weight:950;
+}
+
+.back_content .pats-xtrain-form p{
+  margin:0 0 12px;
+  color:#647191;
+  font-size:12px;
+  line-height:1.45;
+  font-weight:700;
+}
+
+.back_content .pats-xtrain-form label{
+  display:block;
+  margin:10px 0 6px;
+  color:#17244f;
+  font-size:10.5px;
+  font-weight:950;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+}
+
+.back_content .pats-xtrain-form input,
+.back_content .pats-xtrain-form textarea,
+.back_content .pats-xtrain-form select{
+  width:100%;
+  border:1px solid rgba(205,214,232,.95);
+  border-radius:15px;
+  padding:10px 12px;
+  background:#f8f9fd;
+  color:#17244f;
+  font-size:12.5px;
+  font-family:inherit;
+  outline:none;
+}
+
+.back_content .pats-xtrain-form textarea{
+  min-height:92px;
+  resize:vertical;
+}
+
+.back_content .pats-xtrain-form input:focus,
+.back_content .pats-xtrain-form textarea:focus,
+.back_content .pats-xtrain-form select:focus{
+  background:#fff;
+  border-color:rgba(76,98,255,.46);
+  box-shadow:0 0 0 4px rgba(98,120,255,.08);
+}
+
+.back_content .pats-xtrain-advanced{
+  margin-top:12px;
+  border-radius:18px;
+  background:#f8f9fd;
+  border:1px solid rgba(205,214,232,.78);
+  padding:10px 12px;
+}
+
+.back_content .pats-xtrain-advanced summary{
+  cursor:pointer;
+  color:#3652b7;
+  font-size:12px;
+  font-weight:950;
+}
+
+.back_content .pats-xtrain-form-actions{
+  display:flex;
+  gap:8px;
+  margin-top:12px;
+  flex-wrap:wrap;
+}
+
+.back_content .pats-xtrain-form-actions .pats-xtrain-primary,
+.back_content .pats-xtrain-form-actions .pats-xtrain-soft{
+  width:auto;
+  min-width:150px;
+  padding:0 15px;
+  margin-top:0;
+}
+
+/* =========================================================
+   TEST RESULT
+========================================================= */
+
+.back_content .pats-xtrain-test{
+  margin-top:12px;
+  padding:13px;
+  border-radius:18px;
+  border:1px solid rgba(205,214,232,.86);
+}
+
+.back_content .pats-xtrain-test strong{
+  display:block;
+  font-size:13px;
+  font-weight:950;
+  margin-bottom:6px;
+}
+
+.back_content .pats-xtrain-test p{
+  margin:0;
+  font-size:12px;
+  line-height:1.55;
+}
+
+.back_content .pats-xtrain-test.is-ok{
+  background:#effffb;
+  border-color:rgba(24,181,143,.25);
+  color:#157e67;
+}
+
+.back_content .pats-xtrain-test.is-warn{
+  background:#fff8e9;
+  border-color:rgba(255,184,77,.26);
+  color:#8a5b08;
+}
+
+.back_content .pats-xtrain-test.is-bad{
+  background:#fff2f7;
+  border-color:rgba(217,75,132,.22);
+  color:#b12665;
+}
+
+/* =========================================================
+   EMPTY / TOAST
+========================================================= */
+
+.back_content .pats-xtrain-empty{
+  padding:28px;
+  border-radius:22px;
+  background:#f8f9fd;
+  border:1px dashed rgba(205,214,232,.95);
+  color:#647191;
+  text-align:center;
+  font-size:13px;
+  font-weight:850;
+}
+
+.back_content .pats-xtrain-toast{
+  position:fixed;
+  right:22px;
+  bottom:22px;
+  z-index:9999;
+  width:min(430px, calc(100vw - 34px));
+  padding:14px 16px;
+  border-radius:18px;
+  color:#fff;
+  background:rgba(14,26,74,.94);
+  box-shadow:0 26px 70px rgba(0,0,0,.25);
+  transform:translateY(14px);
+  opacity:0;
+  pointer-events:none;
+  transition:.22s ease;
+  backdrop-filter:blur(10px);
+  font-size:13px;
+  font-weight:850;
+}
+
+.back_content .pats-xtrain-toast.is-visible{
+  opacity:1;
+  transform:translateY(0);
+}
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media(max-width:1280px){
+  .back_content .pats-xtrain-shell{
+    grid-template-columns:1fr;
+  }
+
+  .back_content .pats-xtrain-summary{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+  }
+}
+
+@media(max-width:920px){
+  .back_content .pats-xtrain-page{
+    width:calc(100% - 22px);
+    margin-top:14px;
+  }
+
+  .back_content .pats-xtrain-hero{
+    grid-template-columns:1fr;
+    padding:18px;
+  }
+
+  .back_content .pats-xtrain-hero-actions{
+    justify-content:flex-start;
+  }
+
+  .back_content .pats-xtrain-card-head{
+    flex-direction:column;
+  }
+
+  .back_content .pats-xtrain-pills{
+    justify-content:flex-start;
+  }
+
+  .back_content .pats-xtrain-card-body{
+    display:block;
+  }
+
+  .back_content .pats-xtrain-actions{
+    margin-top:12px;
+  }
+
+  .back_content .pats-xtrain-summary{
+    grid-template-columns:1fr;
+  }
+}
+
+
+/* =========================================================
+   ICONOS UNICODE — SIN EMOJIS
+========================================================= */
+
+.back_content .pats-xtrain-actions .xtrain-ico{
+  width:22px;
+  height:22px;
+  min-width:22px;
+  border-radius:8px;
+  display:inline-grid;
+  place-items:center;
+  font-family:Arial, Helvetica, sans-serif;
+  font-size:15px;
+  line-height:1;
+  font-weight:900;
+  color:#3652b7;
+  background:rgba(54,82,183,.08);
+  border:1px solid rgba(54,82,183,.12);
+}
+
+.back_content .pats-xtrain-actions button.is-ok .xtrain-ico{
+  color:#157e67;
+  background:rgba(24,181,143,.10);
+  border-color:rgba(24,181,143,.18);
+}
+
+.back_content .pats-xtrain-actions button.is-danger .xtrain-ico{
+  color:#b12665;
+  background:rgba(217,75,132,.10);
+  border-color:rgba(217,75,132,.18);
+}
