@@ -25,7 +25,7 @@ class DatabaseSeeder extends Seeder
 
         $this->call([
             UsuarioPruebaSeeder::class,
-            PreviewDistSeeder::class,
+            // PreviewDistSeeder::class,
             PatsChatbotSeeder::class,
         ]);
     }
