@@ -8,6 +8,7 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\PasswordResetController;
 use App\Http\Controllers\ChatbotController;
 use App\Http\Controllers\EspecialidadesController;
+use App\Http\Controllers\ExpedienteController;
 use App\Http\Controllers\PagoDistribucionController;
 use App\Http\Controllers\PagosController;
 use App\Http\Controllers\PasaporteController;
@@ -35,6 +36,13 @@ Route::get('/', fn () => view('welcome'));
 Route::post('/soporte/contacto', [SoporteController::class, 'contacto'])->name('soporte.contacto');
 Route::post('/chatbot/ask', [ChatbotController::class, 'ask'])->name('chatbot.ask');
 Route::post('/chatbot/feedback', [ChatbotController::class, 'feedback'])->name('chatbot.feedback');
+
+// ──────────────────────────────────────────────────────────────────────────────
+//  EXPEDIENTE MÉDICO (público — acceso por QR)
+// ──────────────────────────────────────────────────────────────────────────────
+
+Route::get('/expediente/{token}', [ExpedienteController::class, 'show'])->name('expediente.show');
+Route::get('/expediente/{token}/foto', [ExpedienteController::class, 'foto'])->name('expediente.foto');
 
 // ──────────────────────────────────────────────────────────────────────────────
 //  AUTENTICACIÓN (guard: pasaporte)

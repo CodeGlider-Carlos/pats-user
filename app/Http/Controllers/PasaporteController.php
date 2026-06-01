@@ -4,12 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Models\PatsHistoriaClinica;
 use Carbon\Carbon;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class PasaporteController extends Controller
 {
-    public function index(Request $request)
+    public function index()
     {
         $user = auth('pasaporte')->user();
 
@@ -57,6 +57,16 @@ class PasaporteController extends Controller
 
         $historiaClinica = PatsHistoriaClinica::where('id_pasaporte', $pasaporte->id_pasaporte)->first();
 
+        if (! $pasaporte->token_qr) {
+            $token = Str::uuid()->toString();
+            DB::table('pats_pasaportes')
+                ->where('id_pasaporte', $pasaporte->id_pasaporte)
+                ->update(['token_qr' => $token]);
+            $pasaporte->token_qr = $token;
+        }
+
+        $qrUrl = route('expediente.show', $pasaporte->token_qr);
+
         return view('pasaporte.index', [
             'pasaporte' => $pasaporte,
             'pagos' => $pagos,
@@ -67,6 +77,7 @@ class PasaporteController extends Controller
             'edad' => $edad,
             'vencimiento' => $vencimiento,
             'historiaClinica' => $historiaClinica,
+            'qrUrl' => $qrUrl,
         ]);
     }
 }
