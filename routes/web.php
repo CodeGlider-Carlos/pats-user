@@ -6,6 +6,7 @@ use App\Http\Controllers\AdquirirController;
 use App\Http\Controllers\AgendaController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\PasswordResetController;
+use App\Http\Controllers\ChatbotController;
 use App\Http\Controllers\EspecialidadesController;
 use App\Http\Controllers\PagoDistribucionController;
 use App\Http\Controllers\PagosController;
@@ -32,6 +33,8 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', fn () => view('welcome'));
 Route::post('/soporte/contacto', [SoporteController::class, 'contacto'])->name('soporte.contacto');
+Route::post('/chatbot/ask', [ChatbotController::class, 'ask'])->name('chatbot.ask');
+Route::post('/chatbot/feedback', [ChatbotController::class, 'feedback'])->name('chatbot.feedback');
 
 // ──────────────────────────────────────────────────────────────────────────────
 //  AUTENTICACIÓN (guard: pasaporte)
