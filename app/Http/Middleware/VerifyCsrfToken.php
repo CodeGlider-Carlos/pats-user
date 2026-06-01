@@ -13,6 +13,8 @@ class VerifyCsrfToken extends Middleware
      */
     protected $except = [
         'api/feenicia/webhook',
-        '/adquirir/procesar'
+        '/adquirir/procesar',
+        '/chatbot/ask',
+        '/chatbot/feedback',
     ];
 }

@@ -429,31 +429,48 @@
             color: var(--danger);
         }
 
-        /* Checkbox Cards */
-        .digi-check-card {
-            border: 2px solid var(--border);
-            border-radius: var(--radius-md);
-            padding: 1rem;
-            transition: all var(--transition);
-            cursor: pointer;
-            height: 100%;
+        /* Pill Toggles */
+        .digi-pill-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
         }
 
-        .digi-check-card:hover {
+        .digi-pill-toggle {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            padding: 0.4rem 1rem;
+            border: 2px solid var(--border);
+            border-radius: 2rem;
+            cursor: pointer;
+            font-size: 0.875rem;
+            color: var(--text);
+            white-space: nowrap;
+            transition: all var(--transition);
+            user-select: none;
+        }
+
+        .digi-pill-toggle:hover {
             border-color: var(--blue);
             background: var(--navy);
         }
 
-        .digi-check-card input[type="checkbox"] {
-            margin-right: 0.5rem;
-            accent-color: var(--blue);
+        .digi-pill-toggle input[type="checkbox"] {
+            display: none;
         }
 
-        .digi-check-card label {
-            font-size: 0.95rem;
-            color: var(--text);
-            cursor: pointer;
-            width: 100%;
+        .digi-pill-toggle:has(input:checked) {
+            border-color: var(--blue);
+            background: var(--blue);
+            color: #fff;
+        }
+
+        @media (max-width: 575px) {
+            .digi-pill-toggle {
+                font-size: 0.8rem;
+                padding: 0.35rem 0.8rem;
+            }
         }
 
         /* Radio Options */
@@ -603,7 +620,7 @@
                 <div class="col-md-4 text-center mb-4 mb-md-0">
                     <div class="position-relative text-center mb-3" style="cursor: pointer; display: inline-block;" onclick="openCamera()">
                         @if($pasaporte && isset($pasaporte->foto_usuario) && $pasaporte->foto_usuario)
-                            <img id="userPhotoPreview" src="{{ asset('storage/' . $pasaporte->foto_usuario) }}" width="100" height="100" style="object-fit:cover; border-radius:50%; border: 3px solid #dde8ff; margin:0 auto; display:block;" alt="Foto">
+                            <img id="userPhotoPreview" src="{{ route('perfil.foto') }}" width="100" height="100" style="object-fit:cover; border-radius:50%; border: 3px solid #dde8ff; margin:0 auto; display:block;" alt="Foto">
                             <div id="userPhotoInitials" style="display:none;"></div>
                         @else
                             <div id="userPhotoInitials" class="digi-passport-photo d-flex align-items-center justify-content-center"
@@ -887,16 +904,14 @@
                     <div class="row g-4">
                         <div class="col-12">
                             <label class="digi-form-label">Antecedentes heredo-familiares <small style="font-weight:400;color:var(--text-muted);">(selecciona todos los que apliquen)</small></label>
-                            <div class="row g-3 mt-1">
-                                @foreach (['Diabetes', 'Hipertensión', 'Cáncer', 'Enfermedades cardíacas', 'Obesidad', 'Ninguno'] as $item)
-                                    <div class="col-md-2 col-6">
-                                        <div class="digi-check-card">
-                                            <input type="checkbox" class="form-check-input" name="heredo_familiares[]"
-                                                id="hf-{{ $loop->index }}" value="{{ $item }}"
-                                                {{ in_array($item, old('heredo_familiares', $hf)) ? 'checked' : '' }}>
-                                            <label for="hf-{{ $loop->index }}">{{ $item }}</label>
-                                        </div>
-                                    </div>
+                            <div class="digi-pill-group mt-2">
+                                @foreach ([ 'Enfermedades cardíacas','Diabetes',  'Cáncer', 'Obesidad','Hipertensión', 'Ninguno'] as $item)
+                                    <label class="digi-pill-toggle">
+                                        <input type="checkbox" name="heredo_familiares[]"
+                                            id="hf-{{ $loop->index }}" value="{{ $item }}"
+                                            {{ in_array($item, old('heredo_familiares', $hf)) ? 'checked' : '' }}>
+                                        {{ $item }}
+                                    </label>
                                 @endforeach
                             </div>
                         </div>
@@ -1233,7 +1248,7 @@
             preview.style.display = 'block';
 
             // Subir al servidor
-            fetch('{{ route("perfil.foto") }}', {
+            fetch('{{ route("perfil.foto.actualizar") }}', {
                 method: 'POST',
                 body: formData,
                 headers: {
