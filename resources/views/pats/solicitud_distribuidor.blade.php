@@ -2354,7 +2354,7 @@
 
                                         {{-- Iframe + overlay absoluto --}}
                                         <div class="contrato-wrapper">
-                                            <iframe id="contratoIframe" src="{{ route('franq.contrato') }}"
+                                            <iframe id="contratoIframe" src="{{ route('dist.contrato') }}"
                                                 style="width:100%;height:500px;border:none;display:block;"
                                                 title="Contrato de Distribuidor PATS">
                                             </iframe>

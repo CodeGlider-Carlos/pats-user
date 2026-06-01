@@ -806,7 +806,7 @@
             grid-column: 1/-1;
         }
 
-        .digi-empty-state i {
+        .digi-empty-state > i {
             font-size: 4rem;
             color: var(--text-muted);
             margin-bottom: 1rem;

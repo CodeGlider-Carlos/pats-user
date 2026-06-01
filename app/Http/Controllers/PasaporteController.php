@@ -2,9 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\PatsHistoriaClinica;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Carbon\Carbon;
 
 class PasaporteController extends Controller
 {
@@ -20,11 +21,11 @@ class PasaporteController extends Controller
             ->first();
 
         // Si no tiene pasaporte → vista vacía con mensaje
-        if (!$pasaporte) {
+        if (! $pasaporte) {
             return view('pasaporte.index', [
-                'pasaporte'   => null,
-                'pagos'       => collect(),
-                'ultimoPago'  => null,
+                'pasaporte' => null,
+                'pagos' => collect(),
+                'ultimoPago' => null,
                 'diasVigencia' => 0,
                 'estadoColor' => 'danger',
                 'estadoTexto' => 'Sin pasaporte',
@@ -40,29 +41,32 @@ class PasaporteController extends Controller
         $ultimoPago = $pagos->first();
 
         // ── Calcular días de vigencia ─────────────────────────
-        $vencimiento  = Carbon::parse($pasaporte->fecha_vencimiento_real);
+        $vencimiento = Carbon::parse($pasaporte->fecha_vencimiento_real);
         $diasVigencia = now()->diffInDays($vencimiento, false); // negativo si vencido
 
         // ── Color y texto de estatus ──────────────────────────
         [$estadoColor, $estadoTexto] = match (true) {
-            $pasaporte->estatus === 'vencido'  => ['danger',  'Vencido'],
-            $diasVigencia <= 7                 => ['warning', 'Por vencer'],
-            $pasaporte->estatus === 'activo'   => ['success', 'Vigente'],
-            default                            => ['secondary', 'Inactivo'],
+            $pasaporte->estatus === 'vencido' => ['danger',  'Vencido'],
+            $diasVigencia <= 7 => ['warning', 'Por vencer'],
+            $pasaporte->estatus === 'activo' => ['success', 'Vigente'],
+            default => ['secondary', 'Inactivo'],
         };
 
         // ── Calcular edad ─────────────────────────────────────
         $edad = Carbon::parse($pasaporte->fecha_nacimiento)->age;
 
+        $historiaClinica = PatsHistoriaClinica::where('id_pasaporte', $pasaporte->id_pasaporte)->first();
+
         return view('pasaporte.index', [
-            'pasaporte'    => $pasaporte,
-            'pagos'        => $pagos,
-            'ultimoPago'   => $ultimoPago,
+            'pasaporte' => $pasaporte,
+            'pagos' => $pagos,
+            'ultimoPago' => $ultimoPago,
             'diasVigencia' => $diasVigencia,
-            'estadoColor'  => $estadoColor,
-            'estadoTexto'  => $estadoTexto,
-            'edad'         => $edad,
-            'vencimiento'  => $vencimiento,
+            'estadoColor' => $estadoColor,
+            'estadoTexto' => $estadoTexto,
+            'edad' => $edad,
+            'vencimiento' => $vencimiento,
+            'historiaClinica' => $historiaClinica,
         ]);
     }
 }

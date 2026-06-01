@@ -8,6 +8,25 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ asset('assets/vendors/mdi/css/materialdesignicons.min.css') }}">
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#1b1f6f">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    {{-- iOS Splash Screens --}}
+    <link rel="apple-touch-startup-image" href="/assets/images/splash/splash-1290x2796.png"
+          media="(device-width: 430px) and (device-height: 932px) and (-webkit-device-pixel-ratio: 3)">
+    <link rel="apple-touch-startup-image" href="/assets/images/splash/splash-1179x2556.png"
+          media="(device-width: 393px) and (device-height: 852px) and (-webkit-device-pixel-ratio: 3)">
+    <link rel="apple-touch-startup-image" href="/assets/images/splash/splash-1170x2532.png"
+          media="(device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3)">
+    <link rel="apple-touch-startup-image" href="/assets/images/splash/splash-1284x2778.png"
+          media="(device-width: 428px) and (device-height: 926px) and (-webkit-device-pixel-ratio: 3)">
+    <link rel="apple-touch-startup-image" href="/assets/images/splash/splash-1080x2340.png"
+          media="(device-width: 360px) and (device-height: 780px) and (-webkit-device-pixel-ratio: 3)">
+    <link rel="apple-touch-startup-image" href="/assets/images/splash/splash-828x1792.png"
+          media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2)">
+    <link rel="apple-touch-startup-image" href="/assets/images/splash/splash-750x1334.png"
+          media="(device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2)">
     <style>
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -263,7 +282,7 @@
         .input-wrap {
             position: relative;
         }
-        .input-wrap i {
+        .input-wrap > i {
             position: absolute;
             left: 1rem;
             top: 50%;
@@ -294,7 +313,7 @@
             box-shadow: 0 0 0 3px rgba(27,31,111,.08);
         }
         .input-wrap input:focus + i,
-        .input-wrap:focus-within i { color: var(--navy); }
+        .input-wrap:focus-within > i { color: var(--navy); }
 
         /* password toggle */
         .pass-toggle {
@@ -536,7 +555,7 @@
                     <input type="checkbox" name="remember" {{ old('remember') ? 'checked' : '' }}>
                     Mantener sesión activa
                 </label>
-                <a href="#" class="forgot">¿Olvidaste tu contraseña?</a>
+                <a href="{{ route('password.olvide') }}" class="forgot">¿Olvidaste tu contraseña?</a>
             </div>
 
             {{-- Submit --}}
@@ -550,14 +569,133 @@
         <hr class="form-divider">
 
         <p class="form-footer">
-            ¿Necesitas ayuda? Contacta a <strong>soporte PATS</strong>
+            ¿Necesitas ayuda? Contacta a
+            <button type="button" onclick="document.getElementById('supportModal').showModal()"
+                style="background:none;border:none;padding:0;cursor:pointer;color:var(--navy);font-weight:600;font-family:inherit;font-size:inherit;">
+                soporte PATS
+            </button>
         </p>
 
     </div>
 
 </div>
 
+{{-- Soporte Modal --}}
+<dialog id="supportModal" style="
+    border:none; border-radius:16px; padding:0; width:100%; max-width:440px;
+    box-shadow:0 24px 64px rgba(0,0,0,.35); background:var(--white);
+">
+    <div style="padding:2rem 2rem 1.5rem;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;">
+            <h3 style="font-family:'Playfair Display',serif;font-size:1.4rem;color:var(--navy);margin:0;">
+                <i class="mdi mdi-headset" style="color:var(--blue);"></i> Soporte PATS
+            </h3>
+            <button type="button" onclick="document.getElementById('supportModal').close()"
+                style="background:none;border:none;cursor:pointer;color:var(--muted);font-size:1.4rem;line-height:1;padding:0;">
+                <i class="mdi mdi-close"></i>
+            </button>
+        </div>
+
+        <form id="supportForm" onsubmit="submitSupport(event)">
+            <div style="margin-bottom:1.1rem;">
+                <label style="display:block;font-size:.78rem;font-weight:600;letter-spacing:.04em;color:var(--navy);margin-bottom:.5rem;text-transform:uppercase;">Nombre</label>
+                <div style="position:relative;">
+                    <i class="mdi mdi-account-outline" style="position:absolute;left:1rem;top:50%;transform:translateY(-50%);color:var(--muted);font-size:1.05rem;pointer-events:none;"></i>
+                    <input type="text" name="nombre" required placeholder="Tu nombre completo"
+                        style="width:100%;height:50px;padding:0 1rem 0 2.8rem;border:1.5px solid var(--border);border-radius:10px;font-family:'Outfit',sans-serif;font-size:.93rem;color:var(--navy);background:var(--off);outline:none;box-sizing:border-box;">
+                </div>
+            </div>
+
+            <div style="margin-bottom:1.1rem;">
+                <label style="display:block;font-size:.78rem;font-weight:600;letter-spacing:.04em;color:var(--navy);margin-bottom:.5rem;text-transform:uppercase;">Correo electrónico</label>
+                <div style="position:relative;">
+                    <i class="mdi mdi-email-outline" style="position:absolute;left:1rem;top:50%;transform:translateY(-50%);color:var(--muted);font-size:1.05rem;pointer-events:none;"></i>
+                    <input type="email" name="correo" required placeholder="tu@correo.com"
+                        style="width:100%;height:50px;padding:0 1rem 0 2.8rem;border:1.5px solid var(--border);border-radius:10px;font-family:'Outfit',sans-serif;font-size:.93rem;color:var(--navy);background:var(--off);outline:none;box-sizing:border-box;">
+                </div>
+            </div>
+
+            <div style="margin-bottom:1.5rem;">
+                <label style="display:block;font-size:.78rem;font-weight:600;letter-spacing:.04em;color:var(--navy);margin-bottom:.5rem;text-transform:uppercase;">¿Cómo podemos ayudarte?</label>
+                <textarea name="mensaje" required rows="4" placeholder="Describe tu consulta o problema..."
+                    style="width:100%;padding:.85rem 1rem;border:1.5px solid var(--border);border-radius:10px;font-family:'Outfit',sans-serif;font-size:.93rem;color:var(--navy);background:var(--off);outline:none;resize:vertical;box-sizing:border-box;"></textarea>
+            </div>
+
+            <div id="supportMsg" style="display:none;margin-bottom:1rem;padding:.75rem 1rem;border-radius:10px;font-size:.88rem;"></div>
+
+            <button type="submit" id="supportSubmitBtn"
+                style="width:100%;height:50px;background:linear-gradient(135deg,#083dff 0%,#006fff 48%,#12d8ca 100%);color:#fff;border:none;border-radius:12px;font-family:'Outfit',sans-serif;font-size:.92rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:.6rem;">
+                <i class="mdi mdi-send"></i> Enviar mensaje
+            </button>
+        </form>
+    </div>
+</dialog>
+
+<style>
+    #supportModal {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        margin: 0;
+    }
+    #supportModal::backdrop {
+        background: rgba(10, 13, 40, 0.55);
+        backdrop-filter: blur(3px);
+    }
+    #supportModal input:focus, #supportModal textarea:focus {
+        border-color: var(--navy);
+        background: var(--white);
+        box-shadow: 0 0 0 3px rgba(27,31,111,.08);
+    }
+</style>
+
 <script>
+    function submitSupport(e) {
+        e.preventDefault();
+        const btn = document.getElementById('supportSubmitBtn');
+        const msg = document.getElementById('supportMsg');
+        btn.disabled = true;
+        btn.innerHTML = '<i class="mdi mdi-loading mdi-spin"></i> Enviando...';
+
+        const form = document.getElementById('supportForm');
+        const data = new FormData(form);
+
+        fetch('{{ route("soporte.contacto") }}', {
+            method: 'POST',
+            headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}', 'Accept': 'application/json' },
+            body: data,
+        })
+        .then(r => r.json())
+        .then(res => {
+            msg.style.display = 'block';
+            if (res.success) {
+                msg.style.background = '#ecfdf5';
+                msg.style.border = '1px solid #6ee7b7';
+                msg.style.color = '#065f46';
+                msg.innerHTML = '<i class="mdi mdi-check-circle"></i> ' + res.message;
+                form.reset();
+                setTimeout(() => document.getElementById('supportModal').close(), 2500);
+            } else {
+                msg.style.background = '#fff1f2';
+                msg.style.border = '1px solid #fecdd3';
+                msg.style.color = '#dc2626';
+                msg.innerHTML = '<i class="mdi mdi-alert-circle-outline"></i> ' + (res.message || 'Ocurrió un error, inténtalo de nuevo.');
+                btn.disabled = false;
+                btn.innerHTML = '<i class="mdi mdi-send"></i> Enviar mensaje';
+            }
+        })
+        .catch(() => {
+            msg.style.display = 'block';
+            msg.style.background = '#fff1f2';
+            msg.style.border = '1px solid #fecdd3';
+            msg.style.color = '#dc2626';
+            msg.innerHTML = '<i class="mdi mdi-alert-circle-outline"></i> Error de conexión, inténtalo de nuevo.';
+            btn.disabled = false;
+            btn.innerHTML = '<i class="mdi mdi-send"></i> Enviar mensaje';
+        });
+    }
+
     function togglePass() {
         const input = document.getElementById('password');
         const icon  = document.getElementById('passIcon');
@@ -569,6 +707,86 @@
             icon.className = 'mdi mdi-eye-outline';
         }
     }
+</script>
+
+{{-- PWA --}}
+<script>
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', function () {
+            navigator.serviceWorker.register('/sw.js').catch(function () {});
+        });
+    }
+
+    (function () {
+        var isStandalone = window.matchMedia('(display-mode: standalone)').matches
+                        || window.navigator.standalone === true;
+        var isInstalled  = localStorage.getItem('pwa-installed') === '1';
+        if (isStandalone || isInstalled) return;
+
+        var isIos = /iphone|ipad|ipod/.test(navigator.userAgent.toLowerCase());
+        var deferredPrompt = null;
+
+        var banner = document.createElement('div');
+        banner.setAttribute('style', [
+            'position:fixed', 'bottom:0', 'left:0', 'right:0', 'z-index:99999',
+            'background:#1b1f6f', 'color:#fff', 'padding:12px 16px',
+            'display:flex', 'flex-direction:column', 'gap:0',
+            'box-shadow:0 -2px 12px rgba(0,0,0,0.3)', 'font-family:sans-serif'
+        ].join(';'));
+
+        banner.innerHTML =
+            '<div style="display:flex;align-items:center;justify-content:space-between;gap:12px;">' +
+                '<div style="display:flex;align-items:center;gap:10px;">' +
+                    '<img src="/assets/images/icon-192.png" style="width:36px;height:36px;border-radius:8px;flex-shrink:0;" alt="PATS">' +
+                    '<div>' +
+                        '<div style="font-weight:700;font-size:14px;">Instalar Pasaporte a tu Salud</div>' +
+                        '<div style="font-size:12px;opacity:.85;">Accede más rápido desde tu dispositivo</div>' +
+                    '</div>' +
+                '</div>' +
+                '<div style="display:flex;gap:8px;flex-shrink:0;">' +
+                    '<button id="pwa-install" style="background:linear-gradient(135deg, #083dff 0%, #006fff 48%, #12d8ca 100%);color:#fff;border:none;border-radius:8px;padding:8px 16px;font-weight:700;font-size:13px;cursor:pointer;">Instalar</button>' +
+                    '<button id="pwa-close" style="background:transparent;color:#fff;border:1px solid rgba(255,255,255,.4);border-radius:8px;padding:8px 10px;font-size:13px;cursor:pointer;">✕</button>' +
+                '</div>' +
+            '</div>' +
+            '<div id="pwa-ios-steps" style="display:none;margin-top:10px;padding-top:10px;border-top:1px solid rgba(255,255,255,.25);font-size:13px;line-height:1.7;">' +
+                '1. Toca el ícono <strong style="font-size:15px;">⎙</strong> de compartir en la barra de Safari<br>' +
+                '2. Desplázate y selecciona <strong>"Agregar a pantalla de inicio"</strong>' +
+            '</div>';
+
+        document.body.appendChild(banner);
+
+        if (!isIos) {
+            window.addEventListener('beforeinstallprompt', function (e) {
+                e.preventDefault();
+                deferredPrompt = e;
+            });
+        }
+
+        document.getElementById('pwa-install').addEventListener('click', async function () {
+            if (isIos) {
+                var steps = document.getElementById('pwa-ios-steps');
+                steps.style.display = steps.style.display === 'none' ? 'block' : 'none';
+                return;
+            }
+            if (!deferredPrompt) {
+                this.textContent = 'Menú → Instalar app';
+                return;
+            }
+            banner.style.display = 'none';
+            deferredPrompt.prompt();
+            await deferredPrompt.userChoice;
+            deferredPrompt = null;
+        });
+
+        document.getElementById('pwa-close').addEventListener('click', function () {
+            banner.style.display = 'none';
+        });
+
+        window.addEventListener('appinstalled', function () {
+            localStorage.setItem('pwa-installed', '1');
+            banner.style.display = 'none';
+        });
+    })();
 </script>
 
 </body>

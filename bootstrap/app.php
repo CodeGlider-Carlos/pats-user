@@ -15,6 +15,20 @@ $app = new Illuminate\Foundation\Application(
     $_ENV['APP_BASE_PATH'] ?? dirname(__DIR__)
 );
 
+// On Vercel the filesystem is read-only; redirect storage to /tmp
+if (getenv('VERCEL') !== false) {
+    foreach ([
+        '/tmp/storage/logs',
+        '/tmp/storage/framework/cache/data',
+        '/tmp/storage/framework/sessions',
+        '/tmp/storage/framework/views',
+        '/tmp/storage/app',
+    ] as $dir) {
+        is_dir($dir) || mkdir($dir, 0755, true);
+    }
+    $app->useStoragePath('/tmp/storage');
+}
+
 /*
 |--------------------------------------------------------------------------
 | Bind Important Interfaces

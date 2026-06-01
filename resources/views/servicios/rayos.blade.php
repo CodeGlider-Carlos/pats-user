@@ -177,10 +177,13 @@
         .rx-search-wrap {
             position: relative;
             margin-bottom: 24px;
+            box-sizing: border-box;
+            width: 100%;
         }
 
         .rx-search {
             width: 100%;
+            box-sizing: border-box;
             padding: 13px 16px 13px 48px;
             font-size: 15px;
             border: 1.5px solid var(--border);
@@ -967,9 +970,10 @@
         .rx-price-tag--pub .rx-price-tag__val { color: var(--blue); }
 
         /* ── Search bar ──────────────────────── */
-        .rx-search-wrap { position: relative; margin-bottom: 0; }
+        .rx-search-wrap { position: relative; margin-bottom: 0; box-sizing: border-box; width: 100%; }
         .rx-search {
             width: 100%;
+            box-sizing: border-box;
             padding: 11px 14px 11px 44px;
             font-size: 14px;
             border: 1.5px solid var(--border);
@@ -1375,8 +1379,8 @@
     </div>{{-- /rx-wrap --}}
 
     <style>
-        .rx-search-wrap { position: relative; margin-bottom: 20px; }
-        .rx-search-input { width: 100%; padding: 12px 40px 12px 16px; border: 1px solid var(--border); border-radius: var(--radius-sm); }
+        .rx-search-wrap { position: relative; margin-bottom: 20px; box-sizing: border-box; width: 100%; }
+        .rx-search-input { width: 100%; box-sizing: border-box; padding: 12px 40px 12px 16px; border: 1px solid var(--border); border-radius: var(--radius-sm); }
         .rx-search-clear { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); display: none; background: none; border: none; cursor: pointer; }
         .rx-search-clear.visible { display: block; }
         .rx-tabs-wrap { display: flex; flex-direction: column; gap: 15px; }

@@ -90,14 +90,14 @@
                         $navFoto = null;
                         if ($navUser && $navUser->id_pasaporte) {
                             $navPasaporte = \Illuminate\Support\Facades\DB::table('pats_pasaportes')->where('id_pasaporte', $navUser->id_pasaporte)->first();
-                            if ($navPasaporte && $navPasaporte->foto_usuario) {
+                            if ($navPasaporte && isset($navPasaporte->foto_usuario) && $navPasaporte->foto_usuario) {
                                 $navFoto = $navPasaporte->foto_usuario;
                             }
                         }
                     @endphp
                     <button class="digi-user-btn" data-dropdown="user">
                         @if($navFoto)
-                            <img src="{{ asset($navFoto) }}" class="digi-avatar" style="object-fit:cover; border: 1.5px solid var(--blue);" alt="Avatar">
+                            <img src="{{ route('perfil.foto') }}" class="digi-avatar" style="object-fit:cover; border: 1.5px solid var(--blue);" alt="Avatar">
                         @else
                             <div class="digi-avatar" style="background:#dde8ff;color:#2558e0;font-weight:700;font-size:14px;display:flex;align-items:center;justify-content:center;">
                                 {{ strtoupper(substr($navUser->nombre_usuario ?? $navUser->nombre_paciente ?? $navUser->correo_usuario ?? 'U', 0, 1)) }}
@@ -115,7 +115,7 @@
                     <div class="digi-dropdown__panel digi-dropdown__panel--right" id="dropdown-user">
                         <div class="digi-dropdown__profile">
                             @if($navFoto)
-                                <img src="{{ asset($navFoto) }}" class="digi-avatar digi-avatar--lg" style="object-fit:cover; border: 2px solid var(--blue);" alt="Avatar">
+                                <img src="{{ route('perfil.foto') }}" class="digi-avatar digi-avatar--lg" style="object-fit:cover; border: 2px solid var(--blue);" alt="Avatar">
                             @else
                                 <div class="digi-avatar digi-avatar--lg" style="background:#dde8ff;color:#2558e0;font-weight:700;font-size:18px;display:flex;align-items:center;justify-content:center;">
                                     {{ strtoupper(substr($navUser->nombre_usuario ?? $navUser->nombre_paciente ?? $navUser->correo_usuario ?? 'U', 0, 1)) }}

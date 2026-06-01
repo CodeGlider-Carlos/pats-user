@@ -54,6 +54,11 @@ class PatsAcceso extends Authenticatable
         return $this->password_hash;
     }
 
+    public function getRememberTokenName(): ?string
+    {
+        return null;
+    }
+
     // ── Helpers de estado ──────────────────────────────────
 
     public function estaActivo(): bool
