@@ -21,6 +21,7 @@ class DatabaseSeeder extends Seeder
 
         $this->call([
             PreviewDistSeeder::class,
+            PatsChatbotSeeder::class,
         ]);
     }
 }
