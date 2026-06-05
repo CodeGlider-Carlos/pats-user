@@ -492,11 +492,10 @@
 
         .med-card__info-item {
             display: inline-flex;
-            align-items: center;
+            align-items: flex-start;
             gap: 4px;
             font-size: 12.5px;
             color: var(--text-muted);
-            white-space: nowrap;
         }
 
         .med-card__info-item i {
@@ -882,7 +881,7 @@
                                                 <span class="med-card__info-sep">·</span>
                                                 <span class="med-card__info-item">
                                                     <i class="mdi mdi-map-marker-outline"></i>
-                                                    {{ implode(', ', array_filter([$medico->unidad, $medico->region])) }}
+                                                    {{$medico->direccion }}
                                                 </span>
                                             @endif
                                         </div>
@@ -925,7 +924,7 @@
                                         </a>
                                     @endif
                                     @if ($medico->unidad || $medico->region)
-                                        <a href="https://maps.google.com/?q={{ urlencode(implode(' ', array_filter([$medico->nombre_recurso, $medico->unidad, $medico->region]))) }}"
+                                        <a href="https://maps.google.com/?q={{ urlencode(implode(' ', array_filter([$medico->direccion, $medico->unidad, $medico->region]))) }}"
                                             target="_blank" rel="noopener" class="med-btn med-btn--maps">
                                             <i class="mdi mdi-directions"></i>
                                             Ubicación

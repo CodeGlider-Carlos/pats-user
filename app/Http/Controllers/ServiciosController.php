@@ -28,7 +28,7 @@ class ServiciosController extends Controller
     }
     public function hospitales()
     {
-        $hospitales = PatsCatProveedor::where('categoria', 'hospital')->where('activo', true)->get();
+        $hospitales = PatsCatProveedor::where('categoria', 'hospitales')->where('activo', true)->get();
 
         return view('servicios.hospitales', compact('hospitales'));
     }
@@ -36,7 +36,7 @@ class ServiciosController extends Controller
     public function atencionMedica()
     {
         // Proveedores activos (categoría Hospitales) para el banner de urgencias
-        $hospitales = PatsCatProveedor::where('categoria', 'hospital')
+        $hospitales = PatsCatProveedor::where('categoria', 'hospitales')
             ->where('activo', true)
             ->get();
         // Procedimientos activos con su proveedor, agrupados por especialidad

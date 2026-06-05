@@ -391,8 +391,8 @@
                 <div class="col-md-4 mb-4">
                     <div class="digi-hospital-card">
                         {{-- Imagen --}}
-                        <img src="{{ $hospital->imagen_url }}" class="digi-hospital-card__image"
-                            alt="{{ $hospital->nombre_unidad }}" onerror="this.src='https://placehold.co/600x400?text=Hospital'">
+                        <img src="https://50d.com.mx/50D/EZHS/{{ $hospital->imagen_path }}" class="digi-hospital-card__image"
+                            alt="{{ $hospital->nombre_unidad }}" >
 
                         <div class="digi-hospital-card__body">
                             <h3 class="digi-hospital-card__title">

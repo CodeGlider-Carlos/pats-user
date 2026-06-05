@@ -708,7 +708,7 @@
                                         <span class="digi-info-label">Teléfono</span>
                                         <span class="digi-info-value">{{ $pasaporte->telefono }}</span>
                                     </div>
-                                    <div class="digi-info-item">
+                                    <!-- <div class="digi-info-item">
                                         <span class="digi-info-label">Región / Zona</span>
                                         <span class="digi-info-value">{{ $pasaporte->region }} /
                                             {{ $pasaporte->zona }}</span>
@@ -716,7 +716,7 @@
                                     <div class="digi-info-item">
                                         <span class="digi-info-label">Tipo de cliente</span>
                                         <span class="digi-info-value">{{ ucfirst($pasaporte->tipo_cliente ?? '—') }}</span>
-                                    </div>
+                                    </div> -->
                                     <div class="digi-info-item">
                                         <span class="digi-info-label">Fecha de alta</span>
                                         <span

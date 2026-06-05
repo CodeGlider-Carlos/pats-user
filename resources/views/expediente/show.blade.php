@@ -37,31 +37,68 @@
         .exp-header {
             max-width: 800px;
             margin: 0 auto 24px;
+            background: var(--white);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            display: flex;
+            align-items: stretch;
+        }
+
+        .exp-header__brand {
+            background: var(--navy);
+            padding: 16px 22px;
             display: flex;
             align-items: center;
-            gap: 16px;
+            justify-content: center;
+            flex-shrink: 0;
         }
 
         .exp-header__logo {
-            height: 36px;
-            filter: none;
+            height: 30px;
+            filter: brightness(0) invert(1);
+            display: block;
+        }
+
+        .exp-header__info {
+            padding: 14px 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 6px;
+            flex: 1;
+            min-width: 0;
         }
 
         .exp-header__badge {
-            background: var(--blue);
-            color: #fff;
-            font-size: .75rem;
-            font-weight: 600;
-            padding: 4px 12px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(37, 99, 235, .10);
+            color: var(--blue);
+            font-size: .72rem;
+            font-weight: 700;
+            padding: 4px 11px;
             border-radius: 999px;
-            letter-spacing: .04em;
+            letter-spacing: .05em;
             text-transform: uppercase;
+            width: fit-content;
         }
 
-        .exp-header__divider {
-            flex: 1;
-            height: 1px;
-            background: var(--border);
+        .exp-header__date {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: .78rem;
+            color: var(--muted);
+        }
+
+        .exp-header__date i {
+            font-size: .9rem;
+            color: var(--blue);
+            opacity: .6;
+            flex-shrink: 0;
         }
 
         /* ── Card layout ── */
@@ -294,10 +331,18 @@
 
     {{-- Header --}}
     <header class="exp-header">
-        <img src="{{ asset('images/PATS_LOGO.png') }}" alt="PATS" class="exp-header__logo">
-        <span class="exp-header__badge"><i class="mdi mdi-qrcode-scan"></i> Expediente Médico</span>
-        <div class="exp-header__divider"></div>
-        <span style="font-size:.8rem;color:var(--muted);">{{ now()->format('d/m/Y H:i') }}</span>
+        <div class="exp-header__brand">
+            <img src="{{ asset('images/PATS_LOGO.png') }}" alt="PATS" class="exp-header__logo">
+        </div>
+        <div class="exp-header__info">
+            <span class="exp-header__badge">
+                <i class="mdi mdi-qrcode-scan"></i> Expediente Médico
+            </span>
+            <span class="exp-header__date">
+                <i class="mdi mdi-calendar-outline"></i>
+                {{ now()->format('d/m/Y · H:i') }}
+            </span>
+        </div>
     </header>
 
     {{-- Tarjeta principal del paciente --}}

@@ -27,6 +27,11 @@ class DatabaseSeeder extends Seeder
             UsuarioPruebaSeeder::class,
             // PreviewDistSeeder::class,
             PatsChatbotSeeder::class,
+            MedicosDemoSeeder::class,
+            PatsCatCxSeeder::class,
+            HospitalesDemoSeeder::class,
+            EstudiosDemoSeeder::class,
+            FarmaciaDemoSeeder::class,
         ]);
     }
 }
