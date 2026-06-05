@@ -27,6 +27,7 @@ class DatabaseSeeder extends Seeder
             UsuarioPruebaSeeder::class,
             // PreviewDistSeeder::class,
             PatsChatbotSeeder::class,
+            MedicosDemoSeeder::class,
         ]);
     }
 }

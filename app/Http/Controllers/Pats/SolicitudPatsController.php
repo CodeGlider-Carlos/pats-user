@@ -7,8 +7,8 @@ use Illuminate\Http\{Request, JsonResponse};
 use Illuminate\Support\Facades\{DB, Log, Storage};
 use Illuminate\Support\Str;
 use Carbon\Carbon;
-use Stripe\Stripe;
-use Stripe\PaymentIntent;
+use App\Services\Prosa\PaymentService;
+use App\Services\Prosa\ProsaResultCode;
 
 /**
  * SolicitudPatsController
@@ -20,7 +20,7 @@ use Stripe\PaymentIntent;
  *   POST /pats/registro/orden         → generarOrden()
  *   POST /pats/registro/contrato      → contratoPreview()
  *   POST /pats/registro/pasaporte-validar → validarPasaporte()
- *   POST /pats/registro/stripe/intent → StripePatsController@createIntent
+ *   POST /pats/registro/prosa/charge  → ProsaCheckoutController@patsRegistro
  */
 class SolicitudPatsController extends Controller
 {
@@ -74,7 +74,6 @@ class SolicitudPatsController extends Controller
             'montoMensual'   => self::MONTO_MENSUAL,
             'montoAnual'     => self::MONTO_ANUAL,
             'pais'           => (string) ($ctx['pais'] ?? 'México'),
-            'stripePk'       => config('services.stripe.key', ''),
         ]);
     }
 
@@ -95,7 +94,6 @@ class SolicitudPatsController extends Controller
             'montoMensual'   => self::MONTO_MENSUAL,
             'montoAnual'     => self::MONTO_ANUAL,
             'pais'           => 'México',
-            'stripePk'       => config('services.stripe.key', ''),
         ]);
     }
 
@@ -170,17 +168,17 @@ class SolicitudPatsController extends Controller
             $ctx = $this->ctxDirecto();
         }
 
-        // ── 2. Stripe: verificar pago ─────────────────────────────────────────
-        $stripeIntentId = trim((string) $request->input('stripe_payment_intent_id', ''));
+        // ── 2. Prosa: verificar pago ──────────────────────────────────────────
+        $prosaPaymentId = trim((string) $request->input('prosa_payment_id', ''));
 
-        if ($stripeIntentId === '') {
+        if ($prosaPaymentId === '') {
             return $this->err('Pago no completado. Debes confirmar el pago antes de continuar.');
         }
 
-        // Idempotencia: si el PI ya fue guardado, devolver la orden existente
+        // Idempotencia: si el pago ya fue guardado, devolver la orden existente
         $existente = DB::table('pats_pagos')
-            ->where('pasarela', 'stripe')
-            ->where('referencia_pasarela', $stripeIntentId)
+            ->where('pasarela', 'prosa')
+            ->where('referencia_pasarela', $prosaPaymentId)
             ->first();
 
         if ($existente) {
@@ -194,17 +192,16 @@ class SolicitudPatsController extends Controller
             ]);
         }
 
-        // Verificar PaymentIntent en Stripe
+        // Verificar el pago en Prosa
         try {
-            Stripe::setApiKey(config('services.stripe.secret'));
-            $intent = PaymentIntent::retrieve($stripeIntentId);
+            $pago = app(PaymentService::class)->status($prosaPaymentId);
         } catch (\Throwable $e) {
-            Log::error('SolicitudPats.generarOrden Stripe retrieve', ['error' => $e->getMessage()]);
+            Log::error('SolicitudPats.generarOrden Prosa status', ['error' => $e->getMessage()]);
             return $this->err('No fue posible verificar el pago. Intenta nuevamente.');
         }
 
-        if ($intent->status !== 'succeeded') {
-            return $this->err('El pago no fue completado o fue rechazado. Estatus: ' . $intent->status);
+        if (! ProsaResultCode::isApproved($pago['resultCode'])) {
+            return $this->err('El pago no fue completado o fue rechazado.');
         }
 
         // ── 3. Inputs básicos ─────────────────────────────────────────────────
@@ -246,8 +243,8 @@ class SolicitudPatsController extends Controller
         $idTipoPrecio = $frecuencia === 'ANUAL' ? 1 : 2;
         $montoOrden   = $frecuencia === 'ANUAL' ? self::MONTO_ANUAL : self::MONTO_MENSUAL;
 
-        // Verificar monto contra el intent
-        $montoPagado = $intent->amount / 100;
+        // Verificar monto contra el pago
+        $montoPagado = (float) $pago['amount'];
         if (abs($montoPagado - $montoOrden) > 1) {
             return $this->err("El monto pagado ({$montoPagado}) no coincide con el monto de la orden ({$montoOrden}).");
         }
@@ -405,10 +402,10 @@ class SolicitudPatsController extends Controller
                 'adulto_mayor_pasaportes_validados'=> $amPasaportesValidados,
                 'adulto_mayor_pasaporte_1_json'  => $amPasaporte1Json ?: null,
                 'adulto_mayor_pasaporte_2_json'  => $amPasaporte2Json ?: null,
-                'stripe_payment_intent_id'       => $stripeIntentId,
+                'stripe_payment_intent_id'       => $prosaPaymentId,
                 'estatus_orden'                  => 'PENDIENTE',
                 'estatus_pago'                   => 'PAGADO',
-                'proveedor_pasarela'             => 'STRIPE',
+                'proveedor_pasarela'             => 'PROSA',
                 'user_creo'                      => $correo,
                 'fecha_orden'                    => $ahora,
                 'created_at'                     => $ahora,
@@ -501,8 +498,8 @@ class SolicitudPatsController extends Controller
             DB::table('pats_pagos')->insert([
                 'tipo_solicitud'      => 'pats',
                 'id_solicitud'        => $idOrden,
-                'pasarela'            => 'stripe',
-                'referencia_pasarela' => $stripeIntentId,
+                'pasarela'            => 'prosa',
+                'referencia_pasarela' => $prosaPaymentId,
                 'estatus'             => 'succeeded',
                 'monto'               => $montoOrden,
                 'moneda'              => 'MXN',

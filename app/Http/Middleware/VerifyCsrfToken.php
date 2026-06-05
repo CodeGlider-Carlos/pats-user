@@ -12,7 +12,8 @@ class VerifyCsrfToken extends Middleware
      * @var array<int, string>
      */
     protected $except = [
-        'api/feenicia/webhook',
+        'api/prosa/webhook',
+        'prosa/3ds/return/*',
         '/adquirir/procesar',
         '/chatbot/ask',
         '/chatbot/feedback',

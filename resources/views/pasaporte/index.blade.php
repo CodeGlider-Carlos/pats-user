@@ -637,11 +637,11 @@
                             <i class="mdi mdi-qrcode"></i> Código QR
                         </button>
                     </li>
-                    <li class="digi-tabs__item">
+                    <!-- <li class="digi-tabs__item">
                         <button class="digi-tabs__link" data-panel="beneficios" disabled>
                             <i class="mdi mdi-gift"></i> Beneficios
                         </button>
-                    </li>
+                    </li> -->
                 </ul>
             </div>
 

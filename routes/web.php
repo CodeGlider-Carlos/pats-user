@@ -17,11 +17,9 @@ use App\Http\Controllers\Pats\FranquiciaLinkController;
 use App\Http\Controllers\Pats\SolicitudDistribucionController;
 use App\Http\Controllers\Pats\SolicitudFranquiciaController;
 use App\Http\Controllers\Pats\SolicitudPatsController;
-use App\Http\Controllers\Pats\StripeDistribucionController;
-use App\Http\Controllers\Pats\StripeDistribucionLinkController;
-use App\Http\Controllers\Pats\StripeFranquiciaController;
-use App\Http\Controllers\Pats\StripePatsController;
 use App\Http\Controllers\PerfilController;
+use App\Http\Controllers\Prosa\Prosa3dsController;
+use App\Http\Controllers\Prosa\ProsaCheckoutController;
 use App\Http\Controllers\Portal\PortalAccesoController;
 use App\Http\Controllers\Portal\PortalPasaporteController;
 use App\Http\Controllers\ServiciosController;
@@ -83,7 +81,8 @@ Route::middleware('auth:pasaporte')->group(function () {
     })->name('servicios');
 
     Route::get('/pasaporte', [PasaporteController::class,  'index'])->name('pasaporte');
-    Route::get('/pagos', [PagosController::class,      'index'])->name('pagos');
+    Route::get('/pagos', [PagosController::class, 'index'])->name('pagos');
+    Route::post('/pagos/procesar', [PagosController::class, 'procesar'])->name('pagos.procesar');
 
     Route::get('/perfil', [PerfilController::class, 'show'])->name('perfil');
     Route::get('/perfil/foto', [PerfilController::class, 'servirFoto'])->name('perfil.foto');
@@ -120,7 +119,7 @@ Route::get('/distribucion/solicitud', [SolicitudDistribucionController::class, '
 Route::post('/distribucion/solicitud', [SolicitudDistribucionController::class, 'guardarPublico'])->name('dist.publico.guardar');
 Route::post('/distribucion/solicitud/pre-validar', [SolicitudDistribucionController::class, 'preValidar'])->name('dist.publico.pre-validar');
 Route::get('/distribucion/solicitud/confirmacion', [SolicitudDistribucionController::class, 'confirmacion'])->name('dist.publico.confirmacion');
-Route::post('/distribucion/stripe/intent', [StripeDistribucionController::class,    'createIntent'])->name('dist.stripe.intent');
+Route::post('/distribucion/prosa/charge', [ProsaCheckoutController::class, 'distribucion'])->name('dist.prosa.charge');
 
 // Links de distribución (protegidos por contraseña)
 Route::get('/distribucion/link/{token}', [DistribucionLinkController::class, 'show'])->name('dist.link.show');
@@ -128,7 +127,7 @@ Route::post('/distribucion/link/{token}/auth', [DistribucionLinkController::clas
 Route::get('/distribucion/link/{token}/formulario', [DistribucionLinkController::class, 'formulario'])->name('dist.link.formulario');
 Route::post('/distribucion/link/{token}/pre-validar', [DistribucionLinkController::class, 'preValidar'])->name('dist.link.pre-validar');
 Route::post('/distribucion/link/{token}/guardar', [DistribucionLinkController::class, 'guardar'])->name('dist.link.guardar');
-Route::post('/distribucion/link/{token}/stripe/intent', [StripeDistribucionLinkController::class, 'createIntent'])->name('dist.link.stripe.intent');
+Route::post('/distribucion/link/{token}/prosa/charge', [ProsaCheckoutController::class, 'distribucionLink'])->name('dist.link.prosa.charge');
 
 Route::get('/pats/distribucion', [PagoDistribucionController::class, 'show'])->name('pats.pago-distribucion.show');
 Route::post('/pats/distribucion/orden', [PagoDistribucionController::class, 'generarOrden'])->name('pats.pago-distribucion.generar-orden');
@@ -142,7 +141,7 @@ Route::get('/franquicia/solicitud', [SolicitudFranquiciaController::class, 'show
 Route::post('/franquicia/solicitud', [SolicitudFranquiciaController::class, 'guardarPublico'])->name('franq.publico.guardar');
 Route::post('/franquicia/solicitud/pre-validar', [SolicitudFranquiciaController::class, 'preValidar'])->name('franq.publico.pre-validar');
 Route::get('/franquicia/solicitud/confirmacion', [SolicitudFranquiciaController::class, 'confirmacion'])->name('franq.publico.confirmacion');
-Route::post('/franquicia/stripe/intent', [StripeFranquiciaController::class,    'createIntent'])->name('franq.stripe.intent');
+Route::post('/franquicia/prosa/charge', [ProsaCheckoutController::class, 'franquicia'])->name('franq.prosa.charge');
 
 // Links de franquicia (protegidos por contraseña)
 Route::get('/franquicia/link/{token}', [FranquiciaLinkController::class, 'show'])->name('franq.link.show');
@@ -161,10 +160,14 @@ Route::get('/pats/registro/directo', [SolicitudPatsController::class, 'showDirec
 Route::post('/pats/registro/orden', [SolicitudPatsController::class, 'generarOrden'])->name('pats.registro.orden');
 Route::post('/pats/registro/contrato', [SolicitudPatsController::class, 'contratoPreview'])->name('pats.registro.contrato');
 Route::post('/pats/registro/pasaporte-validar', [SolicitudPatsController::class, 'validarPasaporte'])->name('pats.registro.pasaporte.validar');
-Route::post('/pats/registro/stripe/intent', [StripePatsController::class,    'createIntent'])->name('pats.registro.stripe.intent');
+Route::post('/pats/registro/prosa/charge', [ProsaCheckoutController::class, 'patsRegistro'])->name('pats.registro.prosa.charge');
 
 Route::get('/adquirir', [AdquirirController::class, 'show'])->name('adquirir');
 Route::post('/adquirir/procesar', [AdquirirController::class, 'procesar'])->name('adquirir.procesar');
+
+// Retorno del reto 3-D Secure (shopperResultUrl). ACS puede regresar por GET o POST.
+Route::match(['get', 'post'], '/prosa/3ds/return/{mtx}', [Prosa3dsController::class, 'return'])
+    ->name('prosa.3ds.return');
 
 // ──────────────────────────────────────────────────────────────────────────────
 //  ADMIN
