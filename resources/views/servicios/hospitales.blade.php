@@ -410,11 +410,11 @@
                                     Llamar
                                 </a>
 
-                                <a href="https://wa.me/52{{ $hospital->telefono }}" target="_blank"
+                                <!-- <a href="https://wa.me/52{{ $hospital->telefono }}" target="_blank"
                                     class="digi-btn digi-btn--success digi-btn--sm">
                                     <i class="mdi mdi-whatsapp"></i>
                                     WhatsApp
-                                </a>
+                                </a> -->
 
                                 <a href="https://maps.google.com/?q={{ urlencode($hospital->direccion) }}" target="_blank"
                                     class="digi-btn digi-btn--secondary digi-btn--sm">

@@ -870,11 +870,11 @@
                                                 <i class="mdi mdi-tag-outline"></i>
                                                 {{ $medico->especialidad ?? $especialidad }}
                                             </span>
-                                            @if ($medico->telefono)
+                                            @if ($medico->telefono_consultorio)
                                                 <span class="med-card__info-sep">·</span>
                                                 <span class="med-card__info-item">
                                                     <i class="mdi mdi-phone-outline"></i>
-                                                    {{ $medico->telefono }}
+                                                    {{ $medico->telefono_consultorio }}
                                                 </span>
                                             @endif
                                             @if ($medico->unidad || $medico->region)
@@ -904,8 +904,11 @@
                                     </div>
                                 @else
                                     <div class="med-disp med-disp--no">
-                                        <i class="mdi mdi-calendar-remove"></i>
-                                        <span>Sin horarios disponibles por el momento</span>
+                                        <i class="mdi mdi-phone-outline"></i>
+                                        <span>
+                                            <strong>Agenda tu cita por teléfono</strong><br>
+                                            Llama y agenda el horario que mas te convenga. Pronto podrás reservar tu cita directo desde la plataforma.
+                                        </span>
                                     </div>
                                 @endif
 
@@ -917,8 +920,8 @@
                                             Agendar cita
                                         </a>
                                     @endif
-                                    @if ($medico->telefono)
-                                        <a href="tel:{{ $medico->telefono }}" class="med-btn med-btn--call">
+                                    @if ($medico->telefono_consultorio)
+                                        <a href="tel:{{ $medico->telefono_consultorio }}" class="med-btn med-btn--call">
                                             <i class="mdi mdi-phone"></i>
                                             Llamar
                                         </a>
