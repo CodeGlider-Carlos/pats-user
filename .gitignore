@@ -27,3 +27,4 @@ vercel.json
 *.sql
 /api
 /public/images/users/*
+/contratos
