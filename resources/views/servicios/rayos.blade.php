@@ -1018,6 +1018,57 @@
             }
             .rx-price-tag__val { font-size: 13px; }
         }
+
+        /* ── Precios estilo atencion-medica ─────────── */
+        .digi-procedimiento-card__prices {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+            flex-shrink: 0;
+        }
+
+        @media (max-width: 640px) {
+            .rx-estudio {
+                flex-wrap: wrap;
+                row-gap: 4px;
+            }
+            .rx-estudio .digi-procedimiento-card__prices {
+                width: 100%;
+                padding-left: 46px; /* icon (34px) + gap (12px) */
+            }
+        }
+
+        .digi-procedimiento-card__price {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--blue);
+            margin: 0;
+        }
+
+        .digi-procedimiento-card__price--original {
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--text-muted);
+            text-decoration: line-through;
+            margin: 0;
+        }
+
+        .digi-price-label {
+            font-size: 0.72rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        .digi-price-label--original { color: var(--text-muted); }
+        .digi-price-label--pats { color: var(--blue); }
+
+        .digi-price-block {
+            display: flex;
+            flex-direction: column;
+            gap: 0.1rem;
+        }
     </style>
 
     <div class="rx-wrap">
@@ -1121,11 +1172,11 @@
                                         @endif
                                     </div>
                                     @endif
-                                    <div class="rx-price-header">
+                                    <!-- <div class="rx-price-header">
                                         <span class="rx-price-header__name">Estudio</span>
                                         <span class="rx-price-header__price">Sin pasaporte</span>
                                         <span class="rx-price-header__price">Con pasaporte</span>
-                                    </div>
+                                    </div> -->
 
                                     @foreach ($grupoEstudios as $est)
                                         <div class="rx-estudio" data-nombre="{{ strtolower($est->nombre_estudio) }}">
@@ -1135,18 +1186,26 @@
                                             <div class="rx-estudio__body">
                                                 <p class="rx-estudio__nombre">{{ $est->nombre_estudio }}</p>
                                             </div>
-                                            <div class="rx-price-cols">
-                                                <div class="rx-price-tag rx-price-tag--pub">
-                                                    <span class="rx-price-tag__val">
-                                                        ${{ number_format($est->precio_nopats, 2) }}
-                                                    </span>
+                                            @if ($est->precio_nopats || $est->precio_pats)
+                                                <div class="digi-procedimiento-card__prices">
+                                                    @if ($est->precio_nopats)
+                                                        <div class="digi-price-block">
+                                                            <span class="digi-price-label digi-price-label--original">Sin descuento</span>
+                                                            <p class="digi-procedimiento-card__price--original">
+                                                                ${{ number_format($est->precio_nopats, 0, '.', ',') }} MXN
+                                                            </p>
+                                                        </div>
+                                                    @endif
+                                                    @if ($est->precio_pats)
+                                                        <div class="digi-price-block">
+                                                            <span class="digi-price-label digi-price-label--pats">Precio PATS</span>
+                                                            <p class="digi-procedimiento-card__price">
+                                                                ${{ number_format($est->precio_pats, 0, '.', ',') }} MXN
+                                                            </p>
+                                                        </div>
+                                                    @endif
                                                 </div>
-                                                <div class="rx-price-tag rx-price-tag--pats">
-                                                    <span class="rx-price-tag__val">
-                                                        ${{ number_format($est->precio_pats, 2) }}
-                                                    </span>
-                                                </div>
-                                            </div>
+                                            @endif
                                         </div>
                                     @endforeach
                                 </div>

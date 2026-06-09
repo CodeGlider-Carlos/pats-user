@@ -25,8 +25,13 @@ class DatabaseSeeder extends Seeder
 
         $this->call([
             UsuarioPruebaSeeder::class,
-            PreviewDistSeeder::class,
+            // PreviewDistSeeder::class,
             PatsChatbotSeeder::class,
+            MedicosDemoSeeder::class,
+            PatsCatCxSeeder::class,
+            HospitalesDemoSeeder::class,
+            EstudiosDemoSeeder::class,
+            FarmaciaDemoSeeder::class,
         ]);
     }
 }

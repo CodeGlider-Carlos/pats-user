@@ -28,7 +28,7 @@ class ServiciosController extends Controller
     }
     public function hospitales()
     {
-        $hospitales = PatsCatProveedor::where('categoria', 'hospital')->where('activo', true)->get();
+        $hospitales = PatsCatProveedor::where('categoria', 'hospitales')->where('activo', true)->get();
 
         return view('servicios.hospitales', compact('hospitales'));
     }
@@ -36,7 +36,7 @@ class ServiciosController extends Controller
     public function atencionMedica()
     {
         // Proveedores activos (categoría Hospitales) para el banner de urgencias
-        $hospitales = PatsCatProveedor::where('categoria', 'hospital')
+        $hospitales = PatsCatProveedor::where('categoria', 'hospitales')
             ->where('activo', true)
             ->get();
         // Procedimientos activos con su proveedor, agrupados por especialidad
@@ -205,11 +205,9 @@ class ServiciosController extends Controller
             (object)['hora_inicio' => '13:00', 'nombre_paciente' => 'Miguel Ángel Fuentes'],
         ]);
 
-        $unidades = collect([
-            (object)['nombre_unidad' => 'Fifty Doctors Angelópolis', 'direccion' => 'Anillo Perif. Ecológico 3505, San Andrés Cholula, Pue.', 'telefono' => '2226892995', 'correo' => 'angelopolis@fiftydoctors.mx'],
-            (object)['nombre_unidad' => 'Fifty Doctors San Manuel',  'direccion' => 'Blvrd 14 Sur 4302, Jardines de San Manuel, Puebla',      'telefono' => '2226895140', 'correo' => 'sanmanuel@fiftydoctors.mx'],
-            (object)['nombre_unidad' => 'Fifty Doctors Homi La Paz', 'direccion' => 'Av. Teziutlán Sur 36, Col. La Paz, Puebla',              'telefono' => '2226895141', 'correo' => null],
-        ]);
+        $unidades = PatsCatProveedor::where('categoria', 'Venta de Medicamentos')
+            ->where('activo', true)
+            ->get();
 
         return view('servicios.farmacia', compact(
             'fecha', 'medicamentos', 'medicamentosInactivos', 'stats','entregasHoy', 'unidades'
