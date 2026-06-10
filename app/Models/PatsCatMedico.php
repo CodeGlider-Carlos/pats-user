@@ -15,6 +15,7 @@ class PatsCatMedico extends Model
     protected $fillable = [
         'id_registro',
         'id_medico_leadplus',
+        'id_recurso',
         'nombre',
         'apellido_paterno',
         'apellido_materno',
@@ -34,14 +35,9 @@ class PatsCatMedico extends Model
 
     protected $casts = [
         'id_medico_leadplus' => 'integer',
-        'activo' => 'boolean',
+        'id_recurso'         => 'integer',
+        'activo'             => 'boolean',
     ];
-
-    // Accessors to maintain compatibility with existing views and controllers
-    public function getIdRecursoAttribute()
-    {
-        return $this->id_medico_leadplus;
-    }
 
     public function getNombreRecursoAttribute()
     {
