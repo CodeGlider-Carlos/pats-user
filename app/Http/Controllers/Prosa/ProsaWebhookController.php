@@ -3,7 +3,9 @@
 namespace App\Http\Controllers\Prosa;
 
 use App\Http\Controllers\Controller;
+use App\Models\ProsaPendingCheckout;
 use App\Models\ProsaTransaction;
+use App\Services\Prosa\Checkout\CheckoutManager;
 use App\Services\Prosa\PaymentService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -21,6 +23,10 @@ use Illuminate\Support\Facades\Log;
  */
 class ProsaWebhookController extends Controller
 {
+    public function __construct(
+        private readonly CheckoutManager $checkoutManager,
+    ) {}
+
     /**
      * POST /api/prosa/webhook
      */
@@ -32,26 +38,49 @@ class ProsaWebhookController extends Controller
             return response()->json(['received' => false], 400);
         }
 
-        $resource = $payload['payload'] ?? $payload;
+        $resource   = $payload['payload'] ?? $payload;
         $normalized = PaymentService::normalize($resource);
 
-        if ($normalized['paymentId']) {
-            ProsaTransaction::updateOrCreate(
-                ['payment_id' => $normalized['paymentId']],
-                [
-                    'payment_type'       => $resource['paymentType'] ?? null,
-                    'amount'             => $normalized['amount'],
-                    'currency'           => $normalized['currency'] ?: config('prosa.currency'),
-                    'result_code'        => $normalized['resultCode'],
-                    'result_description' => $normalized['resultDescription'],
-                    'brand'              => $normalized['brand'],
-                    'last4'              => $normalized['last4'],
-                    'registration_id'    => $normalized['registrationId'],
-                    'status'             => $normalized['approved'] ? 'approved' : ($normalized['pending'] ? 'pending' : 'rejected'),
-                    'origen'             => 'webhook',
-                    'raw_response'       => $resource,
-                ],
-            );
+        if (! $normalized['paymentId']) {
+            return response()->json(['received' => true]);
+        }
+
+        // ── Actualizar / crear la transacción ────────────────────────────────
+        ProsaTransaction::updateOrCreate(
+            ['payment_id' => $normalized['paymentId']],
+            [
+                'payment_type'       => $resource['paymentType'] ?? null,
+                'amount'             => $normalized['amount'],
+                'currency'           => $normalized['currency'] ?: config('prosa.currency'),
+                'result_code'        => $normalized['resultCode'],
+                'result_description' => $normalized['resultDescription'],
+                'brand'              => $normalized['brand'],
+                'last4'              => $normalized['last4'],
+                'registration_id'    => $normalized['registrationId'],
+                'status'             => $normalized['approved'] ? 'approved' : ($normalized['pending'] ? 'pending' : 'rejected'),
+                'origen'             => 'webhook',
+                'raw_response'       => $resource,
+            ],
+        );
+
+        // ── Completar checkout pendiente (OXXO u otro diferido) ─────────────
+        // Sólo cuando el pago queda aprobado y hay un checkout vinculado.
+        if ($normalized['approved']) {
+            $checkout = ProsaPendingCheckout::where('payment_id', $normalized['paymentId'])
+                ->where('status', ProsaPendingCheckout::STATUS_PENDING)
+                ->first();
+
+            if ($checkout) {
+                try {
+                    $this->checkoutManager->finish($checkout, $normalized);
+                } catch (\Throwable $e) {
+                    Log::error('Webhook: error al completar checkout', [
+                        'checkout_id' => $checkout->id,
+                        'payment_id'  => $normalized['paymentId'],
+                        'error'       => $e->getMessage(),
+                    ]);
+                }
+            }
         }
 
         return response()->json(['received' => true]);

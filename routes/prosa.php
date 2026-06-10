@@ -14,8 +14,8 @@ Route::prefix('prosa')->group(function () {
     Route::post('/sale/recurring', [ProsaPaymentController::class, 'recurringSale'])
         ->name('prosa.sale.recurring');
 
-    Route::post('/sale/cash', [ProsaPaymentController::class, 'cashSale'])
-        ->name('prosa.sale.cash');
+    Route::post('/sale/oxxo', [ProsaPaymentController::class, 'oxxoSale'])
+        ->name('prosa.sale.oxxo');
 
     // ── Post-venta ────────────────────────────────────────────
     Route::post('/refund', [ProsaPaymentController::class, 'refund'])

@@ -74,7 +74,7 @@
                         <i class="mdi mdi-repeat"></i> Recurrente
                     </button></li>
                 <li><button class="ptab-btn" data-target="tab-cash">
-                        <i class="mdi mdi-cash"></i> Efectivo
+                        <i class="mdi mdi-store"></i> OXXO
                     </button></li>
             </ul>
 
@@ -242,13 +242,22 @@
                 </div>
             </div>
 
-            {{-- TAB: Efectivo --}}
+            {{-- TAB: OXXO --}}
             <div class="ptab-panel" id="tab-cash">
-                <div class="alt-card" style="max-width:440px;margin:0 auto;">
-                    <div class="alt-icon"><i class="mdi mdi-cash-multiple"></i></div>
-                    <h3 style="font-family:'Syne',sans-serif;font-size:1.1rem;color:var(--cream);margin-bottom:.5rem;">Pago
-                        en efectivo</h3>
-                    <form id="formCash">
+
+                {{-- Formulario de datos --}}
+                <div id="oxxo-form-wrap" style="max-width:460px;margin:0 auto;">
+                    <div style="display:flex;align-items:center;gap:1rem;margin-bottom:1.25rem;">
+                        <div style="width:48px;height:48px;background:#e8423a;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                            <i class="mdi mdi-store" style="color:#fff;font-size:1.5rem;"></i>
+                        </div>
+                        <div>
+                            <div style="font-family:'Syne',sans-serif;font-size:1rem;font-weight:700;color:var(--cream);">Pago en OXXO</div>
+                            <div style="font-size:.8rem;color:var(--text-muted);">Genera tu ficha y paga en cualquier tienda OXXO</div>
+                        </div>
+                    </div>
+
+                    <form id="formCash" autocomplete="off">
                         @csrf
                         <div class="mb-3">
                             <label class="form-lbl">Nombre del pagador</label>
@@ -259,16 +268,64 @@
                             <label class="form-lbl">Correo para recibo</label>
                             <input class="form-ctrl" id="cash-email" type="email" value="{{ $user->correo_usuario }}">
                         </div>
-                        <p style="font-size:.78rem;color:var(--text-muted);">
-                            El pago en efectivo queda registrado como <strong>pendiente</strong> hasta su confirmación
-                            en caja.
-                        </p>
+
+                        <div style="background:var(--navy);border:1px solid var(--border);border-radius:10px;padding:.85rem 1rem;margin-bottom:1.25rem;font-size:.82rem;color:var(--text-muted);">
+                            <div style="display:flex;gap:.5rem;align-items:flex-start;">
+                                <i class="mdi mdi-information-outline" style="color:var(--blue);margin-top:.05rem;flex-shrink:0;"></i>
+                                <span>La ficha tiene una vigencia de <strong>3 días</strong>. Una vez que pagues en tienda, la membresía se activa automáticamente.</span>
+                            </div>
+                        </div>
+
                         <button type="submit" class="btn btn-primary btn-w" id="btnCash">
-                            <i class="mdi mdi-cash-register"></i>
-                            <span id="btnCashTxt">Registrar pago $800 MXN</span>
+                            <i class="mdi mdi-receipt"></i>
+                            <span id="btnCashTxt">Generar ficha OXXO</span>
                         </button>
                     </form>
                 </div>
+
+                {{-- Voucher (se muestra tras generar la ficha) --}}
+                <div id="oxxo-voucher-wrap" style="display:none;max-width:480px;margin:0 auto;">
+                    <div class="oxxo-voucher">
+                        <div class="oxxo-voucher__header">
+                            <div style="width:44px;height:44px;background:#e8423a;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                                <i class="mdi mdi-store" style="color:#fff;font-size:1.4rem;"></i>
+                            </div>
+                            <div>
+                                <div style="font-weight:700;font-size:1rem;color:var(--cream);">Ficha de pago OXXO</div>
+                                <div style="font-size:.78rem;color:var(--text-muted);">Presenta esta referencia en cualquier caja OXXO</div>
+                            </div>
+                        </div>
+
+                        <div class="oxxo-voucher__amount">
+                            <div style="font-size:.72rem;text-transform:uppercase;letter-spacing:.05em;color:var(--text-muted);margin-bottom:.2rem;">Monto a pagar</div>
+                            <div style="font-family:'Syne',sans-serif;font-size:2rem;font-weight:700;color:var(--blue);" id="oxxo-amount-disp">—</div>
+                        </div>
+
+                        <div class="oxxo-voucher__ref-label">Número de referencia</div>
+                        <div class="oxxo-voucher__reference" id="oxxo-reference">—</div>
+
+                        <div id="oxxo-barcode-wrap" style="display:none;text-align:center;margin:1rem 0;">
+                            <img id="oxxo-barcode-img" src="" alt="Código de barras OXXO" style="max-width:100%;height:60px;">
+                        </div>
+
+                        <div class="oxxo-voucher__steps">
+                            <div class="oxxo-step"><span class="oxxo-step__num">1</span><span>Ve a cualquier tienda OXXO</span></div>
+                            <div class="oxxo-step"><span class="oxxo-step__num">2</span><span>Indica al cajero que harás un pago de servicio</span></div>
+                            <div class="oxxo-step"><span class="oxxo-step__num">3</span><span>Proporciona el número de referencia o el código de barras</span></div>
+                            <div class="oxxo-step"><span class="oxxo-step__num">4</span><span>Paga en efectivo y conserva tu comprobante</span></div>
+                        </div>
+
+                        <div style="text-align:center;margin-top:1rem;display:flex;gap:.75rem;justify-content:center;flex-wrap:wrap;">
+                            <a id="oxxo-redirect-btn" href="#" target="_blank" class="btn btn-outline btn-sm" style="display:none;">
+                                <i class="mdi mdi-printer"></i> Imprimir voucher
+                            </a>
+                            <button class="btn btn-outline btn-sm" onclick="navigator.clipboard?.writeText(document.getElementById('oxxo-reference').textContent);this.textContent='¡Copiado!'">
+                                <i class="mdi mdi-content-copy"></i> Copiar referencia
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
             </div>
         </div>
     </div>
@@ -564,24 +621,40 @@
             }
         });
 
-        // ── Efectivo (registro manual) ───────────────────
+        // ── OXXO ─────────────────────────────────────────
         document.getElementById('formCash')?.addEventListener('submit', async e => {
             e.preventDefault();
             const plan = getPlan();
-            const fmt = new Intl.NumberFormat('es-MX').format(plan.total);
+            const fmt  = new Intl.NumberFormat('es-MX').format(plan.total);
             setLoading('btnCash', true);
             try {
-                const res = await axios.post(`${API_BASE}/sale/cash`, {
-                    amount: plan.total,
+                const res = await axios.post(`${API_BASE}/sale/oxxo`, {
+                    amount:          plan.total,
+                    email:           document.getElementById('cash-email').value,
+                    name:            document.getElementById('cash-name').value,
+                    frecuencia:      plan.frecuencia,
+                    meses:           plan.meses,
+                    id_tipo_precio:  plan.id_tipo_precio,
+                    monto_membresia: plan.monto,
+                    recargo:         plan.recargo,
                 });
+
                 if (res.data.success) {
-                    showSuccess(`✓ Pago en efectivo de $${fmt} MXN registrado (pendiente). ID: ${res.data.transactionId}`);
-                    document.getElementById('formCash').reset();
+                    // Mostrar voucher, ocultar formulario.
+                    document.getElementById('oxxo-form-wrap').style.display  = 'none';
+                    document.getElementById('oxxo-voucher-wrap').style.display = 'block';
+                    document.getElementById('oxxo-amount-disp').textContent  = `$${fmt} MXN`;
+                    document.getElementById('oxxo-reference').textContent    = res.data.reference ?? res.data.paymentId;
+
+                    if (res.data.redirectUrl) {
+                        const btn = document.getElementById('oxxo-redirect-btn');
+                        btn.href = res.data.redirectUrl;
+                        btn.style.display = 'inline-flex';
+                    }
                 }
             } catch (err) {
-                showError(err.response?.data?.error ?? 'Error');
-            } finally {
-                setLoading('btnCash', false, `Registrar pago $${fmt} MXN`);
+                showError(err.response?.data?.error ?? 'Error al generar la ficha OXXO');
+                setLoading('btnCash', false, 'Generar ficha OXXO');
             }
         });
 

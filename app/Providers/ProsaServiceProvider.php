@@ -8,6 +8,7 @@ use App\Services\Prosa\PaymentService;
 use App\Services\Prosa\TokenizationService;
 use App\Services\Prosa\RecurringService;
 use App\Services\Prosa\BackofficeService;
+use App\Services\Prosa\OxxoService;
 use App\Services\Prosa\Checkout\CheckoutManager;
 use App\Services\Prosa\Checkout\PagosCheckout;
 use App\Services\Prosa\Checkout\PagosRenovacionCheckout;
@@ -47,6 +48,10 @@ class ProsaServiceProvider extends ServiceProvider
         ));
 
         $this->app->singleton(BackofficeService::class, fn ($app) => new BackofficeService(
+            http: $app->make(ProsaHttpClient::class),
+        ));
+
+        $this->app->singleton(OxxoService::class, fn ($app) => new OxxoService(
             http: $app->make(ProsaHttpClient::class),
         ));
 

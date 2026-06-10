@@ -13,6 +13,7 @@ use App\Models\ProsaTransaction;
 use App\Services\Prosa\BackofficeService;
 use App\Services\Prosa\Checkout\CheckoutManager;
 use App\Services\Prosa\Checkout\PagosCheckout;
+use App\Services\Prosa\OxxoService;
 use App\Services\Prosa\PaymentService;
 use App\Services\Prosa\RecurringService;
 use Illuminate\Http\JsonResponse;
@@ -32,6 +33,7 @@ class ProsaPaymentController extends Controller
         private readonly RecurringService $recurringService,
         private readonly BackofficeService $backofficeService,
         private readonly CheckoutManager $checkoutManager,
+        private readonly OxxoService $oxxoService,
     ) {}
 
     /**
@@ -233,32 +235,97 @@ class ProsaPaymentController extends Controller
     }
 
     /**
-     * POST /api/prosa/sale/cash
+     * POST /api/prosa/sale/oxxo
      *
-     * Prosa/OPPWA no procesa efectivo: se registra un movimiento manual
-     * pendiente que el back-office concilia.
+     * Genera una ficha de pago OXXO en OPPWA. Devuelve la referencia numérica
+     * y la URL de voucher para mostrar al usuario. El pago se confirma de forma
+     * asíncrona vía webhook cuando el cliente paga en tienda.
      */
-    public function cashSale(Request $request): JsonResponse
+    public function oxxoSale(Request $request): JsonResponse
     {
         $data = $request->validate([
-            'amount' => ['required', 'numeric', 'min:0.01'],
+            'amount'          => ['required', 'numeric', 'min:1'],
+            'email'           => ['required', 'email'],
+            'name'            => ['required', 'string', 'max:128'],
+            'frecuencia'      => ['required', 'in:MENSUAL,ANUAL'],
+            'meses'           => ['required', 'integer', 'min:1'],
+            'id_tipo_precio'  => ['required', 'integer'],
+            'monto_membresia' => ['nullable', 'numeric', 'min:0'],
+            'recargo'         => ['nullable', 'numeric', 'min:0'],
         ]);
 
-        $tx = ProsaTransaction::create([
-            'user_id'      => $request->user()?->id,
-            'payment_type' => 'CASH',
+        $userId = $request->user('pasaporte')?->getKey() ?? $request->user()?->getKey();
+        $mtx    = $this->reference();
+
+        // Separar nombre en givenName / surname para OPPWA.
+        $parts     = explode(' ', trim($data['name']), 2);
+        $givenName = $parts[0];
+        $surname   = $parts[1] ?? $parts[0];
+
+        // Crear el ProsaPendingCheckout con el contexto del plan.
+        // El webhook usará este checkout para completar la renovación.
+        $checkout = ProsaPendingCheckout::create([
+            'merchant_transaction_id' => $mtx,
+            'flow'                    => PagosCheckout::FLOW,
+            'status'                  => ProsaPendingCheckout::STATUS_PENDING,
+            'user_id'                 => $userId,
+            'amount'                  => $data['amount'],
+            'payload'                 => [
+                'origen'          => 'oxxo',
+                'frecuencia'      => $data['frecuencia'],
+                'meses'           => (int) $data['meses'],
+                'id_tipo_precio'  => (int) $data['id_tipo_precio'],
+                'monto_membresia' => (float) ($data['monto_membresia'] ?? $data['amount']),
+                'recargo'         => (float) ($data['recargo'] ?? 0),
+                'email'           => $data['email'],
+                'name'            => $data['name'],
+            ],
+        ]);
+
+        try {
+            $result = $this->oxxoService->createVoucher([
+                'amount'                => (float) $data['amount'],
+                'email'                 => $data['email'],
+                'givenName'             => $givenName,
+                'surname'               => $surname,
+                'ip'                    => $request->ip(),
+                'merchantTransactionId' => $mtx,
+            ]);
+        } catch (ProsaTimeoutException) {
+            $checkout->update(['status' => ProsaPendingCheckout::STATUS_DECLINED]);
+
+            return $this->timeoutResponse();
+        } catch (ProsaException $e) {
+            $checkout->update(['status' => ProsaPendingCheckout::STATUS_DECLINED]);
+
+            return response()->json([
+                'success' => false,
+                'error'   => $e->getMessage(),
+                'code'    => $e->resultCode,
+            ], 400);
+        }
+
+        $checkout->update(['payment_id' => $result['paymentId']]);
+
+        ProsaTransaction::create([
+            'user_id'      => $userId,
+            'payment_id'   => $result['paymentId'],
+            'payment_type' => 'PA',
             'amount'       => $data['amount'],
             'currency'     => config('prosa.currency'),
+            'result_code'  => $result['resultCode'],
+            'brand'        => 'OXXO',
             'status'       => 'pending',
-            'origen'       => 'cash',
+            'origen'       => 'oxxo',
+            'raw_response' => $result['raw'],
         ]);
 
         return response()->json([
-            'success'       => true,
-            'transactionId' => $tx->id,
-            'amount'        => $data['amount'],
-            'status'        => 'pending',
-            'internalId'    => $tx->id,
+            'success'     => true,
+            'paymentId'   => $result['paymentId'],
+            'reference'   => $result['reference'],
+            'redirectUrl' => $result['redirectUrl'],
+            'amount'      => $data['amount'],
         ]);
     }
 
