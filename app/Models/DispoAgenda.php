@@ -50,12 +50,8 @@ class DispoAgenda extends Model
         'actualizado_en' => 'datetime',
     ];
 
-    /**
-     * The médico assigned to this slot.
-     * id_recurso maps to pats_cats_medicos.id_medico_leadplus.
-     */
-    public function medico()
+    public function medico(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
-        return $this->belongsTo(PatsCatMedico::class, 'id_recurso', 'id_medico_leadplus');
+        return $this->belongsTo(PatsCatMedico::class, 'id_recurso', 'id_recurso');
     }
 }
