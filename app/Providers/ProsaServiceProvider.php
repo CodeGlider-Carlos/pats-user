@@ -11,6 +11,7 @@ use App\Services\Prosa\BackofficeService;
 use App\Services\Prosa\OxxoService;
 use App\Services\Prosa\Checkout\CheckoutManager;
 use App\Services\Prosa\Checkout\PagosCheckout;
+use App\Services\Prosa\Checkout\PagosRecurringCheckout;
 use App\Services\Prosa\Checkout\PagosRenovacionCheckout;
 use App\Services\Prosa\Checkout\AdquirirCheckout;
 use App\Services\Prosa\Checkout\SolicitudCheckout;
@@ -87,6 +88,7 @@ class ProsaServiceProvider extends ServiceProvider
         $this->app->tag([
             PagosCheckout::class,
             PagosRenovacionCheckout::class,
+            PagosRecurringCheckout::class,
             AdquirirCheckout::class,
             'prosa.completer.solicitud_franquicia',
             'prosa.completer.solicitud_distribuidor',

@@ -588,19 +588,25 @@
         document.getElementById('formRecurring')?.addEventListener('submit', async e => {
             e.preventDefault();
             const plan = getPlan();
-            const fmt = new Intl.NumberFormat('es-MX').format(plan.total);
-            const exp = splitExp(document.getElementById('rec-exp').value);
+            const fmt  = new Intl.NumberFormat('es-MX').format(plan.total);
+            const exp  = splitExp(document.getElementById('rec-exp').value);
             setLoading('btnRecurring', true);
             try {
                 const res = await axios.post(`${API_BASE}/sale/recurring`, {
-                    amount: plan.total,
-                    pan: document.getElementById('rec-num').value.replace(/\s/g, ''),
-                    cardholderName: document.getElementById('rec-name').value,
-                    cvv2: document.getElementById('rec-cvv').value,
-                    expMonth: exp.expMonth,
-                    expYear: exp.expYear,
-                    email: USER_EMAIL,
-                    browser: window.prosaBrowserData(),
+                    amount:          plan.total,
+                    pan:             document.getElementById('rec-num').value.replace(/\s/g, ''),
+                    cardholderName:  document.getElementById('rec-name').value,
+                    cvv2:            document.getElementById('rec-cvv').value,
+                    expMonth:        exp.expMonth,
+                    expYear:         exp.expYear,
+                    email:           USER_EMAIL,
+                    browser:         window.prosaBrowserData(),
+                    // Plan context needed to save subscription + update pasaporte.
+                    frecuencia:      plan.frecuencia,
+                    meses:           plan.meses,
+                    id_tipo_precio:  plan.id_tipo_precio,
+                    monto_membresia: plan.monto,
+                    recargo:         plan.recargo,
                 });
 
                 if (res.data.status === 'challenge') {
@@ -610,12 +616,12 @@
                 }
 
                 if (res.data.status === 'approved') {
-                    showSuccess(`✓ Cobro recurrente configurado. Ref: ${res.data.paymentId}`);
+                    showSuccess(`✓ Suscripción recurrente activada. Los cobros futuros son automáticos.`);
                     document.getElementById('formRecurring').reset();
-                    setTimeout(() => window.location.reload(), 2000);
+                    setTimeout(() => window.location.reload(), 2500);
                 }
             } catch (err) {
-                showError(err.response?.data?.error ?? 'Error');
+                showError(err.response?.data?.error ?? 'Error al configurar el cobro recurrente');
             } finally {
                 setLoading('btnRecurring', false, `Iniciar cobro recurrente $${fmt} MXN`);
             }

@@ -211,6 +211,50 @@ Route::prefix('portal')->name('portal.')->group(function () {
 //  CONTRATOS (públicos — usados por iframes)
 // ──────────────────────────────────────────────────────────────────────────────
 
+// ──────────────────────────────────────────────────────────────────────────────
+//  LOCAL-ONLY TEST HELPERS  (never run in production)
+// ──────────────────────────────────────────────────────────────────────────────
+
+if (app()->isLocal()) {
+    Route::get('/test/oxxo-confirm/{paymentId}', function (string $paymentId) {
+        $checkout = \App\Models\ProsaPendingCheckout::where('payment_id', $paymentId)
+            ->where('status', \App\Models\ProsaPendingCheckout::STATUS_PENDING)
+            ->firstOrFail();
+
+        $fakeResult = [
+            'paymentId'         => $paymentId,
+            'status'            => 'approved',
+            'approved'          => true,
+            'pending'           => false,
+            'resultCode'        => '000.000.000',
+            'resultDescription' => 'Test OXXO confirmation',
+            'registrationId'    => null,
+            'brand'             => 'OXXO',
+            'last4'             => null,
+            'bin'               => null,
+            'holder'            => null,
+            'amount'            => (string) $checkout->amount,
+            'currency'          => 'MXN',
+            'redirect'          => null,
+            'raw'               => [],
+        ];
+
+        app(\App\Services\Prosa\Checkout\CheckoutManager::class)
+            ->finish($checkout, $fakeResult);
+
+        // Also mark the transaction as approved so the history reflects it.
+        \App\Models\ProsaTransaction::where('payment_id', $paymentId)
+            ->update(['status' => 'approved', 'result_code' => '000.000.000']);
+
+        return response()->json([
+            'confirmed'   => true,
+            'checkout_id' => $checkout->id,
+            'flow'        => $checkout->flow,
+            'new_status'  => $checkout->fresh()->status,
+        ]);
+    })->name('test.oxxo.confirm');
+}
+
 Route::get('/contrato/franquicia', fn () => view('pats.contrato_franq'))->name('franq.contrato');
 Route::get('/contrato/franquicia/en', fn () => view('pats.contrato_dist_en'))->name('franq.contrato.en');
 Route::get('/contrato/distribucion', fn () => view('pats.contrato_dist'))->name('dist.contrato');

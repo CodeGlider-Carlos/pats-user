@@ -13,6 +13,7 @@ use App\Models\ProsaTransaction;
 use App\Services\Prosa\BackofficeService;
 use App\Services\Prosa\Checkout\CheckoutManager;
 use App\Services\Prosa\Checkout\PagosCheckout;
+use App\Services\Prosa\Checkout\PagosRecurringCheckout;
 use App\Services\Prosa\OxxoService;
 use App\Services\Prosa\PaymentService;
 use App\Services\Prosa\RecurringService;
@@ -169,21 +170,30 @@ class ProsaPaymentController extends Controller
     /**
      * POST /api/prosa/sale/recurring
      *
-     * Cobro recurrente INICIAL (CIT). Se envía con parámetros 3DS y
-     * `createRegistration=true`. Devuelve approved | challenge | declined.
+     * Cobro recurrente INICIAL (CIT). Crea la orden, inicia el pago con 3DS y
+     * `createRegistration=true`. Al aprobarse, {@see PagosRecurringCheckout}
+     * actualiza el pasaporte y guarda la suscripción para cobros automáticos.
      */
     public function recurringSale(Request $request): JsonResponse
     {
         $data = $request->validate([
-            'amount'         => ['required', 'numeric', 'min:0.01'],
-            'pan'            => ['required', 'string'],
-            'cardholderName' => ['required', 'string', 'max:128'],
-            'cvv2'           => ['required', 'string', 'min:3', 'max:4'],
-            'expMonth'       => ['required', 'string', 'max:2'],
-            'expYear'        => ['required', 'string', 'max:4'],
-            'email'          => ['nullable', 'email'],
-            'browser'        => ['nullable', 'array'],
+            'amount'          => ['required', 'numeric', 'min:0.01'],
+            'pan'             => ['required', 'string'],
+            'cardholderName'  => ['required', 'string', 'max:128'],
+            'cvv2'            => ['required', 'string', 'min:3', 'max:4'],
+            'expMonth'        => ['required', 'string', 'max:2'],
+            'expYear'         => ['required', 'string', 'max:4'],
+            'email'           => ['nullable', 'email'],
+            'browser'         => ['nullable', 'array'],
+            'frecuencia'      => ['required', 'in:MENSUAL,ANUAL'],
+            'meses'           => ['required', 'integer', 'min:1'],
+            'id_tipo_precio'  => ['required', 'integer'],
+            'monto_membresia' => ['nullable', 'numeric', 'min:0'],
+            'recargo'         => ['nullable', 'numeric', 'min:0'],
         ]);
+
+        $user = $request->user('pasaporte') ?? $request->user();
+        $userId = $user?->getKey();
 
         $card = CardData::fromForm(
             number:   $data['pan'],
@@ -193,25 +203,80 @@ class ProsaPaymentController extends Controller
             cvv:      $data['cvv2'],
         );
 
-        $mtx = $this->reference();
+        $ahora      = \Carbon\Carbon::now();
+        $referencia = 'PATS-' . $ahora->format('YmdHis') . '-' . strtoupper(substr(md5(uniqid()), 0, 8));
+        $folio      = 'ORD-'  . $ahora->format('Ymd')    . '-' . strtoupper(substr(md5(uniqid()), 0, 6));
+        $mtx        = preg_replace('/[^A-Za-z0-9]/', '', $referencia);
+        $correo     = $user?->correo_usuario ?? ($data['email'] ?? '');
+
+        $pasaporte = \Illuminate\Support\Facades\DB::table('pats_pasaportes')
+            ->where('correo', $correo)
+            ->where('activo', 1)
+            ->orderBy('fecha_alta', 'desc')
+            ->first();
+
+        $operacion = $pasaporte ? 'RENOVACION_PATS' : 'ALTA_PATS';
+
+        $idOrden = \Illuminate\Support\Facades\DB::table('pats_ordenes_pago')->insertGetId([
+            'folio_orden'         => $folio,
+            'referencia_pago'     => $referencia,
+            'tipo_origen'         => 'PORTAL_CLIENTE',
+            'origen_checkout'     => 'PORTAL_CLIENTE',
+            'id_distribuidor'     => $pasaporte->id_distribuidor ?? 1,
+            'id_franquicia'       => $pasaporte->id_franquicia   ?? 1,
+            'id_pasaporte'        => $pasaporte->id_pasaporte    ?? null,
+            'correo_usuario_pats' => $correo,
+            'id_tipo_precio'      => $data['id_tipo_precio'],
+            'tipo_operacion'      => $operacion,
+            'frecuencia'          => $data['frecuencia'],
+            'monto_orden'         => $data['amount'],
+            'monto_nominal_base'  => $data['amount'],
+            'monto_extra_recargo' => 0.00,
+            'moneda'              => 'MXN',
+            'estatus_orden'       => 'PENDIENTE',
+            'estatus_pago'        => 'PENDIENTE',
+            'proveedor_pasarela'  => 'PROSA',
+            'user_creo'           => $correo,
+            'fecha_orden'         => $ahora,
+            'created_at'          => $ahora,
+            'updated_at'          => $ahora,
+        ]);
 
         $checkout = ProsaPendingCheckout::create([
             'merchant_transaction_id' => $mtx,
-            'flow'                    => PagosCheckout::FLOW,
+            'flow'                    => PagosRecurringCheckout::FLOW,
             'status'                  => ProsaPendingCheckout::STATUS_PENDING,
-            'user_id'                 => $request->user('pasaporte')?->getKey() ?? $request->user()?->getKey(),
+            'user_id'                 => $userId,
             'amount'                  => $data['amount'],
             'payload'                 => [
-                'origen' => 'recurring',
-                'brand'  => $card->brand(),
-                'last4'  => $card->last4(),
+                'id_orden'        => $idOrden,
+                'referencia'      => $referencia,
+                'folio'           => $folio,
+                'operacion'       => $operacion,
+                'correo_usuario'  => $correo,
+                'frecuencia'      => $data['frecuencia'],
+                'meses'           => (int) $data['meses'],
+                'id_tipo_precio'  => (int) $data['id_tipo_precio'],
+                'monto_orden'     => $data['amount'],
+                'monto_membresia' => (float) ($data['monto_membresia'] ?? $data['amount']),
+                'recargo'         => (float) ($data['recargo']         ?? 0),
+                'card_brand'      => $card->brand(),
+                'card_last4'      => $card->last4(),
+                'holder'          => $card->holder,
+                'expMonth'        => $card->expiryMonth,
+                'expYear'         => $card->expiryYear,
+                'curp'            => strtoupper($pasaporte->curp        ?? ''),
+                'nombres'         => $pasaporte->nombres                ?? '',
+                'apellido_pa'     => $pasaporte->apellido_pa            ?? '',
+                'apellido_ma'     => $pasaporte->apellido_ma            ?? null,
+                'fecha_nacimiento' => $pasaporte->fecha_nacimiento      ?? null,
             ],
         ]);
 
         $threeDs = ThreeDSData::fromRequest(
             request: $request,
             shopperResultUrl: route('prosa.3ds.return', ['mtx' => $mtx]),
-            email: $data['email'] ?? null,
+            email: $correo ?: null,
             givenName: $card->holder,
             browser: $data['browser'] ?? null,
         );
