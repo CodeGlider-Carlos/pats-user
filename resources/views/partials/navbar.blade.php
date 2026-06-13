@@ -95,6 +95,7 @@
                             }
                         }
                     @endphp
+                    @if($navUser)
                     <button class="digi-user-btn" data-dropdown="user">
                         @if($navFoto)
                             <img src="{{ route('perfil.foto') }}" class="digi-avatar" style="object-fit:cover; border: 1.5px solid var(--blue);" alt="Avatar">
@@ -153,6 +154,17 @@
                             Cerrar sesión
                         </a>
                     </div>
+                    @else
+                        <a href="{{ route('login') }}" class="digi-user-btn">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" />
+                                <polyline points="10 17 15 12 10 7" />
+                                <line x1="15" y1="12" x2="3" y2="12" />
+                            </svg>
+                            <span class="digi-user-info__name">Iniciar sesión</span>
+                        </a>
+                    @endif
                 </div>
 
             </div>

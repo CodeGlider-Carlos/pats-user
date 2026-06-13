@@ -94,23 +94,25 @@ Route::middleware('auth:pasaporte')->group(function () {
 });
 
 // ──────────────────────────────────────────────────────────────────────────────
-//  SERVICIOS / ESPECIALIDADES — públicos
+//  SERVICIOS / ESPECIALIDADES / AGENDA — área de usuario (guard: pasaporte)
 // ──────────────────────────────────────────────────────────────────────────────
 
-Route::controller(ServiciosController::class)->group(function () {
-    Route::get('/atencion-medica', 'atencionMedica')->name('atencion.index');
-    Route::get('/estudios-clinicos', 'estudiosСlinicos')->name('estudios.index');
-    Route::get('/farmacia', 'farmacia')->name('farmacia.index');
-    Route::get('/rayos', 'rayos')->name('rayos.index');
-    Route::get('/hospitales', 'hospitales')->name('hospitales.index');
+Route::middleware('auth:pasaporte')->group(function () {
+    Route::controller(ServiciosController::class)->group(function () {
+        Route::get('/atencion-medica', 'atencionMedica')->name('atencion.index');
+        Route::get('/estudios-clinicos', 'estudiosСlinicos')->name('estudios.index');
+        Route::get('/farmacia', 'farmacia')->name('farmacia.index');
+        Route::get('/rayos', 'rayos')->name('rayos.index');
+        Route::get('/hospitales', 'hospitales')->name('hospitales.index');
+    });
+
+    Route::get('/especialidades', [EspecialidadesController::class, 'index'])->name('especialidades.index');
+    Route::get('/especialidades/{idRecurso}/agenda', [EspecialidadesController::class, 'bloquesMedico'])->name('especialidades.agenda');
+    Route::post('/especialidades/cita', [EspecialidadesController::class, 'guardarCita'])->name('especialidades.guardar');
+
+    Route::get('/agenda', [AgendaController::class, 'index'])->name('agenda.index');
+    Route::get('/agenda/dia/{fecha}', [AgendaController::class, 'dia'])->name('agenda.dia');
 });
-
-Route::get('/especialidades', [EspecialidadesController::class, 'index'])->name('especialidades.index');
-Route::get('/especialidades/{idRecurso}/agenda', [EspecialidadesController::class, 'bloquesMedico'])->name('especialidades.agenda');
-Route::post('/especialidades/cita', [EspecialidadesController::class, 'guardarCita'])->name('especialidades.guardar');
-
-Route::get('/agenda', [AgendaController::class, 'index'])->name('agenda.index');
-Route::get('/agenda/dia/{fecha}', [AgendaController::class, 'dia'])->name('agenda.dia');
 
 // ──────────────────────────────────────────────────────────────────────────────
 //  FORMULARIOS PÚBLICOS — Distribución

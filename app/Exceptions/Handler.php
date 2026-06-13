@@ -3,6 +3,8 @@
 namespace App\Exceptions;
 
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Illuminate\Http\Request;
+use Illuminate\Session\TokenMismatchException;
 use Throwable;
 
 class Handler extends ExceptionHandler
@@ -25,6 +27,17 @@ class Handler extends ExceptionHandler
     {
         $this->reportable(function (Throwable $e) {
             //
+        });
+
+        $this->renderable(function (TokenMismatchException $e, Request $request) {
+            if ($request->expectsJson()) {
+                return null;
+            }
+
+            $loginRoute = str_starts_with($request->path(), 'portal') ? 'portal.login' : 'login';
+
+            return redirect()->route($loginRoute)
+                ->withErrors(['sesion' => 'Tu sesión expiró. Inicia sesión nuevamente.']);
         });
     }
 }
