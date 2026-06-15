@@ -452,4 +452,283 @@
         </div>
 
     </div>
+
+    {{-- ───────────────────────────────────────────────────────────
+         Modal de reseña: aparece cuando hay una cita completada
+         sin reseña (agenda_pats_demo.reviewed IS NULL).
+    ──────────────────────────────────────────────────────────── --}}
+    @if (!empty($resenaPendiente))
+        <div id="resenaOverlay" class="resena-overlay" role="dialog" aria-modal="true" aria-labelledby="resenaTitle">
+            <div class="resena-modal">
+                <div class="resena-modal__head">
+                    <span class="resena-modal__icon"><i class="mdi mdi-star-circle-outline"></i></span>
+                    <h2 id="resenaTitle" class="resena-modal__title">¿Cómo fue tu cita?</h2>
+                    <p class="resena-modal__sub">
+                        Tu opinión sobre
+                        <strong>{{ $resenaPendiente->misional ?? 'tu servicio' }}</strong>
+                        @if ($resenaPendiente->fecha_programada)
+                            del {{ \Carbon\Carbon::parse($resenaPendiente->fecha_programada)->isoFormat('D [de] MMMM [de] YYYY') }}
+                        @endif
+                        nos ayuda a mejorar.
+                    </p>
+                </div>
+
+                <div class="resena-stars" id="resenaStars" aria-label="Calificación de 1 a 5 estrellas">
+                    @for ($i = 1; $i <= 5; $i++)
+                        <button type="button" class="resena-star" data-value="{{ $i }}" aria-label="{{ $i }} estrellas">
+                            <i class="mdi mdi-star"></i>
+                        </button>
+                    @endfor
+                </div>
+
+                <textarea id="resenaComentario" class="resena-textarea" rows="3" maxlength="1000"
+                    placeholder="Comparte un comentario (opcional)…"></textarea>
+
+                <div class="resena-actions">
+                    <button type="button" class="resena-btn resena-btn--ghost" id="resenaRechazar">No, gracias</button>
+                    <button type="button" class="resena-btn resena-btn--primary" id="resenaEnviar">Enviar reseña</button>
+                </div>
+
+                <p class="resena-error" id="resenaError"></p>
+            </div>
+        </div>
+
+        <style>
+            .resena-overlay {
+                position: fixed;
+                inset: 0;
+                background: rgba(15, 25, 35, .55);
+                backdrop-filter: blur(4px);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                z-index: 1080;
+                padding: 20px;
+                opacity: 0;
+                transition: opacity .25s ease;
+            }
+
+            .resena-overlay.is-open {
+                opacity: 1;
+            }
+
+            .resena-modal {
+                background: #fff;
+                border-radius: 22px;
+                max-width: 440px;
+                width: 100%;
+                padding: 34px 30px 26px;
+                box-shadow: 0 24px 70px rgba(0, 0, 0, .30);
+                font-family: 'DM Sans', sans-serif;
+                text-align: center;
+                transform: translateY(16px) scale(.97);
+                transition: transform .28s cubic-bezier(.34, 1.56, .64, 1);
+            }
+
+            .resena-overlay.is-open .resena-modal {
+                transform: translateY(0) scale(1);
+            }
+
+            .resena-modal__icon {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                width: 60px;
+                height: 60px;
+                border-radius: 50%;
+                font-size: 32px;
+                color: #fff;
+                background: linear-gradient(90deg, #529cb2, #303e84);
+                margin-bottom: 14px;
+            }
+
+            .resena-modal__title {
+                font-family: 'Syne', sans-serif;
+                font-size: 22px;
+                font-weight: 800;
+                color: #0f1923;
+                margin: 0 0 8px;
+            }
+
+            .resena-modal__sub {
+                font-size: 14px;
+                color: #6b7a8d;
+                margin: 0 0 22px;
+                line-height: 1.45;
+            }
+
+            .resena-stars {
+                display: flex;
+                justify-content: center;
+                gap: 6px;
+                margin-bottom: 20px;
+            }
+
+            .resena-star {
+                background: none;
+                border: none;
+                cursor: pointer;
+                font-size: 36px;
+                line-height: 1;
+                color: #d8dee6;
+                padding: 2px;
+                transition: transform .15s ease, color .15s ease;
+            }
+
+            .resena-star:hover {
+                transform: scale(1.15);
+            }
+
+            .resena-star.is-active {
+                color: #f5b301;
+            }
+
+            .resena-textarea {
+                width: 100%;
+                border: 1px solid #e2e8f0;
+                border-radius: 14px;
+                padding: 12px 14px;
+                font-size: 14px;
+                font-family: inherit;
+                color: #0f1923;
+                resize: vertical;
+                outline: none;
+                transition: border-color .2s ease;
+                margin-bottom: 22px;
+            }
+
+            .resena-textarea:focus {
+                border-color: #529cb2;
+            }
+
+            .resena-actions {
+                display: flex;
+                gap: 12px;
+            }
+
+            .resena-btn {
+                flex: 1;
+                border: none;
+                border-radius: 100px;
+                padding: 13px 18px;
+                font-size: 14px;
+                font-weight: 700;
+                cursor: pointer;
+                font-family: inherit;
+                transition: transform .15s ease, opacity .2s ease, box-shadow .2s ease;
+            }
+
+            .resena-btn:disabled {
+                opacity: .6;
+                cursor: default;
+            }
+
+            .resena-btn--ghost {
+                background: #f1f5f9;
+                color: #64748b;
+            }
+
+            .resena-btn--ghost:hover {
+                background: #e6edf3;
+            }
+
+            .resena-btn--primary {
+                background: linear-gradient(90deg, #529cb2, #303e84);
+                color: #fff;
+                box-shadow: 0 8px 24px rgba(48, 62, 132, .30);
+            }
+
+            .resena-btn--primary:hover:not(:disabled) {
+                transform: translateY(-2px);
+            }
+
+            .resena-error {
+                color: #dc2626;
+                font-size: 13px;
+                margin: 14px 0 0;
+                min-height: 16px;
+            }
+        </style>
+
+        @push('scripts')
+            <script>
+                (function () {
+                    const overlay   = document.getElementById('resenaOverlay');
+                    if (!overlay) {
+                        return;
+                    }
+
+                    const stars     = Array.from(document.querySelectorAll('#resenaStars .resena-star'));
+                    const comentario = document.getElementById('resenaComentario');
+                    const btnEnviar  = document.getElementById('resenaEnviar');
+                    const btnRechazar = document.getElementById('resenaRechazar');
+                    const errorEl    = document.getElementById('resenaError');
+
+                    const idAgenda = {{ (int) $resenaPendiente->id_agenda }};
+                    const url      = "{{ route('servicios.resena') }}";
+                    const csrf     = "{{ csrf_token() }}";
+
+                    let valor = 0;
+
+                    const pintarEstrellas = (n) => {
+                        stars.forEach((s) => {
+                            s.classList.toggle('is-active', Number(s.dataset.value) <= n);
+                        });
+                    };
+
+                    stars.forEach((star) => {
+                        star.addEventListener('mouseenter', () => pintarEstrellas(Number(star.dataset.value)));
+                        star.addEventListener('mouseleave', () => pintarEstrellas(valor));
+                        star.addEventListener('click', () => {
+                            valor = Number(star.dataset.value);
+                            pintarEstrellas(valor);
+                        });
+                    });
+
+                    const abrir = () => {
+                        overlay.style.display = 'flex';
+                        requestAnimationFrame(() => overlay.classList.add('is-open'));
+                    };
+
+                    const cerrar = () => {
+                        overlay.classList.remove('is-open');
+                        setTimeout(() => { overlay.style.display = 'none'; }, 260);
+                    };
+
+                    const enviar = (accion) => {
+                        btnEnviar.disabled = true;
+                        btnRechazar.disabled = true;
+                        errorEl.textContent = '';
+
+                        const payload = { id_agenda: idAgenda, accion: accion };
+                        if (accion === 'enviar') {
+                            if (valor > 0) {
+                                payload.review_value = valor;
+                            }
+                            const texto = comentario.value.trim();
+                            if (texto !== '') {
+                                payload.review_comment = texto;
+                            }
+                        }
+
+                        axios.post(url, payload, {
+                            headers: { 'X-CSRF-TOKEN': csrf }
+                        }).then(() => {
+                            cerrar();
+                        }).catch((err) => {
+                            btnEnviar.disabled = false;
+                            btnRechazar.disabled = false;
+                            errorEl.textContent = err?.response?.data?.error
+                                ?? 'No se pudo guardar tu reseña. Inténtalo de nuevo.';
+                        });
+                    };
+
+                    btnEnviar.addEventListener('click', () => enviar('enviar'));
+                    btnRechazar.addEventListener('click', () => enviar('rechazar'));
+
+                    abrir();
+                })();
+            </script>
+        @endpush
+    @endif
 @endsection

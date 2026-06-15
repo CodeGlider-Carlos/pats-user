@@ -24,8 +24,10 @@ use App\Http\Controllers\Pats\StripePatsController;
 use App\Http\Controllers\PerfilController;
 use App\Http\Controllers\Portal\PortalAccesoController;
 use App\Http\Controllers\Portal\PortalPasaporteController;
+use App\Http\Controllers\ResenaController;
 use App\Http\Controllers\ServiciosController;
 use App\Http\Controllers\SoporteController;
+use App\Models\AgendaPatsDemo;
 use Illuminate\Support\Facades\Route;
 
 // ──────────────────────────────────────────────────────────────────────────────
@@ -79,11 +81,24 @@ Route::middleware('auth:pasaporte')->group(function () {
                 ->first();
         }
 
-        return view('servicios.index', compact('user', 'pasaporte'));
+        // Al iniciar sesión, busca una cita completada sin reseña para pedir feedback.
+        $resenaPendiente = null;
+        if ($pasaporte && ! empty($pasaporte->curp)) {
+            $resenaPendiente = AgendaPatsDemo::query()
+                ->pendienteResena($pasaporte->curp)
+                ->orderByDesc('fecha_programada')
+                ->orderByDesc('hora_inicio')
+                ->first();
+        }
+
+        return view('servicios.index', compact('user', 'pasaporte', 'resenaPendiente'));
     })->name('servicios');
 
     Route::get('/pasaporte', [PasaporteController::class,  'index'])->name('pasaporte');
     Route::get('/pagos', [PagosController::class,      'index'])->name('pagos');
+
+    // Reseña de citas completadas (modal del dashboard)
+    Route::post('/servicios/resena', [ResenaController::class, 'guardar'])->name('servicios.resena');
 
     Route::get('/perfil', [PerfilController::class, 'show'])->name('perfil');
     Route::get('/perfil/foto', [PerfilController::class, 'servirFoto'])->name('perfil.foto');
