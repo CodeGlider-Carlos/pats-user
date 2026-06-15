@@ -11,6 +11,7 @@ return new class extends Migration
         Schema::create('pats_cats_medicos', function (Blueprint $table) {
             $table->string('id_registro', 36)->nullable();
             $table->integer('id_medico_leadplus')->nullable();
+            $table->integer('id_recurso')->nullable();
             $table->string('nombre', 180)->nullable();
             $table->string('apellido_paterno', 120)->nullable();
             $table->string('apellido_materno', 120)->nullable();
@@ -47,6 +48,7 @@ return new class extends Migration
             $table->string('usuario_sync', 120)->nullable();
 
             $table->index('id_medico_leadplus', 'idx_pats_medicos_leadplus');
+            $table->index('id_recurso', 'idx_pats_medicos_recurso');
             $table->index('activo', 'idx_pats_medicos_activo');
             $table->index(['region', 'unidad'], 'idx_pats_medicos_region_unidad');
             $table->index('nombre_completo', 'idx_pats_medicos_nombre');

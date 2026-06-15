@@ -24,8 +24,10 @@ use App\Http\Controllers\Pats\StripePatsController;
 use App\Http\Controllers\PerfilController;
 use App\Http\Controllers\Portal\PortalAccesoController;
 use App\Http\Controllers\Portal\PortalPasaporteController;
+use App\Http\Controllers\ResenaController;
 use App\Http\Controllers\ServiciosController;
 use App\Http\Controllers\SoporteController;
+use App\Models\AgendaPatsDemo;
 use Illuminate\Support\Facades\Route;
 
 // ──────────────────────────────────────────────────────────────────────────────
@@ -79,11 +81,24 @@ Route::middleware('auth:pasaporte')->group(function () {
                 ->first();
         }
 
-        return view('servicios.index', compact('user', 'pasaporte'));
+        // Al iniciar sesión, busca una cita completada sin reseña para pedir feedback.
+        $resenaPendiente = null;
+        if ($pasaporte && ! empty($pasaporte->curp)) {
+            $resenaPendiente = AgendaPatsDemo::query()
+                ->pendienteResena($pasaporte->curp)
+                ->orderByDesc('fecha_programada')
+                ->orderByDesc('hora_inicio')
+                ->first();
+        }
+
+        return view('servicios.index', compact('user', 'pasaporte', 'resenaPendiente'));
     })->name('servicios');
 
     Route::get('/pasaporte', [PasaporteController::class,  'index'])->name('pasaporte');
     Route::get('/pagos', [PagosController::class,      'index'])->name('pagos');
+
+    // Reseña de citas completadas (modal del dashboard)
+    Route::post('/servicios/resena', [ResenaController::class, 'guardar'])->name('servicios.resena');
 
     Route::get('/perfil', [PerfilController::class, 'show'])->name('perfil');
     Route::get('/perfil/foto', [PerfilController::class, 'servirFoto'])->name('perfil.foto');
@@ -94,23 +109,25 @@ Route::middleware('auth:pasaporte')->group(function () {
 });
 
 // ──────────────────────────────────────────────────────────────────────────────
-//  SERVICIOS / ESPECIALIDADES — públicos
+//  SERVICIOS / ESPECIALIDADES / AGENDA — área de usuario (guard: pasaporte)
 // ──────────────────────────────────────────────────────────────────────────────
 
-Route::controller(ServiciosController::class)->group(function () {
-    Route::get('/atencion-medica', 'atencionMedica')->name('atencion.index');
-    Route::get('/estudios-clinicos', 'estudiosСlinicos')->name('estudios.index');
-    Route::get('/farmacia', 'farmacia')->name('farmacia.index');
-    Route::get('/rayos', 'rayos')->name('rayos.index');
-    Route::get('/hospitales', 'hospitales')->name('hospitales.index');
+Route::middleware('auth:pasaporte')->group(function () {
+    Route::controller(ServiciosController::class)->group(function () {
+        Route::get('/atencion-medica', 'atencionMedica')->name('atencion.index');
+        Route::get('/estudios-clinicos', 'estudiosСlinicos')->name('estudios.index');
+        Route::get('/farmacia', 'farmacia')->name('farmacia.index');
+        Route::get('/rayos', 'rayos')->name('rayos.index');
+        Route::get('/hospitales', 'hospitales')->name('hospitales.index');
+    });
+
+    Route::get('/especialidades', [EspecialidadesController::class, 'index'])->name('especialidades.index');
+    Route::get('/especialidades/{idRecurso}/agenda', [EspecialidadesController::class, 'bloquesMedico'])->name('especialidades.agenda');
+    Route::post('/especialidades/cita', [EspecialidadesController::class, 'guardarCita'])->name('especialidades.guardar');
+
+    Route::get('/agenda', [AgendaController::class, 'index'])->name('agenda.index');
+    Route::get('/agenda/dia/{fecha}', [AgendaController::class, 'dia'])->name('agenda.dia');
 });
-
-Route::get('/especialidades', [EspecialidadesController::class, 'index'])->name('especialidades.index');
-Route::get('/especialidades/{idRecurso}/agenda', [EspecialidadesController::class, 'bloquesMedico'])->name('especialidades.agenda');
-Route::post('/especialidades/cita', [EspecialidadesController::class, 'guardarCita'])->name('especialidades.guardar');
-
-Route::get('/agenda', [AgendaController::class, 'index'])->name('agenda.index');
-Route::get('/agenda/dia/{fecha}', [AgendaController::class, 'dia'])->name('agenda.dia');
 
 // ──────────────────────────────────────────────────────────────────────────────
 //  FORMULARIOS PÚBLICOS — Distribución

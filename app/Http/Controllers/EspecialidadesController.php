@@ -62,7 +62,7 @@ class EspecialidadesController extends Controller
     {
         $now = $this->now();
 
-        $medico = PatsCatMedico::where('id_medico_leadplus', $idRecurso)
+        $medico = PatsCatMedico::where('id_recurso', $idRecurso)
             ->where('activo', true)
             ->firstOrFail();
 
@@ -108,7 +108,7 @@ class EspecialidadesController extends Controller
         ]);
 
         $slot   = DispoAgenda::findOrFail($validated['id_agenda']);
-        $medico = PatsCatMedico::where('id_medico_leadplus', $slot->id_recurso)->first();
+        $medico = PatsCatMedico::where('id_recurso', $slot->id_recurso)->first();
         $acceso = auth('pasaporte')->user();
 
         DB::table('agenda_pats_demo')->insert([
