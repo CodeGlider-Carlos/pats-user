@@ -887,7 +887,7 @@
                                         </div>
                                         <span class="med-card__price">
                                             <i class="mdi mdi-currency-usd" style="font-size:15px;"></i>
-                                            Consulta $300
+                                            Consulta $390
                                         </span>
                                     </div>
                                 </div>
