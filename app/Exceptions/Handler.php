@@ -4,7 +4,8 @@ namespace App\Exceptions;
 
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Illuminate\Http\Request;
-use Illuminate\Session\TokenMismatchException;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 use Throwable;
 
 class Handler extends ExceptionHandler
@@ -29,15 +30,20 @@ class Handler extends ExceptionHandler
             //
         });
 
-        $this->renderable(function (TokenMismatchException $e, Request $request) {
-            if ($request->expectsJson()) {
+        $this->renderable(function (HttpExceptionInterface $e, Request $request): ?Response {
+            if ($e->getStatusCode() !== 419) {
                 return null;
             }
 
-            $loginRoute = str_starts_with($request->path(), 'portal') ? 'portal.login' : 'login';
+            $message = "Tu sesi\u{00f3}n expir\u{00f3}. Inicia sesi\u{00f3}n nuevamente.";
 
-            return redirect()->route($loginRoute)
-                ->withErrors(['sesion' => 'Tu sesión expiró. Inicia sesión nuevamente.']);
+            if ($request->expectsJson()) {
+                return response()->json(['message' => $message], 419, [], JSON_UNESCAPED_UNICODE);
+            }
+
+            $loginRoute = $request->is('portal', 'portal/*') ? 'portal.login' : 'login';
+
+            return redirect()->route($loginRoute)->withErrors(['sesion' => $message]);
         });
     }
 }

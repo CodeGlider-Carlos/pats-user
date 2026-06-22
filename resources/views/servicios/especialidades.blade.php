@@ -731,7 +731,7 @@
         </div>
 
         {{-- Stats ──────────────────────────────────────── --}}
-        <div class="esp-stats">
+        <!-- <div class="esp-stats">
             <div class="esp-stat">
                 <div class="esp-stat__num">{{ $porEspecialidad->count() }}</div>
                 <div class="esp-stat__label">Especialidades</div>
@@ -748,7 +748,7 @@
                 <div class="esp-stat__num">{{ $citasHoy->count() }}</div>
                 <div class="esp-stat__label">Citas hoy</div>
             </div> --}}
-        </div>
+        </div> -->
 
         {{-- Buscador ────────────────────────────────────── --}}
         <div class="esp-search-wrap">
@@ -790,15 +790,15 @@
                     data-bs-target="#modal-{{ $slug }}">
 
                     <div class="esp-card__icon">
-                        <i class="mdi mdi-{{ $icon }}"></i>
+                        <i class="mdi mdi-stethoscope"></i>
                     </div>
 
                     <h3 class="esp-card__esp">{{ $especialidad }}</h3>
-
+<!-- 
                     <div class="esp-card__row">
                         <i class="mdi mdi-doctor"></i>
                         <span>{{ $medicos->count() }} {{ $medicos->count() === 1 ? 'médico' : 'médicos' }}</span>
-                    </div>
+                    </div> -->
 
                     @if ($bloquesEsp > 0)
                         <span class="esp-pill esp-pill--ok">
@@ -808,7 +808,7 @@
                     @else
                         <span class="esp-pill esp-pill--no">
                             <i class="mdi mdi-calendar-remove" style="font-size:13px;"></i>
-                            Sin horarios próximos
+                            Agenda tu cita
                         </span>
                     @endif
                 </div>
