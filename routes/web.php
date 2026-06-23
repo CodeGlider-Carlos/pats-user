@@ -51,7 +51,7 @@ Route::get('/expediente/{token}/foto', [ExpedienteController::class, 'foto'])->n
 // ──────────────────────────────────────────────────────────────────────────────
 
 Route::middleware('guest:pasaporte')->group(function () {
-    Route::get('/login', [LoginController::class, 'showForm'])->name('login');
+    Route::get('/login', fn () => redirect('/'))->name('login');
     Route::post('/login', [LoginController::class, 'login'])->name('login.post');
 });
 

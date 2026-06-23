@@ -41,9 +41,11 @@ class Handler extends ExceptionHandler
                 return response()->json(['message' => $message], 419, [], JSON_UNESCAPED_UNICODE);
             }
 
-            $loginRoute = $request->is('portal', 'portal/*') ? 'portal.login' : 'login';
+            if ($request->is('portal', 'portal/*')) {
+                return redirect()->route('portal.login')->withErrors(['sesion' => $message]);
+            }
 
-            return redirect()->route($loginRoute)->withErrors(['sesion' => $message]);
+            return redirect('/')->withErrors(['sesion' => $message]);
         });
     }
 }

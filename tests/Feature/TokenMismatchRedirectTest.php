@@ -18,7 +18,7 @@ class TokenMismatchRedirectTest extends TestCase
 
         $response = $this->get('/_token-mismatch');
 
-        $response->assertRedirect(route('login'));
+        $response->assertRedirect('/');
         $response->assertSessionHasErrors(['sesion' => self::MESSAGE]);
     }
 
