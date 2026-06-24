@@ -17,7 +17,7 @@ return [
     | El ProsaHttpClient resuelve el host según 'env'.
     */
     'hosts' => [
-        'test'       => env('PROSA_HOST_TEST', 'https://eu-test.oppwa.com'),
+        'test' => env('PROSA_HOST_TEST', 'https://eu-test.oppwa.com'),
         'production' => env('PROSA_HOST_PROD', 'https://eu-prod.oppwa.com'),
     ],
 
@@ -34,9 +34,9 @@ return [
     |               en operaciones de tokenización (registros). Provisto en el
     |               campo "SENDER" del documento de credenciales.
     */
-    'entity_id'    => env('PROSA_ENTITY_ID'),
+    'entity_id' => env('PROSA_ENTITY_ID'),
     'access_token' => env('PROSA_ACCESS_TOKEN'),
-    'sender_id'    => env('PROSA_SENDER_ID'),
+    'sender_id' => env('PROSA_SENDER_ID'),
 
     /*
     |--------------------------------------------------------------------------
@@ -70,9 +70,34 @@ return [
     | country: país por defecto (ISO 3166-1 alpha-2) para billing.country.
     */
     'three_ds' => [
-        'enabled'          => (bool) env('PROSA_3DS_ENABLED', true),
+        'enabled' => (bool) env('PROSA_3DS_ENABLED', true),
         'challenge_window' => env('PROSA_3DS_CHALLENGE_WINDOW', '05'),
-        'country'          => env('PROSA_3DS_COUNTRY', 'MX'),
+        'country' => env('PROSA_3DS_COUNTRY', 'MX'),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Datos del comercio (merchant.*) para el Checkout
+    |--------------------------------------------------------------------------
+    | Parámetros estáticos del comercio exigidos por Prosa en el "Checkout".
+    | No son datos del tarjetahabiente: describen al comercio y se envían en
+    | cada transacción. Ajusta los valores a la dirección real del comercio.
+    |
+    | Formatos validados por Prosa:
+    |   url       AN255  URL del comercio (cualquier carácter, máx. 255).
+    |   city      A13    Sólo letras, máx. 13 (ej. CDMX, Monterrey).
+    |   state     A3     ISO 3166-2:MX sin prefijo (ej. CMX, JAL, NLE).
+    |   country   A3     ISO 3166-1 alpha-3 (ej. MEX).
+    |   postcode  AN10   Código postal alfanumérico, máx. 10.
+    */
+    'merchant' => [
+        'url' => env('PROSA_MERCHANT_URL'),
+        'shipping' => [
+            'city' => env('PROSA_MERCHANT_SHIPPING_CITY', 'CDMX'),
+            'state' => env('PROSA_MERCHANT_SHIPPING_STATE', 'CMX'),
+            'country' => env('PROSA_MERCHANT_SHIPPING_COUNTRY', 'MEX'),
+            'postcode' => env('PROSA_MERCHANT_SHIPPING_POSTCODE', '06000'),
+        ],
     ],
 
     /*
@@ -84,7 +109,7 @@ return [
     */
     'webhook' => [
         'secret' => env('PROSA_WEBHOOK_SECRET'),
-        'iv'     => env('PROSA_WEBHOOK_IV'),
+        'iv' => env('PROSA_WEBHOOK_IV'),
     ],
 
     /*
@@ -93,10 +118,10 @@ return [
     |--------------------------------------------------------------------------
     */
     'http' => [
-        'timeout'         => 30,    // segundos
+        'timeout' => 30,    // segundos
         'connect_timeout' => 10,
-        'retry_times'     => 1,     // 1 reintento en timeout
-        'retry_sleep_ms'  => 500,
+        'retry_times' => 1,     // 1 reintento en timeout
+        'retry_sleep_ms' => 500,
     ],
 
     /*
@@ -105,11 +130,11 @@ return [
     |--------------------------------------------------------------------------
     */
     'endpoints' => [
-        'payments'      => '/v1/payments',
-        'payment'       => '/v1/payments/%s',          // GET status / POST backoffice
+        'payments' => '/v1/payments',
+        'payment' => '/v1/payments/%s',          // GET status / POST backoffice
         'registrations' => '/v1/registrations',
-        'registration'  => '/v1/registrations/%s',     // DELETE
-        'reg_payments'  => '/v1/registrations/%s/payments',
+        'registration' => '/v1/registrations/%s',     // DELETE
+        'reg_payments' => '/v1/registrations/%s/payments',
     ],
 
 ];

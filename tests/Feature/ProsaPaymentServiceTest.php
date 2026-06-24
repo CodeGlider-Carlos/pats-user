@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\DTO\Prosa\CardData;
 use App\DTO\Prosa\ChargeData;
+use App\DTO\Prosa\ThreeDSData;
 use App\Exceptions\Prosa\ProsaException;
 use App\Services\Prosa\PaymentService;
 use App\Services\Prosa\ProsaHttpClient;
@@ -35,16 +36,38 @@ class ProsaPaymentServiceTest extends TestCase
         );
     }
 
+    /**
+     * Parsea el cuerpo form-urlencoded preservando los puntos de las claves
+     * OPPWA (card.number, merchant.url, billing.street1, …). parse_str() de
+     * PHP los convierte a guiones bajos, por lo que no sirve aquí.
+     *
+     * @return array<string, string>
+     */
+    private function bodyParams(\Illuminate\Http\Client\Request $request): array
+    {
+        $params = [];
+
+        foreach (explode('&', $request->body()) as $pair) {
+            if ($pair === '') {
+                continue;
+            }
+            [$key, $value] = array_pad(explode('=', $pair, 2), 2, '');
+            $params[urldecode($key)] = urldecode($value);
+        }
+
+        return $params;
+    }
+
     public function test_charge_sends_expected_oppwa_params_and_returns_payment(): void
     {
         Http::fake([
             'eu-test.oppwa.com/v1/payments' => Http::response([
-                'id'           => '8ac7a4a1payment',
+                'id' => '8ac7a4a1payment',
                 'paymentBrand' => 'VISA',
-                'amount'       => '800.00',
-                'currency'     => 'MXN',
-                'result'       => ['code' => '000.100.110', 'description' => 'Request successfully processed'],
-                'card'         => ['bin' => '420000', 'last4Digits' => '0000'],
+                'amount' => '800.00',
+                'currency' => 'MXN',
+                'result' => ['code' => '000.100.110', 'description' => 'Request successfully processed'],
+                'card' => ['bin' => '420000', 'last4Digits' => '0000'],
             ], 200),
         ]);
 
@@ -61,8 +84,7 @@ class ProsaPaymentServiceTest extends TestCase
         $this->assertSame('0000', $result['last4']);
 
         Http::assertSent(function ($request) {
-            $body = [];
-            parse_str($request->body(), $body);
+            $body = $this->bodyParams($request);
 
             return $request->url() === 'https://eu-test.oppwa.com/v1/payments'
                 && $request->hasHeader('Authorization', 'Bearer test-token')
@@ -82,7 +104,7 @@ class ProsaPaymentServiceTest extends TestCase
     {
         Http::fake([
             'eu-test.oppwa.com/v1/payments' => Http::response([
-                'id'     => '8ac7a4a1payment',
+                'id' => '8ac7a4a1payment',
                 'result' => ['code' => '000.100.110', 'description' => 'ok'],
             ], 200),
         ]);
@@ -105,8 +127,7 @@ class ProsaPaymentServiceTest extends TestCase
         ));
 
         Http::assertSent(function ($request) {
-            $body = [];
-            parse_str($request->body(), $body);
+            $body = $this->bodyParams($request);
 
             return $body['testMode'] === 'EXTERNAL'
                 && $body['descriptor'] === '7639599'
@@ -115,11 +136,86 @@ class ProsaPaymentServiceTest extends TestCase
         });
     }
 
+    public function test_charge_injects_merchant_params_in_the_checkout(): void
+    {
+        Http::fake([
+            'eu-test.oppwa.com/v1/payments' => Http::response([
+                'id' => '8ac7a4a1payment',
+                'result' => ['code' => '000.100.110', 'description' => 'ok'],
+            ], 200),
+        ]);
+
+        $service = new PaymentService(new ProsaHttpClient(
+            baseUrl: 'https://eu-test.oppwa.com',
+            accessToken: 'test-token',
+            entityId: 'test-entity',
+            timeout: 5,
+            connectTimeout: 5,
+            retryTimes: 0,
+            merchantParams: [
+                'merchant.url' => 'https://patspassport.com',
+                'merchant.shipping.city' => 'CDMX',
+                'merchant.shipping.state' => 'CMX',
+                'merchant.shipping.country' => 'MEX',
+                'merchant.shipping.postcode' => '06000',
+            ],
+        ));
+
+        $service->charge(new ChargeData(
+            card: $this->card(),
+            amount: 800.00,
+            merchantTransactionId: 'PATS-TEST',
+        ));
+
+        Http::assertSent(function ($request) {
+            $body = $this->bodyParams($request);
+
+            return $body['merchant.url'] === 'https://patspassport.com'
+                && $body['merchant.shipping.city'] === 'CDMX'
+                && $body['merchant.shipping.state'] === 'CMX'
+                && $body['merchant.shipping.country'] === 'MEX'
+                && $body['merchant.shipping.postcode'] === '06000';
+        });
+    }
+
+    public function test_initiate_maps_billing_to_oppwa_params(): void
+    {
+        Http::fake([
+            'eu-test.oppwa.com/v1/payments' => Http::response([
+                'id' => '8ac7a4a1payment',
+                'result' => ['code' => '000.100.110', 'description' => 'ok'],
+            ], 200),
+        ]);
+
+        $threeDs = new ThreeDSData(
+            shopperResultUrl: 'https://patspassport.com/prosa/3ds/return/PATSTEST',
+            billing: [
+                'street1' => 'Av Reforma 100',
+                'city' => 'Monterrey',
+                'postcode' => '64000',
+            ],
+        );
+
+        $this->paymentService()->initiate(
+            new ChargeData(card: $this->card(), amount: 800.00, merchantTransactionId: 'PATS-TEST'),
+            $threeDs,
+        );
+
+        Http::assertSent(function ($request) {
+            $body = $this->bodyParams($request);
+
+            return $body['billing.street1'] === 'Av Reforma 100'
+                && $body['billing.city'] === 'Monterrey'
+                && $body['billing.postcode'] === '64000'
+                && $body['billing.country'] === 'MX'; // default de config('prosa.three_ds.country')
+        });
+    }
+
     public function test_charge_throws_on_declined_result_code(): void
     {
         Http::fake([
             'eu-test.oppwa.com/v1/payments' => Http::response([
-                'id'     => '8ac7a4a1declined',
+                'id' => '8ac7a4a1declined',
                 'result' => ['code' => '800.100.151', 'description' => 'transaction declined (invalid card)'],
             ], 200),
         ]);

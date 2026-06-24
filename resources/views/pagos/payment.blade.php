@@ -151,6 +151,28 @@
                                 <label class="form-lbl">Alias (opcional)</label>
                                 <input class="form-ctrl" id="inp-alias" type="text" placeholder="Ej: Mi Mastercard">
                             </div>
+
+                            {{-- Dirección de facturación (requerida por 3-D Secure) --}}
+                            <div class="mb-3">
+                                <label class="form-lbl">Dirección (calle y número)</label>
+                                <input class="form-ctrl" id="bill-street" type="text" placeholder="Calle y número">
+                            </div>
+                            <div class="form-row mb-3">
+                                <div>
+                                    <label class="form-lbl">Ciudad</label>
+                                    <input class="form-ctrl" id="bill-city" type="text" placeholder="Ciudad">
+                                </div>
+                                <div>
+                                    <label class="form-lbl">Código postal</label>
+                                    <input class="form-ctrl" id="bill-postcode" type="text" maxlength="10" placeholder="C.P.">
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-lbl">País</label>
+                                <input class="form-ctrl" id="bill-country" type="text" maxlength="2" value="MX"
+                                    placeholder="MX">
+                            </div>
+
                             <button type="submit" class="btn btn-primary btn-w" id="btnPagarCard">
                                 <i class="mdi mdi-lock"></i>
                                 <span id="btnCardTxt">Pagar $800 MXN</span>
@@ -217,6 +239,29 @@
                                 <label class="form-lbl">Correo para recibo</label>
                                 <input class="form-ctrl" id="rec-email" type="email" value="{{ $user->correo_usuario }}">
                             </div>
+
+                            {{-- Dirección de facturación (requerida por 3-D Secure) --}}
+                            <div class="mb-3">
+                                <label class="form-lbl">Dirección (calle y número)</label>
+                                <input class="form-ctrl" id="rec-bill-street" type="text" placeholder="Calle y número">
+                            </div>
+                            <div class="form-row mb-3">
+                                <div>
+                                    <label class="form-lbl">Ciudad</label>
+                                    <input class="form-ctrl" id="rec-bill-city" type="text" placeholder="Ciudad">
+                                </div>
+                                <div>
+                                    <label class="form-lbl">Código postal</label>
+                                    <input class="form-ctrl" id="rec-bill-postcode" type="text" maxlength="10"
+                                        placeholder="C.P.">
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-lbl">País</label>
+                                <input class="form-ctrl" id="rec-bill-country" type="text" maxlength="2" value="MX"
+                                    placeholder="MX">
+                            </div>
+
                             <button type="submit" class="btn btn-primary btn-w" id="btnRecurring">
                                 <i class="mdi mdi-repeat"></i>
                                 <span id="btnRecurringTxt">Iniciar cobro recurrente $800 MXN</span>
@@ -376,6 +421,17 @@
         }
 
         // ── Helpers ──────────────────────────────────────
+        // Recolecta la dirección de facturación (3-D Secure) de los inputs dados.
+        function billingFrom(streetId, cityId, postcodeId, countryId) {
+            const g = id => (document.getElementById(id)?.value || '').trim();
+            return {
+                street1: g(streetId),
+                city: g(cityId),
+                postcode: g(postcodeId),
+                country: (g(countryId) || 'MX').toUpperCase(),
+            };
+        }
+
         // Convierte "MM/AA" → { expMonth: 'MM', expYear: 'AA' }
         function splitExp(mmaa) {
             const clean = (mmaa || '').replace(/\D/g, '');
@@ -462,6 +518,7 @@
                     expYear: exp.expYear,
                     email: USER_EMAIL,
                     browser: window.prosaBrowserData(),
+                    billing: billingFrom('bill-street', 'bill-city', 'bill-postcode', 'bill-country'),
                     saveCard,   // si true, OPPWA tokeniza la tarjeta junto con el cobro
                     alias,
                 });
@@ -601,6 +658,7 @@
                     expYear:         exp.expYear,
                     email:           USER_EMAIL,
                     browser:         window.prosaBrowserData(),
+                    billing:         billingFrom('rec-bill-street', 'rec-bill-city', 'rec-bill-postcode', 'rec-bill-country'),
                     // Plan context needed to save subscription + update pasaporte.
                     frecuencia:      plan.frecuencia,
                     meses:           plan.meses,

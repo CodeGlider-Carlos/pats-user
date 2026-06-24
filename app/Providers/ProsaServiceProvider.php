@@ -2,19 +2,20 @@
 
 namespace App\Providers;
 
-use Illuminate\Support\ServiceProvider;
-use App\Services\Prosa\ProsaHttpClient;
-use App\Services\Prosa\PaymentService;
-use App\Services\Prosa\TokenizationService;
-use App\Services\Prosa\RecurringService;
+use App\DTO\Prosa\MerchantData;
 use App\Services\Prosa\BackofficeService;
-use App\Services\Prosa\OxxoService;
+use App\Services\Prosa\Checkout\AdquirirCheckout;
 use App\Services\Prosa\Checkout\CheckoutManager;
 use App\Services\Prosa\Checkout\PagosCheckout;
 use App\Services\Prosa\Checkout\PagosRecurringCheckout;
 use App\Services\Prosa\Checkout\PagosRenovacionCheckout;
-use App\Services\Prosa\Checkout\AdquirirCheckout;
 use App\Services\Prosa\Checkout\SolicitudCheckout;
+use App\Services\Prosa\OxxoService;
+use App\Services\Prosa\PaymentService;
+use App\Services\Prosa\ProsaHttpClient;
+use App\Services\Prosa\RecurringService;
+use App\Services\Prosa\TokenizationService;
+use Illuminate\Support\ServiceProvider;
 
 class ProsaServiceProvider extends ServiceProvider
 {
@@ -24,15 +25,16 @@ class ProsaServiceProvider extends ServiceProvider
             $env = (string) config('prosa.env');
 
             return new ProsaHttpClient(
-                baseUrl:        rtrim(config('prosa.hosts.' . $env), '/'),
-                accessToken:    (string) config('prosa.access_token'),
-                entityId:       (string) config('prosa.entity_id'),
-                descriptor:     (string) config('prosa.descriptor'),
-                testMode:       $env === 'test' ? (string) config('prosa.test_mode') : null,
-                timeout:        (int) config('prosa.http.timeout'),
+                baseUrl: rtrim(config('prosa.hosts.'.$env), '/'),
+                accessToken: (string) config('prosa.access_token'),
+                entityId: (string) config('prosa.entity_id'),
+                descriptor: (string) config('prosa.descriptor'),
+                testMode: $env === 'test' ? (string) config('prosa.test_mode') : null,
+                timeout: (int) config('prosa.http.timeout'),
                 connectTimeout: (int) config('prosa.http.connect_timeout'),
-                retryTimes:     (int) config('prosa.http.retry_times'),
-                retrySleepMs:   (int) config('prosa.http.retry_sleep_ms'),
+                retryTimes: (int) config('prosa.http.retry_times'),
+                retrySleepMs: (int) config('prosa.http.retry_sleep_ms'),
+                merchantParams: MerchantData::fromConfig()->toParams(),
             );
         });
 
@@ -58,31 +60,31 @@ class ProsaServiceProvider extends ServiceProvider
 
         // ── Checkout completers (3DS / post-pago) ──
         $this->app->bind('prosa.completer.solicitud_franquicia', fn () => new SolicitudCheckout(
-            flowName:          'solicitud_franquicia',
-            tipoSolicitud:     'franquicia',
+            flowName: 'solicitud_franquicia',
+            tipoSolicitud: 'franquicia',
             successRouteOrPath: '/franquicia/solicitud/confirmacion',
-            failRouteOrPath:    '/franquicia/solicitud',
+            failRouteOrPath: '/franquicia/solicitud',
         ));
 
         $this->app->bind('prosa.completer.solicitud_distribuidor', fn () => new SolicitudCheckout(
-            flowName:          'solicitud_distribuidor',
-            tipoSolicitud:     'distribuidor',
+            flowName: 'solicitud_distribuidor',
+            tipoSolicitud: 'distribuidor',
             successRouteOrPath: '/distribucion/solicitud/confirmacion',
-            failRouteOrPath:    '/distribucion/solicitud',
+            failRouteOrPath: '/distribucion/solicitud',
         ));
 
         $this->app->bind('prosa.completer.solicitud_distribuidor_link', fn () => new SolicitudCheckout(
-            flowName:          'solicitud_distribuidor_link',
-            tipoSolicitud:     'distribuidor',
+            flowName: 'solicitud_distribuidor_link',
+            tipoSolicitud: 'distribuidor',
             successRouteOrPath: '/distribucion/solicitud/confirmacion',
-            failRouteOrPath:    '/distribucion/solicitud',
+            failRouteOrPath: '/distribucion/solicitud',
         ));
 
         $this->app->bind('prosa.completer.solicitud_pats', fn () => new SolicitudCheckout(
-            flowName:          'solicitud_pats',
-            tipoSolicitud:     'pats',
+            flowName: 'solicitud_pats',
+            tipoSolicitud: 'pats',
             successRouteOrPath: '/pasaporte',
-            failRouteOrPath:    '/pats/registro',
+            failRouteOrPath: '/pats/registro',
         ));
 
         $this->app->tag([
@@ -104,7 +106,7 @@ class ProsaServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->mergeConfigFrom(
-            __DIR__ . '/../../config/prosa.php',
+            __DIR__.'/../../config/prosa.php',
             'prosa'
         );
     }

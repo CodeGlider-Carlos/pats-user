@@ -3363,6 +3363,12 @@
                                 body: JSON.stringify(Object.assign(card, {
                                     email: document.getElementById('correo')?.value || '',
                                     browser: window.prosaBrowserData(),
+                                    billing: {
+                                        street1: ((document.getElementById('calle')?.value || '') + ' ' + (document.getElementById('num_ext')?.value || '')).trim(),
+                                        city: document.getElementById('municipio')?.value || '',
+                                        postcode: document.getElementById('cp')?.value || '',
+                                        country: 'MX',
+                                    },
                                 })),
                             });
                             const chargeData = await chargeRes.json().catch(() => ({}));

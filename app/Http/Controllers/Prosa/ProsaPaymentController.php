@@ -48,16 +48,22 @@ class ProsaPaymentController extends Controller
     public function oneStepSale(Request $request): JsonResponse
     {
         $data = $request->validate([
-            'amount'         => ['required', 'numeric', 'min:0.01'],
-            'pan'            => ['required', 'string'],
+            'amount' => ['required', 'numeric', 'min:0.01'],
+            'pan' => ['required', 'string'],
             'cardholderName' => ['required', 'string', 'max:128'],
-            'cvv2'           => ['required', 'string', 'min:3', 'max:4'],
-            'expMonth'       => ['required', 'string', 'max:2'],
-            'expYear'        => ['required', 'string', 'max:4'],
-            'email'          => ['nullable', 'email'],
-            'browser'        => ['nullable', 'array'],
-            'saveCard'       => ['nullable', 'boolean'],
-            'alias'          => ['nullable', 'string', 'max:50'],
+            'cvv2' => ['required', 'string', 'min:3', 'max:4'],
+            'expMonth' => ['required', 'string', 'max:2'],
+            'expYear' => ['required', 'string', 'max:4'],
+            'email' => ['nullable', 'email'],
+            'browser' => ['nullable', 'array'],
+            'saveCard' => ['nullable', 'boolean'],
+            'alias' => ['nullable', 'string', 'max:50'],
+            'billing' => ['nullable', 'array'],
+            'billing.street1' => ['nullable', 'string', 'max:100'],
+            'billing.city' => ['nullable', 'string', 'max:50'],
+            'billing.state' => ['nullable', 'string', 'max:50'],
+            'billing.postcode' => ['nullable', 'string', 'max:30'],
+            'billing.country' => ['nullable', 'string', 'max:3'],
         ]);
 
         $saveCard = (bool) ($data['saveCard'] ?? false);
@@ -74,22 +80,22 @@ class ProsaPaymentController extends Controller
         $userId = $request->user('pasaporte')?->getKey() ?? $request->user()?->getKey();
 
         $mtx = $this->reference();
-        
+
         $checkout = ProsaPendingCheckout::create([
             'merchant_transaction_id' => $mtx,
-            'flow'                    => PagosCheckout::FLOW,
-            'status'                  => ProsaPendingCheckout::STATUS_PENDING,
-            'user_id'                 => $userId,
-            'amount'                  => $data['amount'],
-            'payload'                 => [
-                'origen'   => 'one_step',
-                'brand'    => $card->brand(),
-                'last4'    => $card->last4(),
+            'flow' => PagosCheckout::FLOW,
+            'status' => ProsaPendingCheckout::STATUS_PENDING,
+            'user_id' => $userId,
+            'amount' => $data['amount'],
+            'payload' => [
+                'origen' => 'one_step',
+                'brand' => $card->brand(),
+                'last4' => $card->last4(),
                 'saveCard' => $saveCard,
-                'alias'    => $data['alias'] ?? null,
-                'holder'   => $card->holder,
+                'alias' => $data['alias'] ?? null,
+                'holder' => $card->holder,
                 'expMonth' => $card->expiryMonth,
-                'expYear'  => $card->expiryYear,
+                'expYear' => $card->expiryYear,
             ],
         ]);
 
@@ -98,14 +104,15 @@ class ProsaPaymentController extends Controller
             shopperResultUrl: route('prosa.3ds.return', ['mtx' => $mtx]),
             email: $data['email'] ?? null,
             givenName: $card->holder,
+            billing: $data['billing'] ?? null,
             browser: $data['browser'] ?? null,
         );
 
         try {
             $result = $this->paymentService->initiate(new ChargeData(
-                card:               $card,
-                amount:             (float) $data['amount'],
-                currency:           config('prosa.currency'),
+                card: $card,
+                amount: (float) $data['amount'],
+                currency: config('prosa.currency'),
                 merchantTransactionId: $mtx,
                 createRegistration: $saveCard,  // <-- OPPWA tokeniza la tarjeta junto con el pago
             ), $threeDs);
@@ -131,13 +138,13 @@ class ProsaPaymentController extends Controller
 
         if ($result['status'] === 'challenge') {
             $checkout->update([
-                'status'   => ProsaPendingCheckout::STATUS_CHALLENGE,
+                'status' => ProsaPendingCheckout::STATUS_CHALLENGE,
                 'redirect' => $result['redirect'],
             ]);
 
             return response()->json([
-                'success'   => true,
-                'status'    => 'challenge',
+                'success' => true,
+                'status' => 'challenge',
                 'challenge' => $result['redirect'],
             ]);
         }
@@ -146,24 +153,24 @@ class ProsaPaymentController extends Controller
             $redirectUrl = $this->checkoutManager->finish($checkout, $result);
 
             return response()->json([
-                'success'     => true,
-                'status'      => 'approved',
+                'success' => true,
+                'status' => 'approved',
                 'redirectUrl' => $redirectUrl,
-                'paymentId'   => $result['paymentId'],
+                'paymentId' => $result['paymentId'],
             ]);
         }
 
         $checkout->update([
-            'status'             => ProsaPendingCheckout::STATUS_DECLINED,
-            'result_code'        => $result['resultCode'] ?? null,
+            'status' => ProsaPendingCheckout::STATUS_DECLINED,
+            'result_code' => $result['resultCode'] ?? null,
             'result_description' => $result['resultDescription'] ?? null,
         ]);
 
         return response()->json([
             'success' => false,
-            'status'  => 'declined',
-            'error'   => $result['resultDescription'] ?: 'El pago fue rechazado.',
-            'code'    => $result['resultCode'] ?? '',
+            'status' => 'declined',
+            'error' => $result['resultDescription'] ?: 'El pago fue rechazado.',
+            'code' => $result['resultCode'] ?? '',
         ], 400);
     }
 
@@ -177,37 +184,43 @@ class ProsaPaymentController extends Controller
     public function recurringSale(Request $request): JsonResponse
     {
         $data = $request->validate([
-            'amount'          => ['required', 'numeric', 'min:0.01'],
-            'pan'             => ['required', 'string'],
-            'cardholderName'  => ['required', 'string', 'max:128'],
-            'cvv2'            => ['required', 'string', 'min:3', 'max:4'],
-            'expMonth'        => ['required', 'string', 'max:2'],
-            'expYear'         => ['required', 'string', 'max:4'],
-            'email'           => ['nullable', 'email'],
-            'browser'         => ['nullable', 'array'],
-            'frecuencia'      => ['required', 'in:MENSUAL,ANUAL'],
-            'meses'           => ['required', 'integer', 'min:1'],
-            'id_tipo_precio'  => ['required', 'integer'],
+            'amount' => ['required', 'numeric', 'min:0.01'],
+            'pan' => ['required', 'string'],
+            'cardholderName' => ['required', 'string', 'max:128'],
+            'cvv2' => ['required', 'string', 'min:3', 'max:4'],
+            'expMonth' => ['required', 'string', 'max:2'],
+            'expYear' => ['required', 'string', 'max:4'],
+            'email' => ['nullable', 'email'],
+            'browser' => ['nullable', 'array'],
+            'billing' => ['nullable', 'array'],
+            'billing.street1' => ['nullable', 'string', 'max:100'],
+            'billing.city' => ['nullable', 'string', 'max:50'],
+            'billing.state' => ['nullable', 'string', 'max:50'],
+            'billing.postcode' => ['nullable', 'string', 'max:30'],
+            'billing.country' => ['nullable', 'string', 'max:3'],
+            'frecuencia' => ['required', 'in:MENSUAL,ANUAL'],
+            'meses' => ['required', 'integer', 'min:1'],
+            'id_tipo_precio' => ['required', 'integer'],
             'monto_membresia' => ['nullable', 'numeric', 'min:0'],
-            'recargo'         => ['nullable', 'numeric', 'min:0'],
+            'recargo' => ['nullable', 'numeric', 'min:0'],
         ]);
 
         $user = $request->user('pasaporte') ?? $request->user();
         $userId = $user?->getKey();
 
         $card = CardData::fromForm(
-            number:   $data['pan'],
-            holder:   $data['cardholderName'],
+            number: $data['pan'],
+            holder: $data['cardholderName'],
             expMonth: $data['expMonth'],
-            expYear:  $data['expYear'],
-            cvv:      $data['cvv2'],
+            expYear: $data['expYear'],
+            cvv: $data['cvv2'],
         );
 
-        $ahora      = \Carbon\Carbon::now();
-        $referencia = 'PATS-' . $ahora->format('YmdHis') . '-' . strtoupper(substr(md5(uniqid()), 0, 8));
-        $folio      = 'ORD-'  . $ahora->format('Ymd')    . '-' . strtoupper(substr(md5(uniqid()), 0, 6));
-        $mtx        = preg_replace('/[^A-Za-z0-9]/', '', $referencia);
-        $correo     = $user?->correo_usuario ?? ($data['email'] ?? '');
+        $ahora = \Carbon\Carbon::now();
+        $referencia = 'PATS-'.$ahora->format('YmdHis').'-'.strtoupper(substr(md5(uniqid()), 0, 8));
+        $folio = 'ORD-'.$ahora->format('Ymd').'-'.strtoupper(substr(md5(uniqid()), 0, 6));
+        $mtx = preg_replace('/[^A-Za-z0-9]/', '', $referencia);
+        $correo = $user?->correo_usuario ?? ($data['email'] ?? '');
 
         $pasaporte = \Illuminate\Support\Facades\DB::table('pats_pasaportes')
             ->where('correo', $correo)
@@ -218,58 +231,58 @@ class ProsaPaymentController extends Controller
         $operacion = $pasaporte ? 'RENOVACION_PATS' : 'ALTA_PATS';
 
         $idOrden = \Illuminate\Support\Facades\DB::table('pats_ordenes_pago')->insertGetId([
-            'folio_orden'         => $folio,
-            'referencia_pago'     => $referencia,
-            'tipo_origen'         => 'PORTAL_CLIENTE',
-            'origen_checkout'     => 'PORTAL_CLIENTE',
-            'id_distribuidor'     => $pasaporte->id_distribuidor ?? 1,
-            'id_franquicia'       => $pasaporte->id_franquicia   ?? 1,
-            'id_pasaporte'        => $pasaporte->id_pasaporte    ?? null,
+            'folio_orden' => $folio,
+            'referencia_pago' => $referencia,
+            'tipo_origen' => 'PORTAL_CLIENTE',
+            'origen_checkout' => 'PORTAL_CLIENTE',
+            'id_distribuidor' => $pasaporte->id_distribuidor ?? 1,
+            'id_franquicia' => $pasaporte->id_franquicia ?? 1,
+            'id_pasaporte' => $pasaporte->id_pasaporte ?? null,
             'correo_usuario_pats' => $correo,
-            'id_tipo_precio'      => $data['id_tipo_precio'],
-            'tipo_operacion'      => $operacion,
-            'frecuencia'          => $data['frecuencia'],
-            'monto_orden'         => $data['amount'],
-            'monto_nominal_base'  => $data['amount'],
+            'id_tipo_precio' => $data['id_tipo_precio'],
+            'tipo_operacion' => $operacion,
+            'frecuencia' => $data['frecuencia'],
+            'monto_orden' => $data['amount'],
+            'monto_nominal_base' => $data['amount'],
             'monto_extra_recargo' => 0.00,
-            'moneda'              => 'MXN',
-            'estatus_orden'       => 'PENDIENTE',
-            'estatus_pago'        => 'PENDIENTE',
-            'proveedor_pasarela'  => 'PROSA',
-            'user_creo'           => $correo,
-            'fecha_orden'         => $ahora,
-            'created_at'          => $ahora,
-            'updated_at'          => $ahora,
+            'moneda' => 'MXN',
+            'estatus_orden' => 'PENDIENTE',
+            'estatus_pago' => 'PENDIENTE',
+            'proveedor_pasarela' => 'PROSA',
+            'user_creo' => $correo,
+            'fecha_orden' => $ahora,
+            'created_at' => $ahora,
+            'updated_at' => $ahora,
         ]);
 
         $checkout = ProsaPendingCheckout::create([
             'merchant_transaction_id' => $mtx,
-            'flow'                    => PagosRecurringCheckout::FLOW,
-            'status'                  => ProsaPendingCheckout::STATUS_PENDING,
-            'user_id'                 => $userId,
-            'amount'                  => $data['amount'],
-            'payload'                 => [
-                'id_orden'        => $idOrden,
-                'referencia'      => $referencia,
-                'folio'           => $folio,
-                'operacion'       => $operacion,
-                'correo_usuario'  => $correo,
-                'frecuencia'      => $data['frecuencia'],
-                'meses'           => (int) $data['meses'],
-                'id_tipo_precio'  => (int) $data['id_tipo_precio'],
-                'monto_orden'     => $data['amount'],
+            'flow' => PagosRecurringCheckout::FLOW,
+            'status' => ProsaPendingCheckout::STATUS_PENDING,
+            'user_id' => $userId,
+            'amount' => $data['amount'],
+            'payload' => [
+                'id_orden' => $idOrden,
+                'referencia' => $referencia,
+                'folio' => $folio,
+                'operacion' => $operacion,
+                'correo_usuario' => $correo,
+                'frecuencia' => $data['frecuencia'],
+                'meses' => (int) $data['meses'],
+                'id_tipo_precio' => (int) $data['id_tipo_precio'],
+                'monto_orden' => $data['amount'],
                 'monto_membresia' => (float) ($data['monto_membresia'] ?? $data['amount']),
-                'recargo'         => (float) ($data['recargo']         ?? 0),
-                'card_brand'      => $card->brand(),
-                'card_last4'      => $card->last4(),
-                'holder'          => $card->holder,
-                'expMonth'        => $card->expiryMonth,
-                'expYear'         => $card->expiryYear,
-                'curp'            => strtoupper($pasaporte->curp        ?? ''),
-                'nombres'         => $pasaporte->nombres                ?? '',
-                'apellido_pa'     => $pasaporte->apellido_pa            ?? '',
-                'apellido_ma'     => $pasaporte->apellido_ma            ?? null,
-                'fecha_nacimiento' => $pasaporte->fecha_nacimiento      ?? null,
+                'recargo' => (float) ($data['recargo'] ?? 0),
+                'card_brand' => $card->brand(),
+                'card_last4' => $card->last4(),
+                'holder' => $card->holder,
+                'expMonth' => $card->expiryMonth,
+                'expYear' => $card->expiryYear,
+                'curp' => strtoupper($pasaporte->curp ?? ''),
+                'nombres' => $pasaporte->nombres ?? '',
+                'apellido_pa' => $pasaporte->apellido_pa ?? '',
+                'apellido_ma' => $pasaporte->apellido_ma ?? null,
+                'fecha_nacimiento' => $pasaporte->fecha_nacimiento ?? null,
             ],
         ]);
 
@@ -278,16 +291,17 @@ class ProsaPaymentController extends Controller
             shopperResultUrl: route('prosa.3ds.return', ['mtx' => $mtx]),
             email: $correo ?: null,
             givenName: $card->holder,
+            billing: $data['billing'] ?? null,
             browser: $data['browser'] ?? null,
         );
 
         try {
             $result = $this->recurringService->startRecurring(
-                card:                  $card,
-                amount:                (float) $data['amount'],
-                currency:              config('prosa.currency'),
+                card: $card,
+                amount: (float) $data['amount'],
+                currency: config('prosa.currency'),
                 merchantTransactionId: $mtx,
-                extraParams:           $threeDs->toParams(),
+                extraParams: $threeDs->toParams(),
             );
         } catch (ProsaTimeoutException $e) {
             $checkout->update(['status' => ProsaPendingCheckout::STATUS_DECLINED]);
@@ -309,51 +323,51 @@ class ProsaPaymentController extends Controller
     public function oxxoSale(Request $request): JsonResponse
     {
         $data = $request->validate([
-            'amount'          => ['required', 'numeric', 'min:1'],
-            'email'           => ['required', 'email'],
-            'name'            => ['required', 'string', 'max:128'],
-            'frecuencia'      => ['required', 'in:MENSUAL,ANUAL'],
-            'meses'           => ['required', 'integer', 'min:1'],
-            'id_tipo_precio'  => ['required', 'integer'],
+            'amount' => ['required', 'numeric', 'min:1'],
+            'email' => ['required', 'email'],
+            'name' => ['required', 'string', 'max:128'],
+            'frecuencia' => ['required', 'in:MENSUAL,ANUAL'],
+            'meses' => ['required', 'integer', 'min:1'],
+            'id_tipo_precio' => ['required', 'integer'],
             'monto_membresia' => ['nullable', 'numeric', 'min:0'],
-            'recargo'         => ['nullable', 'numeric', 'min:0'],
+            'recargo' => ['nullable', 'numeric', 'min:0'],
         ]);
 
         $userId = $request->user('pasaporte')?->getKey() ?? $request->user()?->getKey();
-        $mtx    = $this->reference();
+        $mtx = $this->reference();
 
         // Separar nombre en givenName / surname para OPPWA.
-        $parts     = explode(' ', trim($data['name']), 2);
+        $parts = explode(' ', trim($data['name']), 2);
         $givenName = $parts[0];
-        $surname   = $parts[1] ?? $parts[0];
+        $surname = $parts[1] ?? $parts[0];
 
         // Crear el ProsaPendingCheckout con el contexto del plan.
         // El webhook usará este checkout para completar la renovación.
         $checkout = ProsaPendingCheckout::create([
             'merchant_transaction_id' => $mtx,
-            'flow'                    => PagosCheckout::FLOW,
-            'status'                  => ProsaPendingCheckout::STATUS_PENDING,
-            'user_id'                 => $userId,
-            'amount'                  => $data['amount'],
-            'payload'                 => [
-                'origen'          => 'oxxo',
-                'frecuencia'      => $data['frecuencia'],
-                'meses'           => (int) $data['meses'],
-                'id_tipo_precio'  => (int) $data['id_tipo_precio'],
+            'flow' => PagosCheckout::FLOW,
+            'status' => ProsaPendingCheckout::STATUS_PENDING,
+            'user_id' => $userId,
+            'amount' => $data['amount'],
+            'payload' => [
+                'origen' => 'oxxo',
+                'frecuencia' => $data['frecuencia'],
+                'meses' => (int) $data['meses'],
+                'id_tipo_precio' => (int) $data['id_tipo_precio'],
                 'monto_membresia' => (float) ($data['monto_membresia'] ?? $data['amount']),
-                'recargo'         => (float) ($data['recargo'] ?? 0),
-                'email'           => $data['email'],
-                'name'            => $data['name'],
+                'recargo' => (float) ($data['recargo'] ?? 0),
+                'email' => $data['email'],
+                'name' => $data['name'],
             ],
         ]);
 
         try {
             $result = $this->oxxoService->createVoucher([
-                'amount'                => (float) $data['amount'],
-                'email'                 => $data['email'],
-                'givenName'             => $givenName,
-                'surname'               => $surname,
-                'ip'                    => $request->ip(),
+                'amount' => (float) $data['amount'],
+                'email' => $data['email'],
+                'givenName' => $givenName,
+                'surname' => $surname,
+                'ip' => $request->ip(),
                 'merchantTransactionId' => $mtx,
             ]);
         } catch (ProsaTimeoutException) {
@@ -365,32 +379,32 @@ class ProsaPaymentController extends Controller
 
             return response()->json([
                 'success' => false,
-                'error'   => $e->getMessage(),
-                'code'    => $e->resultCode,
+                'error' => $e->getMessage(),
+                'code' => $e->resultCode,
             ], 400);
         }
 
         $checkout->update(['payment_id' => $result['paymentId']]);
 
         ProsaTransaction::create([
-            'user_id'      => $userId,
-            'payment_id'   => $result['paymentId'],
+            'user_id' => $userId,
+            'payment_id' => $result['paymentId'],
             'payment_type' => 'PA',
-            'amount'       => $data['amount'],
-            'currency'     => config('prosa.currency'),
-            'result_code'  => $result['resultCode'],
-            'brand'        => 'OXXO',
-            'status'       => 'pending',
-            'origen'       => 'oxxo',
+            'amount' => $data['amount'],
+            'currency' => config('prosa.currency'),
+            'result_code' => $result['resultCode'],
+            'brand' => 'OXXO',
+            'status' => 'pending',
+            'origen' => 'oxxo',
             'raw_response' => $result['raw'],
         ]);
 
         return response()->json([
-            'success'     => true,
-            'paymentId'   => $result['paymentId'],
-            'reference'   => $result['reference'],
+            'success' => true,
+            'paymentId' => $result['paymentId'],
+            'reference' => $result['reference'],
             'redirectUrl' => $result['redirectUrl'],
-            'amount'      => $data['amount'],
+            'amount' => $data['amount'],
         ]);
     }
 
@@ -401,7 +415,7 @@ class ProsaPaymentController extends Controller
     {
         $data = $request->validate([
             'paymentId' => ['required', 'string'],
-            'amount'    => ['required', 'numeric', 'min:0.01'],
+            'amount' => ['required', 'numeric', 'min:0.01'],
         ]);
 
         try {
@@ -415,16 +429,16 @@ class ProsaPaymentController extends Controller
         }
 
         ProsaTransaction::create([
-            'user_id'           => $request->user()?->id,
-            'payment_id'        => $result['paymentId'],
-            'payment_type'      => 'RF',
-            'amount'            => $data['amount'],
-            'currency'          => config('prosa.currency'),
-            'result_code'       => $result['resultCode'],
+            'user_id' => $request->user()?->id,
+            'payment_id' => $result['paymentId'],
+            'payment_type' => 'RF',
+            'amount' => $data['amount'],
+            'currency' => config('prosa.currency'),
+            'result_code' => $result['resultCode'],
             'result_description' => $result['resultDescription'],
-            'status'            => 'refunded',
-            'origen'            => 'refund',
-            'raw_response'      => $result['raw'],
+            'status' => 'refunded',
+            'origen' => 'refund',
+            'raw_response' => $result['raw'],
         ]);
 
         return response()->json(['success' => true, 'code' => $result['resultCode']]);
@@ -446,15 +460,15 @@ class ProsaPaymentController extends Controller
         }
 
         ProsaTransaction::create([
-            'user_id'           => $request->user()?->id,
-            'payment_id'        => $result['paymentId'],
-            'payment_type'      => 'RV',
-            'currency'          => config('prosa.currency'),
-            'result_code'       => $result['resultCode'],
+            'user_id' => $request->user()?->id,
+            'payment_id' => $result['paymentId'],
+            'payment_type' => 'RV',
+            'currency' => config('prosa.currency'),
+            'result_code' => $result['resultCode'],
             'result_description' => $result['resultDescription'],
-            'status'            => 'reversed',
-            'origen'            => 'reversal',
-            'raw_response'      => $result['raw'],
+            'status' => 'reversed',
+            'origen' => 'reversal',
+            'raw_response' => $result['raw'],
         ]);
 
         return response()->json(['success' => true, 'code' => $result['resultCode']]);
@@ -464,7 +478,7 @@ class ProsaPaymentController extends Controller
 
     private function reference(): string
     {
-        return 'PATS-' . now()->format('YmdHis') . '-' . strtoupper(substr(md5(uniqid()), 0, 8));
+        return 'PATS-'.now()->format('YmdHis').'-'.strtoupper(substr(md5(uniqid()), 0, 8));
     }
 
     /**
@@ -473,31 +487,31 @@ class ProsaPaymentController extends Controller
     private function logTransaction(string $origen, array $result, CardData $card): ProsaTransaction
     {
         return ProsaTransaction::create([
-            'user_id'            => request()->user('pasaporte')?->getKey() ?? request()->user()?->getKey(),
-            'registration_id'    => $result['registrationId'] ?? null,
-            'payment_id'         => $result['paymentId'],
-            'payment_type'       => 'DB',
-            'amount'             => $result['amount'],
-            'currency'           => $result['currency'] ?: config('prosa.currency'),
-            'result_code'        => $result['resultCode'],
+            'user_id' => request()->user('pasaporte')?->getKey() ?? request()->user()?->getKey(),
+            'registration_id' => $result['registrationId'] ?? null,
+            'payment_id' => $result['paymentId'],
+            'payment_type' => 'DB',
+            'amount' => $result['amount'],
+            'currency' => $result['currency'] ?: config('prosa.currency'),
+            'result_code' => $result['resultCode'],
             'result_description' => $result['resultDescription'],
-            'brand'              => $result['brand'] ?: $card->brand(),
-            'last4'              => $result['last4'] ?? $card->last4(),
-            'status'             => 'approved',
-            'origen'             => $origen,
-            'raw_response'       => $result['raw'],
+            'brand' => $result['brand'] ?: $card->brand(),
+            'last4' => $result['last4'] ?? $card->last4(),
+            'status' => 'approved',
+            'origen' => $origen,
+            'raw_response' => $result['raw'],
         ]);
     }
 
     private function logTimeout(string $origen, mixed $amount): void
     {
         ProsaTransaction::create([
-            'user_id'      => request()->user('pasaporte')?->getKey() ?? request()->user()?->getKey(),
+            'user_id' => request()->user('pasaporte')?->getKey() ?? request()->user()?->getKey(),
             'payment_type' => 'DB',
-            'amount'       => $amount,
-            'currency'     => config('prosa.currency'),
-            'status'       => 'timeout',
-            'origen'       => $origen,
+            'amount' => $amount,
+            'currency' => config('prosa.currency'),
+            'status' => 'timeout',
+            'origen' => $origen,
         ]);
     }
 
@@ -505,8 +519,8 @@ class ProsaPaymentController extends Controller
     {
         return response()->json([
             'success' => false,
-            'error'   => 'Timeout al procesar la transacción. Verifica el estado antes de reintentar.',
-            'code'    => 'TIMEOUT',
+            'error' => 'Timeout al procesar la transacción. Verifica el estado antes de reintentar.',
+            'code' => 'TIMEOUT',
         ], 504);
     }
 
@@ -514,8 +528,8 @@ class ProsaPaymentController extends Controller
     {
         return response()->json([
             'success' => false,
-            'error'   => $e->getMessage(),
-            'code'    => $e->resultCode,
+            'error' => $e->getMessage(),
+            'code' => $e->resultCode,
         ], 400);
     }
 }
