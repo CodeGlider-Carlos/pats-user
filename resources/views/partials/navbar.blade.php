@@ -85,15 +85,17 @@
 
                 {{-- USUARIO --}}
                 <div class="digi-dropdown">
-                    @php 
-                        $navUser = auth()->user() ?? auth('pasaporte')->user(); 
+                    @php
+                        $navUser = auth()->user() ?? auth('pasaporte')->user();
                         $navFoto = null;
+                        $navPasaporte = null;
                         if ($navUser && $navUser->id_pasaporte) {
                             $navPasaporte = \Illuminate\Support\Facades\DB::table('pats_pasaportes')->where('id_pasaporte', $navUser->id_pasaporte)->first();
                             if ($navPasaporte && isset($navPasaporte->foto_usuario) && $navPasaporte->foto_usuario) {
                                 $navFoto = $navPasaporte->foto_usuario;
                             }
                         }
+                        $pagosEnabled = strtoupper((string) optional($navPasaporte)->tipo_cliente) !== 'EMPRESA';
                     @endphp
                     @if($navUser)
                     <button class="digi-user-btn" data-dropdown="user">
@@ -210,8 +212,9 @@
                     </a>
                 </li>
                 <li class="digi-nav__item">
-                    <a href="javascript:void(0)"
-                        class="digi-nav__link" style="cursor: not-allowed; opacity: 0.5; pointer-events: none;">
+                    <a href="{{ $pagosEnabled ? route('pagos') : 'javascript:void(0)' }}"
+                        class="digi-nav__link {{ $pagosEnabled && request()->routeIs('pagos') ? 'is-active' : '' }}"
+                        @unless ($pagosEnabled) style="cursor: not-allowed; opacity: 0.5; pointer-events: none;" @endunless>
                         <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                             stroke-width="2">
                             <rect x="1" y="4" width="22" height="16" rx="2" />
@@ -255,8 +258,9 @@
                 </svg>
                 <span>Agenda</span>
             </a>
-            <a href="javascript:void(0)"
-                class="digi-fab__item" style="cursor: not-allowed; opacity: 0.5; pointer-events: none;">
+            <a href="{{ $pagosEnabled ? route('pagos') : 'javascript:void(0)' }}"
+                class="digi-fab__item {{ $pagosEnabled && request()->routeIs('pagos') ? 'is-active' : '' }}"
+                @unless ($pagosEnabled) style="cursor: not-allowed; opacity: 0.5; pointer-events: none;" @endunless>
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                     stroke-width="2">
                     <rect x="1" y="4" width="22" height="16" rx="2" />
@@ -307,8 +311,9 @@
             </div>
             <span>Agenda</span>
         </a>
-        <a href="javascript:void(0)"
-            class="digi-bottom-nav__item" style="cursor: not-allowed; opacity: 0.5; pointer-events: none;">
+        <a href="{{ $pagosEnabled ? route('pagos') : 'javascript:void(0)' }}"
+            class="digi-bottom-nav__item {{ $pagosEnabled && request()->routeIs('pagos') ? 'is-active' : '' }}"
+            @unless ($pagosEnabled) style="cursor: not-allowed; opacity: 0.5; pointer-events: none;" @endunless>
             <div class="digi-bottom-nav__icon-wrap">
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <rect x="1" y="4" width="22" height="16" rx="2"/>

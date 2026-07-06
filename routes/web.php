@@ -21,13 +21,14 @@ use App\Http\Controllers\Pats\StripeDistribucionController;
 use App\Http\Controllers\Pats\StripeDistribucionLinkController;
 use App\Http\Controllers\Pats\StripeFranquiciaController;
 use App\Http\Controllers\Pats\StripePatsController;
+use App\Http\Controllers\EncuestaController;
 use App\Http\Controllers\PerfilController;
 use App\Http\Controllers\Portal\PortalAccesoController;
 use App\Http\Controllers\Portal\PortalPasaporteController;
-use App\Http\Controllers\ResenaController;
 use App\Http\Controllers\ServiciosController;
 use App\Http\Controllers\SoporteController;
-use App\Models\AgendaPatsDemo;
+use App\Models\TarjetaMisional;
+use App\Support\EncuestaPats;
 use Illuminate\Support\Facades\Route;
 
 // ──────────────────────────────────────────────────────────────────────────────
@@ -81,24 +82,39 @@ Route::middleware('auth:pasaporte')->group(function () {
                 ->first();
         }
 
-        // Al iniciar sesión, busca una cita completada sin reseña para pedir feedback.
-        $resenaPendiente = null;
-        if ($pasaporte && ! empty($pasaporte->curp)) {
-            $resenaPendiente = AgendaPatsDemo::query()
-                ->pendienteResena($pasaporte->curp)
-                ->orderByDesc('fecha_programada')
-                ->orderByDesc('hora_inicio')
-                ->first();
+        // Al iniciar sesión, busca una tarjeta misional cerrada (activo = 0)
+        // sin reseña para lanzar la encuesta de satisfacción.
+        $encuestaPendiente = null;
+        if ($pasaporte && ! empty($pasaporte->code_pasaporte)) {
+            try {
+                $tarjeta = TarjetaMisional::query()
+                    ->pendientes($pasaporte->code_pasaporte)
+                    ->orderByDesc('id')
+                    ->first();
+
+                if ($tarjeta) {
+                    $tipo = EncuestaPats::clasificarServicio($tarjeta->modelo);
+                    $encuestaPendiente = [
+                        'id_tarjeta' => (int) $tarjeta->id,
+                        'tipo' => $tipo,
+                        'tipo_label' => EncuestaPats::etiquetaTipo($tipo),
+                        'modelo' => $tarjeta->modelo,
+                        'preguntas' => EncuestaPats::preguntasParaTipo($tipo),
+                    ];
+                }
+            } catch (\Throwable $e) {
+                report($e);
+            }
         }
 
-        return view('servicios.index', compact('user', 'pasaporte', 'resenaPendiente'));
+        return view('servicios.index', compact('user', 'pasaporte', 'encuestaPendiente'));
     })->name('servicios');
 
     Route::get('/pasaporte', [PasaporteController::class,  'index'])->name('pasaporte');
     Route::get('/pagos', [PagosController::class,      'index'])->name('pagos');
 
-    // Reseña de citas completadas (modal del dashboard)
-    Route::post('/servicios/resena', [ResenaController::class, 'guardar'])->name('servicios.resena');
+    // Encuesta de satisfacción tras alta (modal del dashboard)
+    Route::post('/servicios/encuesta', [EncuestaController::class, 'guardar'])->name('servicios.encuesta');
 
     Route::get('/perfil', [PerfilController::class, 'show'])->name('perfil');
     Route::get('/perfil/foto', [PerfilController::class, 'servirFoto'])->name('perfil.foto');

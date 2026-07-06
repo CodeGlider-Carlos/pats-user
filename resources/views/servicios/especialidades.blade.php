@@ -885,10 +885,12 @@
                                                 </span>
                                             @endif
                                         </div>
-                                        <span class="med-card__price">
-                                            <i class="mdi mdi-currency-usd" style="font-size:15px;"></i>
-                                            Consulta $390
-                                        </span>
+                                        @if (!is_null($medico->precio_consulta))
+                                            <span class="med-card__price">
+                                                <i class="mdi mdi-currency-usd" style="font-size:15px;"></i>
+                                                Consulta ${{ number_format($medico->precio_consulta, 0) }}
+                                            </span>
+                                        @endif
                                     </div>
                                 </div>
 
