@@ -367,7 +367,7 @@
                 </div>
                 <div class="exp-patient__id">
                     <i class="mdi mdi-identifier"></i>
-                    #PATS-{{ str_pad($pasaporte->id_pasaporte, 8, '0', STR_PAD_LEFT) }}
+                    #{{ str_pad($pasaporte->code_pasaporte, 8, '0', STR_PAD_LEFT) }}
                     &nbsp;·&nbsp;
                     CURP: {{ $pasaporte->curp }}
                 </div>

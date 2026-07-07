@@ -14,7 +14,6 @@ class ExpedienteController extends Controller
             ->where('token_qr', $token)
             ->where('activo', 1)
             ->first();
-
         abort_if(! $pasaporte, 404, 'Expediente no encontrado.');
 
         $historiaClinica = PatsHistoriaClinica::where('id_pasaporte', $pasaporte->id_pasaporte)->first();
