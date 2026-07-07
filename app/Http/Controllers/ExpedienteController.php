@@ -21,7 +21,19 @@ class ExpedienteController extends Controller
 
         $edad = Carbon::parse($pasaporte->fecha_nacimiento)->age;
 
-        return view('expediente.show', compact('pasaporte', 'historiaClinica', 'edad'));
+        $diasVigencia = $pasaporte->fecha_vencimiento_real
+            ? (int) now()->diffInDays(Carbon::parse($pasaporte->fecha_vencimiento_real), false)
+            : null;
+
+        [$estadoColor, $estadoTexto] = match (true) {
+            strtolower($pasaporte->estatus) === 'vencido' => ['danger', 'Vencido'],
+            $diasVigencia !== null && $diasVigencia < 0 => ['danger', 'Vencido'],
+            $diasVigencia !== null && $diasVigencia <= 7 => ['warning', 'Por vencer'],
+            strtolower($pasaporte->estatus) === 'activo' => ['success', 'Vigente'],
+            default => ['secondary', 'Inactivo'],
+        };
+
+        return view('expediente.show', compact('pasaporte', 'historiaClinica', 'edad', 'estadoColor', 'estadoTexto'));
     }
 
     public function foto(string $token): mixed

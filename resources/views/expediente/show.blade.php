@@ -172,6 +172,11 @@
             color: #6ee7b7;
         }
 
+        .exp-patient__status--warning {
+            background: rgba(245,158,11,.25);
+            color: #fcd34d;
+        }
+
         .exp-patient__status--inactive {
             background: rgba(220,38,38,.2);
             color: #fca5a5;
@@ -366,15 +371,16 @@
                     &nbsp;·&nbsp;
                     CURP: {{ $pasaporte->curp }}
                 </div>
-                @if ($pasaporte->estatus === 'activo' || $pasaporte->estatus === 'ACTIVO')
-                    <span class="exp-patient__status exp-patient__status--active">
-                        <i class="mdi mdi-check-circle"></i> Pasaporte vigente
-                    </span>
-                @else
-                    <span class="exp-patient__status exp-patient__status--inactive">
-                        <i class="mdi mdi-alert-circle"></i> Pasaporte {{ $pasaporte->estatus }}
-                    </span>
-                @endif
+                @php
+                    [$estadoClase, $estadoIcono] = match ($estadoColor) {
+                        'success' => ['exp-patient__status--active', 'mdi-check-circle'],
+                        'warning' => ['exp-patient__status--warning', 'mdi-clock-alert-outline'],
+                        default   => ['exp-patient__status--inactive', 'mdi-alert-circle'],
+                    };
+                @endphp
+                <span class="exp-patient__status {{ $estadoClase }}">
+                    <i class="mdi {{ $estadoIcono }}"></i> Pasaporte {{ strtolower($estadoTexto) }}
+                </span>
             </div>
         </div>
 
