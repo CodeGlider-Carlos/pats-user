@@ -2,26 +2,27 @@
 
 namespace App\Http\Controllers;
 
-use App\DTO\Feenicia\OneStepSaleData;
-use App\Exceptions\Feenicia\FeeniciaException;
-use App\Exceptions\Feenicia\FeeniciaTimeoutException;
+use App\DTO\Prosa\CardData;
+use App\DTO\Prosa\ChargeData;
+use App\DTO\Prosa\ThreeDSData;
+use App\Exceptions\Prosa\ProsaTimeoutException;
 use App\Mail\RenovacionAvisoMail;
-use App\Services\Feenicia\OneStepSaleService;
-use App\Services\Feenicia\ReversalService;
+use App\Models\ProsaPendingCheckout;
+use App\Services\Prosa\Checkout\CheckoutManager;
+use App\Services\Prosa\Checkout\PagosRenovacionCheckout;
+use App\Services\Prosa\PaymentService;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
-use Stripe\PaymentIntent;
-use Stripe\Stripe;
 
 class PagosController extends Controller
 {
     public function __construct(
-        private readonly OneStepSaleService $oneStepSaleService,
-        private readonly ReversalService $reversalService,
+        private readonly PaymentService $paymentService,
+        private readonly CheckoutManager $checkoutManager,
     ) {}
 
     public function index()
@@ -37,17 +38,17 @@ class PagosController extends Controller
 
         // Historial: registros antiguos en pats_pagos_pasaporte + nuevos en pats_pagos_detalle
         $mapEstatus = static fn (string $e): string => match (strtolower($e)) {
-            'confirmado'           => 'Pagado',
-            'pendiente_oxxo'       => 'Pendiente Oxxo',
+            'confirmado' => 'Pagado',
+            'pendiente_oxxo' => 'Pendiente Oxxo',
             'pendiente_validacion' => 'Pendiente Validacion',
-            'pendiente'            => 'Pendiente',
-            'rechazado'            => 'Rechazado',
-            default                => ucfirst($e),
+            'pendiente' => 'Pendiente',
+            'rechazado' => 'Rechazado',
+            default => ucfirst($e),
         };
         $mapProducto = static fn (string $t): string => match (strtoupper($t)) {
-            'ALTA_PATS'       => 'Alta Pasaporte PATS',
+            'ALTA_PATS' => 'Alta Pasaporte PATS',
             'RENOVACION_PATS' => 'Renovación Pasaporte PATS',
-            default           => 'Membresía PATS',
+            default => 'Membresía PATS',
         };
 
         $pagosAntiguos = DB::table('pats_pagos_pasaporte')
@@ -55,16 +56,16 @@ class PagosController extends Controller
             ->orderBy('fecha_pago', 'desc')
             ->get()
             ->map(fn ($p) => [
-                'folio'      => $p->referencia_pago ?? 'PATS-'.str_pad($p->id, 4, '0', STR_PAD_LEFT),
-                'producto'   => $mapProducto($p->tipo_operacion ?? ''),
-                'fecha'      => $p->fecha_pago ? Carbon::parse($p->fecha_pago)->format('d/m/Y') : '—',
+                'folio' => $p->referencia_pago ?? 'PATS-'.str_pad($p->id, 4, '0', STR_PAD_LEFT),
+                'producto' => $mapProducto($p->tipo_operacion ?? ''),
+                'fecha' => $p->fecha_pago ? Carbon::parse($p->fecha_pago)->format('d/m/Y') : '—',
                 'fecha_sort' => $p->fecha_pago,
-                'monto'      => (float) $p->monto,
-                'metodo'     => ucwords(str_replace('_', ' ', $p->metodo_pago ?? $p->proveedor_pasarela ?? 'Tarjeta')),
-                'estatus'    => $mapEstatus($p->estatus_pago ?? 'Pagado'),
+                'monto' => (float) $p->monto,
+                'metodo' => ucwords(str_replace('_', ' ', $p->metodo_pago ?? $p->proveedor_pasarela ?? 'Tarjeta')),
+                'estatus' => $mapEstatus($p->estatus_pago ?? 'Pagado'),
                 'frecuencia' => ucfirst(strtolower($p->frecuencia ?? '')),
-                'authnum'    => $p->referencia_externa ?? null,
-                'proveedor'  => $p->proveedor_pasarela ?? null,
+                'authnum' => $p->referencia_externa ?? null,
+                'proveedor' => $p->proveedor_pasarela ?? null,
             ]);
 
         $idsPasaporte = DB::table('pats_pasaportes')
@@ -76,23 +77,23 @@ class PagosController extends Controller
             ->orderBy('created_at', 'desc')
             ->get()
             ->map(fn ($p) => [
-                'folio'      => $p->referencia_pago ?? 'DET-'.str_pad($p->id_detalle, 4, '0', STR_PAD_LEFT),
-                'producto'   => $mapProducto($p->tipo_pago ?? ''),
-                'fecha'      => $p->created_at ? Carbon::parse($p->created_at)->format('d/m/Y') : '—',
+                'folio' => $p->referencia_pago ?? 'DET-'.str_pad($p->id_detalle, 4, '0', STR_PAD_LEFT),
+                'producto' => $mapProducto($p->tipo_pago ?? ''),
+                'fecha' => $p->created_at ? Carbon::parse($p->created_at)->format('d/m/Y') : '—',
                 'fecha_sort' => $p->created_at,
-                'monto'      => (float) ($p->monto_decimal ?? 0),
-                'metodo'     => ucwords(str_replace('_', ' ', $p->metodo_pago ?? $p->pasarela ?? 'Tarjeta')),
-                'estatus'    => $mapEstatus($p->estatus_pago ?? 'confirmado'),
+                'monto' => (float) ($p->monto_decimal ?? 0),
+                'metodo' => ucwords(str_replace('_', ' ', $p->metodo_pago ?? $p->pasarela ?? 'Tarjeta')),
+                'estatus' => $mapEstatus($p->estatus_pago ?? 'confirmado'),
                 'frecuencia' => ucfirst(strtolower($p->frecuencia ?? '')),
-                'authnum'    => $p->referencia_pasarela ?? null,
-                'proveedor'  => $p->pasarela ?? null,
+                'authnum' => $p->referencia_pasarela ?? null,
+                'proveedor' => $p->pasarela ?? null,
             ]);
 
         $pagos = $pagosNuevos->concat($pagosAntiguos)
             ->sortByDesc('fecha_sort')
             ->values();
 
-        return view('feenicia.payment', [
+        return view('pagos.payment', [
             'user' => $user,
             'pasaporte' => $pasaporte,
             'pagos' => $pagos,
@@ -105,30 +106,23 @@ class PagosController extends Controller
     public function procesar(Request $request): JsonResponse
     {
         $request->validate([
-            'nombre_usuario' => ['required', 'string'],
-            'apellido_pa' => ['required', 'string'],
-            'apellido_ma' => ['nullable', 'string'],
-            'curp_usuario' => ['required', 'string', 'max:18'],
-            'fecha_nacimiento' => ['required', 'date'],
-            'telefono_usuario' => ['required', 'string'],
-            'tipo_cliente' => ['required', 'in:privado,empresa'],
-            'dom_calle' => ['required', 'string'],
-            'dom_num_ext' => ['required', 'string'],
-            'dom_colonia' => ['required', 'string'],
-            'dom_cp' => ['required', 'string'],
-            'dom_municipio' => ['required', 'string'],
-            'dom_estado' => ['required', 'string'],
-            'dom_pais' => ['required', 'string'],
             'frecuencia' => ['required', 'in:MENSUAL,ANUAL'],
             'monto_orden' => ['required', 'numeric', 'min:1'],
             'id_tipo_precio' => ['required', 'integer'],
+            'meses' => ['nullable', 'integer', 'min:1'],
+            'monto_membresia' => ['nullable', 'numeric', 'min:0'],
+            'recargo' => ['nullable', 'numeric', 'min:0'],
             'pan' => ['required', 'string'],
             'cardholderName' => ['required', 'string'],
             'cvv2' => ['required', 'string', 'min:3', 'max:4'],
-            'expDate' => ['required', 'string', 'size:4'],
+            'expMonth' => ['required', 'string', 'max:2'],
+            'expYear' => ['required', 'string', 'max:4'],
+            'saveCard' => ['nullable', 'boolean'],
+            'alias' => ['nullable', 'string', 'max:50'],
+            'browser' => ['nullable', 'array'],
         ]);
 
-        $user = auth()->user();
+        $user = auth('pasaporte')->user();
         $ahora = Carbon::now();
         $referencia = 'PATS-'.$ahora->format('YmdHis').'-'.strtoupper(substr(md5(uniqid()), 0, 8));
         $folio = 'ORD-'.$ahora->format('Ymd').'-'.strtoupper(substr(md5(uniqid()), 0, 6));
@@ -140,7 +134,9 @@ class PagosController extends Controller
             ->first();
 
         $operacion = $pasaporte ? 'RENOVACION_PATS' : 'ALTA_PATS';
+        $saveCard = (bool) $request->input('saveCard', false);
 
+        // ── 1. Crear orden PENDIENTE ───────────────────────────────────────────
         $idOrden = DB::table('pats_ordenes_pago')->insertGetId([
             'folio_orden' => $folio,
             'referencia_pago' => $referencia,
@@ -150,12 +146,6 @@ class PagosController extends Controller
             'id_franquicia' => $pasaporte->id_franquicia ?? 1,
             'id_pasaporte' => $pasaporte->id_pasaporte ?? null,
             'correo_usuario_pats' => $user->correo_usuario,
-            'curp_usuario' => strtoupper($request->curp_usuario),
-            'nombre_usuario' => $request->nombre_usuario,
-            'apellido_pa' => $request->apellido_pa,
-            'apellido_ma' => $request->apellido_ma,
-            'fecha_nacimiento' => $request->fecha_nacimiento,
-            'telefono_usuario' => $request->telefono_usuario,
             'id_tipo_precio' => $request->id_tipo_precio,
             'tipo_operacion' => $operacion,
             'frecuencia' => $request->frecuencia,
@@ -163,234 +153,129 @@ class PagosController extends Controller
             'monto_nominal_base' => $request->monto_orden,
             'monto_extra_recargo' => 0.00,
             'moneda' => 'MXN',
-            'pais' => $request->dom_pais,
-            'region' => $request->dom_estado,
-            'zona' => $request->dom_municipio,
-            'tipo_cliente' => $request->tipo_cliente,
-            'nombre_empresa' => $request->nombre_empresa,
             'estatus_orden' => 'PENDIENTE',
             'estatus_pago' => 'PENDIENTE',
-            'proveedor_pasarela' => 'FEENICIA',
+            'proveedor_pasarela' => 'PROSA',
             'user_creo' => $user->correo_usuario,
             'fecha_orden' => $ahora,
             'created_at' => $ahora,
             'updated_at' => $ahora,
         ]);
 
+        // ── 2. Preparar tarjeta y checkout ────────────────────────────────────
+        $card = CardData::fromForm(
+            number: $request->pan,
+            holder: $request->cardholderName,
+            expMonth: $request->expMonth,
+            expYear: $request->expYear,
+            cvv: $request->cvv2,
+        );
+
+        $mtx = preg_replace('/[^A-Za-z0-9]/', '', $referencia);
+
+        $checkout = ProsaPendingCheckout::create([
+            'merchant_transaction_id' => $mtx,
+            'flow' => PagosRenovacionCheckout::FLOW,
+            'status' => ProsaPendingCheckout::STATUS_PENDING,
+            'user_id' => $user->getKey(),
+            'amount' => $request->monto_orden,
+            'payload' => [
+                'id_orden' => $idOrden,
+                'referencia' => $referencia,
+                'folio' => $folio,
+                'operacion' => $operacion,
+                'frecuencia' => $request->frecuencia,
+                'monto_orden' => $request->monto_orden,
+                'id_tipo_precio' => $request->id_tipo_precio,
+                'meses' => max(1, (int) $request->input('meses', 1)),
+                'monto_membresia' => (float) $request->input('monto_membresia', $request->monto_orden),
+                'recargo' => (float) $request->input('recargo', 0),
+                'saveCard' => $saveCard,
+                'alias' => $request->alias,
+                'card_brand' => $card->brand(),
+                'card_last4' => $card->last4(),
+                'holder' => $card->holder,
+                'expMonth' => $card->expiryMonth,
+                'expYear' => $card->expiryYear,
+                // Datos del titular para ALTA_PATS (cuando no hay pasaporte aún)
+                'curp' => strtoupper($pasaporte->curp ?? ''),
+                'nombres' => $pasaporte->nombres ?? $user->nombre ?? '',
+                'apellido_pa' => $pasaporte->apellido_pa ?? '',
+                'apellido_ma' => $pasaporte->apellido_ma ?? null,
+                'fecha_nacimiento' => $pasaporte->fecha_nacimiento ?? null,
+            ],
+        ]);
+
+        // ── 3. Iniciar cobro con 3DS ───────────────────────────────────────────
+        $threeDs = ThreeDSData::fromRequest(
+            request: $request,
+            shopperResultUrl: route('prosa.3ds.return', ['mtx' => $mtx]),
+            email: $user->correo_usuario ?? null,
+            givenName: $card->holder,
+            browser: $request->input('browser'),
+        );
+
         try {
-            $resultado = $this->oneStepSaleService->execute(new OneStepSaleData(
-                affiliation: config('feenicia.affiliation'),
+            $result = $this->paymentService->initiate(new ChargeData(
+                card: $card,
                 amount: (float) $request->monto_orden,
-                transactionDate: (int) (microtime(true) * 1000),
-                pan: $request->pan,
-                cardholderName: $request->cardholderName,
-                cvv2: $request->cvv2,
-                expDate: $request->expDate,
-                userId: config('feenicia.user'),
-                tip: '0.0',
-            ));
-        } catch (FeeniciaTimeoutException $e) {
+                currency: config('prosa.currency'),
+                merchantTransactionId: $mtx,
+                createRegistration: $saveCard,
+            ), $threeDs);
+        } catch (ProsaTimeoutException $e) {
+            $checkout->update(['status' => ProsaPendingCheckout::STATUS_DECLINED]);
             DB::table('pats_ordenes_pago')->where('id_orden', $idOrden)->update([
-                'estatus_orden' => 'FALLIDA',
-                'estatus_pago' => 'TIMEOUT',
-                'error_integracion' => 'Timeout',
-                'updated_at' => now(),
+                'estatus_orden' => 'FALLIDA', 'estatus_pago' => 'TIMEOUT',
+                'error_integracion' => 'Timeout', 'updated_at' => now(),
             ]);
-            try {
-                $this->reversalService->executeFromTimeout($e);
-            } catch (\Throwable) {
-            }
 
             return response()->json(['success' => false, 'error' => 'Timeout al procesar el pago.', 'code' => 'TIMEOUT'], 504);
-        } catch (FeeniciaException $e) {
-            DB::table('pats_ordenes_pago')->where('id_orden', $idOrden)->update([
-                'estatus_orden' => 'FALLIDA',
-                'estatus_pago' => 'RECHAZADO',
-                'error_integracion' => $e->getMessage(),
-                'updated_at' => now(),
-            ]);
-
-            return response()->json(['success' => false, 'error' => $e->getMessage(), 'code' => $e->responseCode], 400);
         }
 
-        return DB::transaction(function () use ($request, $user, $pasaporte, $resultado, $idOrden, $referencia, $folio, $ahora, $operacion) {
+        $checkout->update(['payment_id' => $result['paymentId'] ?? null]);
 
-            $transactionId = $resultado['transactionId'];
-            $authnum = $resultado['authnum'];
-            $cardBrand = $resultado['card']['brand'] ?? 'CARD';
-            $cardLast4 = $resultado['card']['last4Digits'] ?? '????';
-            $frecuencia = strtoupper($request->frecuencia);
-            $meses = max(1, (int) ($request->input('_pats_meses', 1)));
-            $montoMembresia = (float) ($request->input('_pats_monto_membresia', $request->monto_orden));
-            $montoRecargo = (float) ($request->input('_pats_recargo', 0));
-            // Opción A: recargo recupera meses vencidos
-            $mesesVencidos = (int) ($pasaporte->meses_vencidos ?? 0);
-            $vigActiva = $pasaporte && ! empty($pasaporte->vigencia) && Carbon::parse($pasaporte->vigencia)->gt($ahora);
-            if ($vigActiva) {
-                $baseVig = Carbon::parse($pasaporte->vigencia)->startOfDay();
-                $mesesTotal = $meses;
-            } elseif ($pasaporte && $mesesVencidos > 0 && ! empty($pasaporte->fecha_vencimiento_real)) {
-                $baseVig = Carbon::parse($pasaporte->fecha_vencimiento_real)->startOfDay();
-                $mesesTotal = $meses + $mesesVencidos;
-            } else {
-                $baseVig = $ahora->copy();
-                $mesesTotal = $meses;
-            }
-            $vigencia = $baseVig->copy()->addMonths($mesesTotal)->toDateString();
-            $vencReal = $baseVig->copy()->addMonths($mesesTotal)->endOfDay();
-
-            if ($pasaporte) {
-                DB::table('pats_pasaportes')->where('id_pasaporte', $pasaporte->id_pasaporte)->update([
-                    'vigencia' => $vigencia,
-                    'frecuencia_pago' => $frecuencia,
-                    'estatus' => 'activo',
-                    'valor_pasaporte' => $montoMembresia,
-                    'valor_final_pasaporte' => $montoMembresia,
-                    'fecha_ultimo_pago' => $ahora,
-                    'fecha_vencimiento_real' => $vencReal,
-                    'meses_vencidos' => 0,      // resetear meses vencidos
-                    'recargo_acumulado' => 0.00,   // resetear recargo tras pago
-                    'updated_at' => $ahora,
-                ]);
-                $idPasaporte = $pasaporte->id_pasaporte;
-            } else {
-                $idPasaporte = DB::table('pats_pasaportes')->insertGetId([
-                    'id_franquicia' => 1,
-                    'id_distribuidor' => 1,
-                    'id_tipo_precio' => $request->id_tipo_precio,
-                    'curp' => strtoupper($request->curp_usuario),
-                    'nombres' => $request->nombre_usuario,
-                    'apellido_pa' => $request->apellido_pa,
-                    'apellido_ma' => $request->apellido_ma ?? '',
-                    'fecha_nacimiento' => $request->fecha_nacimiento,
-                    'telefono' => $request->telefono_usuario,
-                    'correo' => $user->correo_usuario,
-                    'fecha_alta' => $ahora,
-                    'vigencia' => $vigencia,
-                    'frecuencia_pago' => $frecuencia,
-                    'estatus' => 'activo',
-                    'valor_pasaporte' => $request->monto_orden,
-                    'valor_final_pasaporte' => $request->monto_orden,
-                    'pais' => $request->dom_pais,
-                    'region' => $request->dom_estado,
-                    'zona' => $request->dom_municipio,
-                    'tipo_cliente' => $request->tipo_cliente,
-                    'nombre_empresa' => $request->nombre_empresa,
-                    'fecha_ultimo_pago' => $ahora,
-                    'fecha_vencimiento_real' => $vencReal,
-                    'meses_vencidos' => 0,
-                    'recargo_acumulado' => 0.00,
-                    'activo' => 1,
-                    'created_at' => $ahora,
-                    'updated_at' => $ahora,
-                ]);
-            }
-
-            DB::table('pats_ordenes_pago')->where('id_orden', $idOrden)->update([
-                'id_pasaporte' => $idPasaporte,
-                'estatus_orden' => 'PAGADA',
-                'estatus_pago' => 'CONFIRMADO',
-                'transaccion_id_externa' => (string) $transactionId,
-                'payment_intent_id' => $authnum,
-                'pasaporte_creado' => 1,
-                'id_pasaporte_generado' => $idPasaporte,
-                'fecha_alta_pasaporte' => $ahora,
-                'procesado_integracion' => 1,
-                'fecha_procesamiento_integracion' => $ahora,
-                'intentos_procesamiento' => 1,
-                'fecha_pago' => $ahora,
-                'fecha_confirmacion' => $ahora,
-                'payload_confirmacion_json' => json_encode($resultado),
-                'user_confirmo' => $user->correo_usuario,
-                'updated_at' => $ahora,
+        // ── 4. Resolver estado ────────────────────────────────────────────────
+        if ($result['status'] === 'challenge') {
+            $checkout->update([
+                'status' => ProsaPendingCheckout::STATUS_CHALLENGE,
+                'redirect' => $result['redirect'],
             ]);
-
-            $this->registrarPagoEnDetalle([
-                'id_orden'             => $idOrden,
-                'id_pasaporte'         => $idPasaporte,
-                'pasarela'             => 'FEENICIA',
-                'referencia_pasarela'  => (string) $transactionId,
-                'referencia_pago'      => $referencia,
-                'referencia_interna'   => $authnum,
-                'metodo_pago'          => 'tarjeta_'.$cardBrand,
-                'tipo_pago'            => $operacion,
-                'frecuencia'           => strtoupper($request->frecuencia),
-                'monto_decimal'        => $request->monto_orden,
-                'estatus_pago'         => 'confirmado',
-                'token_pasarela'       => $authnum,
-                'observaciones'        => "Feenicia Auth:{$authnum} {$cardBrand}···{$cardLast4}",
-                'payload_response_json' => json_encode($resultado),
-                'created_at'           => $ahora,
-                'updated_at'           => $ahora,
-            ]);
-
-            $reglas = DB::table('pats_reglas_comision')
-                ->where('tipo_operacion', 'pasaporte')->where('subtipo_operacion', 'membresia')
-                ->where('modalidad_pago', strtolower($request->frecuencia))
-                ->where('activo', 1)->whereNull('vigencia_fin')->get();
-
-            foreach ($reglas as $regla) {
-                $mc = $regla->tipo_calculo === 'monto_fijo' ? (float) $regla->valor_calculo : round((float) $request->monto_orden * (float) $regla->valor_calculo / 100, 2);
-                $tipo = match ($regla->beneficiario) {
-                    'admin' => 'corpo',
-                    'unidad' => 'unidad',
-                    'franquicia' => 'franquicia',
-                    'distribuidor' => 'distribuidor',
-                    default => 'corpo'
-                };
-                $idRel = match ($regla->beneficiario) {
-                    'franquicia' => $pasaporte->id_franquicia ?? 1,
-                    'distribuidor' => $pasaporte->id_distribuidor ?? 1,
-                    default => 1
-                };
-
-                if (in_array($regla->beneficiario, ['franquicia', 'distribuidor'])) {
-                    DB::table('pats_comisiones_generadas')->insert([
-                        'tipo_origen' => 'pago_pasaporte',
-                        'id_origen' => $idOrden,
-                        'id_regla' => $regla->id_regla,
-                        'beneficiario_tipo' => $regla->beneficiario,
-                        'beneficiario_id' => $idRel,
-                        'monto_comision' => $mc,
-                        'monto_aplicado_deuda' => 0,
-                        'monto_liberado' => 0,
-                        'moneda' => 'MXN',
-                        'fecha_generacion' => $ahora,
-                        'created_at' => $ahora,
-                        'updated_at' => $ahora,
-                    ]);
-                }
-                DB::table('pats_movimientos_financieros')->insert([
-                    'tipo' => $tipo,
-                    'id_relacionado' => $idRel,
-                    'id_pasaporte' => $idPasaporte,
-                    'monto' => $mc,
-                    'tipo_movimiento' => "comision_pats_{$regla->beneficiario}",
-                    'referencia' => $referencia,
-                    'estatus' => in_array($regla->beneficiario, ['admin', 'unidad']) ? 'pagado' : 'pendiente',
-                    'fecha_generado' => $ahora,
-                    'moneda' => 'MXN',
-                    'observaciones' => "Feenicia Auth:{$authnum} | {$regla->beneficiario}",
-                    'origen_tabla' => 'pats_ordenes_pago',
-                    'origen_id' => $idOrden,
-                    'created_at' => $ahora,
-                    'updated_at' => $ahora,
-                ]);
-            }
 
             return response()->json([
                 'success' => true,
-                'transactionId' => $transactionId,
-                'authnum' => $authnum,
-                'referencia' => $referencia,
-                'folio' => $folio,
-                'idPasaporte' => $idPasaporte,
-                'card' => ['brand' => $cardBrand, 'last4' => $cardLast4],
-                'monto' => $request->monto_orden,
-                'vigencia' => $vigencia,
-                'operacion' => $operacion,
+                'status' => 'challenge',
+                'challenge' => $result['redirect'],
             ]);
-        });
+        }
+
+        if ($result['status'] === 'approved') {
+            $url = $this->checkoutManager->finish($checkout, $result);
+
+            return response()->json([
+                'success' => true,
+                'status' => 'approved',
+                'redirectUrl' => $url,
+            ]);
+        }
+
+        // Declined
+        $checkout->update([
+            'status' => ProsaPendingCheckout::STATUS_DECLINED,
+            'result_code' => $result['resultCode'] ?? null,
+            'result_description' => $result['resultDescription'] ?? null,
+        ]);
+        DB::table('pats_ordenes_pago')->where('id_orden', $idOrden)->update([
+            'estatus_orden' => 'FALLIDA', 'estatus_pago' => 'RECHAZADO',
+            'error_integracion' => $result['resultDescription'] ?? 'Rechazado',
+            'updated_at' => now(),
+        ]);
+
+        return response()->json([
+            'success' => false,
+            'error' => $result['resultDescription'] ?: 'El pago fue rechazado.',
+            'code' => $result['resultCode'] ?? '',
+        ], 400);
     }
 
     /** Crea un Stripe PaymentIntent para renovación de pasaporte. */
@@ -563,28 +448,28 @@ class PagosController extends Controller
             }
 
             $this->registrarPagoEnDetalle([
-                'id_orden'                   => $idOrden,
-                'id_pasaporte'               => $idPasaporte,
-                'pasarela'                   => 'STRIPE',
-                'referencia_pasarela'        => $charge ?: $intent->id,
-                'referencia_pago'            => $referencia,
-                'referencia_interna'         => $folio,
-                'metodo_pago'                => 'tarjeta_'.$brand,
-                'tipo_pago'                  => $operacion,
-                'frecuencia'                 => $frecuencia,
-                'monto_decimal'              => $monto,
-                'estatus_pago'               => 'confirmado',
-                'customer_pasarela_id'       => $intent->customer ?? null,
+                'id_orden' => $idOrden,
+                'id_pasaporte' => $idPasaporte,
+                'pasarela' => 'STRIPE',
+                'referencia_pasarela' => $charge ?: $intent->id,
+                'referencia_pago' => $referencia,
+                'referencia_interna' => $folio,
+                'metodo_pago' => 'tarjeta_'.$brand,
+                'tipo_pago' => $operacion,
+                'frecuencia' => $frecuencia,
+                'monto_decimal' => $monto,
+                'estatus_pago' => 'confirmado',
+                'customer_pasarela_id' => $intent->customer ?? null,
                 'payment_method_pasarela_id' => $intent->payment_method ?? null,
-                'token_pasarela'             => $intent->id,
-                'domiciliacion_solicitada'   => $esSuscripcion ? 1 : 0,
-                'domiciliacion_autorizada'   => $esSuscripcion ? 1 : 0,
-                'domiciliacion_activa'       => $esSuscripcion ? 1 : 0,
-                'domiciliacion_estatus'      => $esSuscripcion ? 'activa' : null,
-                'observaciones'              => 'Stripe '.strtoupper($brand).'···'.$last4.($esSuscripcion ? ' · Suscripción' : ''),
-                'payload_response_json'      => json_encode(['id' => $intent->id, 'status' => $intent->status]),
-                'created_at'                 => $ahora,
-                'updated_at'                 => $ahora,
+                'token_pasarela' => $intent->id,
+                'domiciliacion_solicitada' => $esSuscripcion ? 1 : 0,
+                'domiciliacion_autorizada' => $esSuscripcion ? 1 : 0,
+                'domiciliacion_activa' => $esSuscripcion ? 1 : 0,
+                'domiciliacion_estatus' => $esSuscripcion ? 'activa' : null,
+                'observaciones' => 'Stripe '.strtoupper($brand).'···'.$last4.($esSuscripcion ? ' · Suscripción' : ''),
+                'payload_response_json' => json_encode(['id' => $intent->id, 'status' => $intent->status]),
+                'created_at' => $ahora,
+                'updated_at' => $ahora,
             ]);
 
             return response()->json([
@@ -853,21 +738,21 @@ class PagosController extends Controller
         $url = $oxxo?->hosted_voucher_url ?? null;
 
         $this->registrarPagoEnDetalle([
-            'id_pasaporte'         => $pasaporte->id_pasaporte,
-            'pasarela'             => 'STRIPE',
-            'referencia_pasarela'  => $intent->id,
-            'referencia_pago'      => $referencia,
-            'metodo_pago'          => 'oxxo',
-            'tipo_pago'            => 'RENOVACION_PATS',
-            'frecuencia'           => strtoupper($request->frecuencia),
-            'monto_decimal'        => $request->monto_orden,
-            'estatus_pago'         => 'pendiente_oxxo',
-            'token_pasarela'       => $intent->id,
+            'id_pasaporte' => $pasaporte->id_pasaporte,
+            'pasarela' => 'STRIPE',
+            'referencia_pasarela' => $intent->id,
+            'referencia_pago' => $referencia,
+            'metodo_pago' => 'oxxo',
+            'tipo_pago' => 'RENOVACION_PATS',
+            'frecuencia' => strtoupper($request->frecuencia),
+            'monto_decimal' => $request->monto_orden,
+            'estatus_pago' => 'pendiente_oxxo',
+            'token_pasarela' => $intent->id,
             'requiere_accion_usuario' => 1,
-            'observaciones'        => 'Ficha OXXO generada. Pendiente de pago en tienda.',
+            'observaciones' => 'Ficha OXXO generada. Pendiente de pago en tienda.',
             'payload_response_json' => json_encode(['id' => $intent->id, 'status' => $intent->status]),
-            'created_at'           => $ahora,
-            'updated_at'           => $ahora,
+            'created_at' => $ahora,
+            'updated_at' => $ahora,
         ]);
 
         return response()->json([
@@ -949,9 +834,9 @@ class PagosController extends Controller
             ->where('referencia_pasarela', $intent->id)
             ->where('estatus_pago', 'pendiente_oxxo')
             ->update([
-                'estatus_pago'            => 'confirmado',
+                'estatus_pago' => 'confirmado',
                 'requiere_accion_usuario' => 0,
-                'updated_at'              => $ahora,
+                'updated_at' => $ahora,
             ]);
 
         // Actualizar pasaporte
@@ -998,18 +883,18 @@ class PagosController extends Controller
         $referencia = 'EFT-'.$ahora->format('YmdHis').'-'.strtoupper(substr(md5(uniqid()), 0, 6));
 
         $this->registrarPagoEnDetalle([
-            'id_pasaporte'            => $pasaporte->id_pasaporte,
-            'pasarela'                => 'EFECTIVO',
-            'referencia_pago'         => $referencia,
-            'metodo_pago'             => 'efectivo',
-            'tipo_pago'               => 'RENOVACION_PATS',
-            'frecuencia'              => strtoupper($request->frecuencia),
-            'monto_decimal'           => $request->monto_orden,
-            'estatus_pago'            => 'pendiente_validacion',
+            'id_pasaporte' => $pasaporte->id_pasaporte,
+            'pasarela' => 'EFECTIVO',
+            'referencia_pago' => $referencia,
+            'metodo_pago' => 'efectivo',
+            'tipo_pago' => 'RENOVACION_PATS',
+            'frecuencia' => strtoupper($request->frecuencia),
+            'monto_decimal' => $request->monto_orden,
+            'estatus_pago' => 'pendiente_validacion',
             'requiere_accion_usuario' => 1,
-            'observaciones'           => 'Solicitud de pago en efectivo — pendiente de validación',
-            'created_at'              => $ahora,
-            'updated_at'              => $ahora,
+            'observaciones' => 'Solicitud de pago en efectivo — pendiente de validación',
+            'created_at' => $ahora,
+            'updated_at' => $ahora,
         ]);
 
         return response()->json([
@@ -1151,22 +1036,22 @@ class PagosController extends Controller
             }
 
             $this->registrarPagoEnDetalle([
-                'id_orden'             => $idOrden,
-                'id_pasaporte'         => $idPasaporte,
-                'pasarela'             => 'STRIPE',
-                'referencia_pasarela'  => $charge ?: $intent->id,
-                'referencia_pago'      => $referencia,
-                'referencia_interna'   => $folio,
-                'metodo_pago'          => 'tarjeta_'.$brand,
-                'tipo_pago'            => $operacion,
-                'frecuencia'           => $frecuencia,
-                'monto_decimal'        => $request->monto_orden,
-                'estatus_pago'         => 'confirmado',
-                'token_pasarela'       => $intent->id,
-                'observaciones'        => 'Stripe '.strtoupper($brand).'···'.$last4,
+                'id_orden' => $idOrden,
+                'id_pasaporte' => $idPasaporte,
+                'pasarela' => 'STRIPE',
+                'referencia_pasarela' => $charge ?: $intent->id,
+                'referencia_pago' => $referencia,
+                'referencia_interna' => $folio,
+                'metodo_pago' => 'tarjeta_'.$brand,
+                'tipo_pago' => $operacion,
+                'frecuencia' => $frecuencia,
+                'monto_decimal' => $request->monto_orden,
+                'estatus_pago' => 'confirmado',
+                'token_pasarela' => $intent->id,
+                'observaciones' => 'Stripe '.strtoupper($brand).'···'.$last4,
                 'payload_response_json' => json_encode(['id' => $intent->id, 'status' => $intent->status, 'amount' => $intent->amount]),
-                'created_at'           => $ahora,
-                'updated_at'           => $ahora,
+                'created_at' => $ahora,
+                'updated_at' => $ahora,
             ]);
 
             return response()->json([
@@ -1183,40 +1068,40 @@ class PagosController extends Controller
     {
         $frecUpper = strtoupper($d['frecuencia'] ?? '');
         DB::table('pats_pagos_detalle')->insert([
-            'id_orden'                   => $d['id_orden'] ?? null,
-            'id_pasaporte'               => $d['id_pasaporte'] ?? null,
-            'id_respaldo'                => $d['id_respaldo'] ?? null,
-            'pasarela'                   => $d['pasarela'] ?? 'STRIPE',
-            'ambiente'                   => app()->environment('production') ? 'live' : 'test',
-            'referencia_pasarela'        => $d['referencia_pasarela'] ?? null,
-            'referencia_pago'            => $d['referencia_pago'] ?? null,
-            'referencia_interna'         => $d['referencia_interna'] ?? null,
-            'metodo_pago'                => $d['metodo_pago'] ?? null,
-            'tipo_pago'                  => $d['tipo_pago'] ?? null,
-            'frecuencia'                 => $frecUpper ?: null,
-            'monto_centavos'             => isset($d['monto_decimal']) ? (int) round((float) $d['monto_decimal'] * 100) : null,
-            'monto_decimal'              => $d['monto_decimal'] ?? null,
-            'moneda'                     => $d['moneda'] ?? 'MXN',
-            'es_mensual'                 => $frecUpper === 'MENSUAL' ? 1 : 0,
-            'es_anual'                   => $frecUpper === 'ANUAL' ? 1 : 0,
-            'es_msi'                     => 0,
-            'domiciliacion_solicitada'   => $d['domiciliacion_solicitada'] ?? 0,
-            'domiciliacion_autorizada'   => $d['domiciliacion_autorizada'] ?? 0,
-            'domiciliacion_activa'       => $d['domiciliacion_activa'] ?? 0,
-            'domiciliacion_estatus'      => $d['domiciliacion_estatus'] ?? null,
-            'customer_pasarela_id'       => $d['customer_pasarela_id'] ?? null,
+            'id_orden' => $d['id_orden'] ?? null,
+            'id_pasaporte' => $d['id_pasaporte'] ?? null,
+            'id_respaldo' => $d['id_respaldo'] ?? null,
+            'pasarela' => $d['pasarela'] ?? 'STRIPE',
+            'ambiente' => app()->environment('production') ? 'live' : 'test',
+            'referencia_pasarela' => $d['referencia_pasarela'] ?? null,
+            'referencia_pago' => $d['referencia_pago'] ?? null,
+            'referencia_interna' => $d['referencia_interna'] ?? null,
+            'metodo_pago' => $d['metodo_pago'] ?? null,
+            'tipo_pago' => $d['tipo_pago'] ?? null,
+            'frecuencia' => $frecUpper ?: null,
+            'monto_centavos' => isset($d['monto_decimal']) ? (int) round((float) $d['monto_decimal'] * 100) : null,
+            'monto_decimal' => $d['monto_decimal'] ?? null,
+            'moneda' => $d['moneda'] ?? 'MXN',
+            'es_mensual' => $frecUpper === 'MENSUAL' ? 1 : 0,
+            'es_anual' => $frecUpper === 'ANUAL' ? 1 : 0,
+            'es_msi' => 0,
+            'domiciliacion_solicitada' => $d['domiciliacion_solicitada'] ?? 0,
+            'domiciliacion_autorizada' => $d['domiciliacion_autorizada'] ?? 0,
+            'domiciliacion_activa' => $d['domiciliacion_activa'] ?? 0,
+            'domiciliacion_estatus' => $d['domiciliacion_estatus'] ?? null,
+            'customer_pasarela_id' => $d['customer_pasarela_id'] ?? null,
             'payment_method_pasarela_id' => $d['payment_method_pasarela_id'] ?? null,
-            'token_pasarela'             => $d['token_pasarela'] ?? null,
-            'estatus_pago'               => $d['estatus_pago'] ?? 'confirmado',
-            'estatus_detalle'            => $d['estatus_detalle'] ?? null,
-            'requiere_accion_usuario'    => $d['requiere_accion_usuario'] ?? 0,
-            'mensaje_usuario'            => $d['mensaje_usuario'] ?? null,
-            'observaciones'              => $d['observaciones'] ?? null,
-            'payload_request_json'       => $d['payload_request_json'] ?? null,
-            'payload_response_json'      => $d['payload_response_json'] ?? null,
-            'payload_confirmacion_json'  => $d['payload_confirmacion_json'] ?? null,
-            'created_at'                 => $d['created_at'] ?? Carbon::now(),
-            'updated_at'                 => $d['updated_at'] ?? Carbon::now(),
+            'token_pasarela' => $d['token_pasarela'] ?? null,
+            'estatus_pago' => $d['estatus_pago'] ?? 'confirmado',
+            'estatus_detalle' => $d['estatus_detalle'] ?? null,
+            'requiere_accion_usuario' => $d['requiere_accion_usuario'] ?? 0,
+            'mensaje_usuario' => $d['mensaje_usuario'] ?? null,
+            'observaciones' => $d['observaciones'] ?? null,
+            'payload_request_json' => $d['payload_request_json'] ?? null,
+            'payload_response_json' => $d['payload_response_json'] ?? null,
+            'payload_confirmacion_json' => $d['payload_confirmacion_json'] ?? null,
+            'created_at' => $d['created_at'] ?? Carbon::now(),
+            'updated_at' => $d['updated_at'] ?? Carbon::now(),
         ]);
     }
 

@@ -855,6 +855,8 @@
 
     </div>
 
+    @include('prosa._threeds_js')
+
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script>
         (function() {
@@ -1075,30 +1077,44 @@
                     cardholderName: val('cardholderName'),
                     cvv2: val('cvv2'),
                     expDate: document.getElementById('expDate').value,
+                    browser: window.prosaBrowserData(),
                 };
 
                 try {
                     const res = await axios.post('/adquirir/procesar', payload);
                     const d = res.data;
-                    const fmt = new Intl.NumberFormat('es-MX', {
-                        style: 'currency',
-                        currency: 'MXN'
-                    }).format(d.monto);
-                    const el = id => document.getElementById(id);
 
-                    document.getElementById('panelProcesando').style.display = 'none';
-                    document.getElementById('panelComp').style.display = 'block';
+                    // ── Reto 3DS: redirigir al ACS del banco ────────
+                    if (d.status === 'challenge') {
+                        document.getElementById('panelProcesando').innerHTML =
+                            '<i class="mdi mdi-shield-lock-outline" style="font-size:3rem;color:#2563eb;display:block;margin-bottom:1rem;"></i>' +
+                            '<p style="color:#1e3a5f;font-weight:600;">Redirigiendo a la autenticación de tu banco...</p>';
+                        window.prosaHandleChallenge(d.challenge);
+                        return;
+                    }
 
-                    el('comp-folio').textContent = d.folio;
-                    el('comp-auth').textContent = d.authnum;
-                    el('comp-card').textContent = `${d.card?.brand} ···· ${d.card?.last4}`;
-                    el('comp-vig').textContent = d.vigencia;
-                    el('comp-monto').textContent = fmt;
+                    // ── Aprobado ─────────────────────────────────────
+                    if (d.status === 'approved') {
+                        document.getElementById('panelProcesando').style.display = 'none';
+                        document.getElementById('panelComp').style.display = 'block';
+                        setTimeout(() => { window.location.href = d.redirect; }, 2000);
+                        return;
+                    }
 
-                    // Redirigir a /pasaporte tras 3 segundos
-                    setTimeout(() => {
-                        window.location.href = d.redirect;
-                    }, 3000);
+                    // Respuesta legacy (success flag) por si el banco responde frictionless sin status
+                    if (d.success) {
+                        const fmt = new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(d.monto);
+                        const el = id => document.getElementById(id);
+                        document.getElementById('panelProcesando').style.display = 'none';
+                        document.getElementById('panelComp').style.display = 'block';
+                        el('comp-folio').textContent = d.folio || '—';
+                        el('comp-auth').textContent = d.authnum || d.paymentId || '—';
+                        el('comp-card').textContent = `${d.card?.brand || ''} ···· ${d.card?.last4 || ''}`;
+                        el('comp-vig').textContent = d.vigencia || '—';
+                        el('comp-monto').textContent = fmt;
+                        setTimeout(() => { window.location.href = d.redirect; }, 3000);
+                        return;
+                    }
 
                 } catch (ex) {
                     step = 4;
@@ -1110,8 +1126,7 @@
 
                     // Si el correo ya existe → ofrecer ir al login
                     if (code === 'EMAIL_EXISTS') {
-                        err(
-                        `${msg} <a href="/login" style="color:#2563eb;font-weight:600;">Ir al login</a>`);
+                        err(`${msg} <a href="/login" style="color:#2563eb;font-weight:600;">Ir al login</a>`);
                     } else {
                         err(`${msg}${code ? ` (${code})` : ''}`);
                     }

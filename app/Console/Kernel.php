@@ -12,7 +12,13 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule): void
     {
-        // $schedule->command('inspire')->hourly();
+        // Cobros recurrentes PROSA — corre cada mañana a las 8:00.
+        // El comando es idempotente: sólo procesa suscripciones con next_charge_at <= now().
+        $schedule->command('prosa:charge-recurring')
+            ->dailyAt('08:00')
+            ->withoutOverlapping()
+            ->runInBackground()
+            ->appendOutputTo(storage_path('logs/prosa-recurring.log'));
     }
 
     /**

@@ -32,6 +32,7 @@ class TarjetaMisional extends Model
      * Valores de la columna `reviewed` (agregada para la encuesta).
      */
     public const REVIEW_DONE = 'completada';
+
     public const REVIEW_REJECTED = 'rechazada';
 
     protected $fillable = [

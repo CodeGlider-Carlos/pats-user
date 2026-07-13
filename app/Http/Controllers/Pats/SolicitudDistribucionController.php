@@ -8,8 +8,8 @@ use Illuminate\Support\Facades\{DB, Log, Mail, Storage};
 use App\Mail\SolicitudDistribucionRecibida;
 use Illuminate\Support\Str;
 use Carbon\Carbon;
-use Stripe\Stripe;
-use Stripe\PaymentIntent;
+use App\Services\Prosa\PaymentService;
+use App\Services\Prosa\ProsaResultCode;
 
 /**
  * SolicitudDistribucionController
@@ -131,11 +131,11 @@ class SolicitudDistribucionController extends Controller
 
         // Idempotencia: si el pago ya fue guardado (reintento tras timeout de red),
         // devolver el registro existente en lugar de un error de duplicado.
-        $stripeIntentId = $this->clean($request->input('stripe_payment_intent_id'));
-        if ($stripeIntentId !== '') {
+        $prosaPaymentId = $this->clean($request->input('prosa_payment_id'));
+        if ($prosaPaymentId !== '') {
             $pagoExistente = DB::table('pats_pagos')
-                ->where('pasarela', 'stripe')
-                ->where('referencia_pasarela', $stripeIntentId)
+                ->where('pasarela', 'prosa')
+                ->where('referencia_pasarela', $prosaPaymentId)
                 ->first();
             if ($pagoExistente) {
                 $existing = DB::table('pats_solicitudes_distribuidor')
@@ -559,39 +559,37 @@ class SolicitudDistribucionController extends Controller
         $selfieData = $request->input('selfie_data', '');
         $firmaData  = $request->input('firma_data', '');
 
-        // ── 4. Verificar pago Stripe ──────────────────────────────────────────
+        // ── 4. Verificar pago Prosa ───────────────────────────────────────────
 
-        $stripeIntentId = $this->clean($request->input('stripe_payment_intent_id'));
+        $prosaPaymentId = $this->clean($request->input('prosa_payment_id'));
 
-        if ($stripeIntentId === '') {
+        if ($prosaPaymentId === '') {
             return $this->err('El pago con tarjeta es requerido.');
         }
 
-        Stripe::setApiKey(config('services.stripe.secret'));
-
         try {
-            $intent = PaymentIntent::retrieve($stripeIntentId);
+            $pago = app(PaymentService::class)->status($prosaPaymentId);
 
-            if ($intent->status !== 'succeeded') {
+            if (! ProsaResultCode::isApproved($pago['resultCode'])) {
                 return $this->err('El pago no fue procesado correctamente. Intenta de nuevo.');
             }
 
-            $expectedCentavos = (int) round($this->getPrecioDistribucion() * 100);
-            if ($intent->amount !== $expectedCentavos) {
-                Log::warning('Stripe amount mismatch', [
-                    'intent_id' => $stripeIntentId,
-                    'expected'  => $expectedCentavos,
-                    'received'  => $intent->amount,
+            $expected = round($this->getPrecioDistribucion(), 2);
+            if (round((float) $pago['amount'], 2) !== $expected) {
+                Log::warning('Prosa amount mismatch', [
+                    'payment_id' => $prosaPaymentId,
+                    'expected'   => $expected,
+                    'received'   => $pago['amount'],
                 ]);
                 return $this->err('El monto del pago no coincide. Contacta a soporte.');
             }
 
-            // Evitar reutilización del mismo intent en otra solicitud
-            if (DB::table('pats_pagos')->where('pasarela', 'stripe')->where('referencia_pasarela', $stripeIntentId)->exists()) {
+            // Evitar reutilización del mismo pago en otra solicitud
+            if (DB::table('pats_pagos')->where('pasarela', 'prosa')->where('referencia_pasarela', $prosaPaymentId)->exists()) {
                 return $this->err('Este pago ya fue utilizado en otra solicitud.', 409);
             }
         } catch (\Throwable $e) {
-            Log::error('Stripe.verify', ['error' => $e->getMessage(), 'intent' => $stripeIntentId]);
+            Log::error('Prosa.verify', ['error' => $e->getMessage(), 'payment_id' => $prosaPaymentId]);
             return $this->err('No fue posible verificar el pago. Intenta de nuevo.');
         }
 
@@ -704,8 +702,8 @@ class SolicitudDistribucionController extends Controller
             DB::table('pats_pagos')->insert([
                 'tipo_solicitud'      => 'distribuidor',
                 'id_solicitud'        => $idSolicitud,
-                'pasarela'            => 'stripe',
-                'referencia_pasarela' => $stripeIntentId,
+                'pasarela'            => 'prosa',
+                'referencia_pasarela' => $prosaPaymentId,
                 'estatus'             => 'succeeded',
                 'monto'               => $valorTotal,
                 'moneda'              => $moneda ?: 'MXN',

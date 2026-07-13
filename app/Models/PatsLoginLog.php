@@ -26,12 +26,12 @@ class PatsLoginLog extends Model
         ?string $userAgent = null
     ): void {
         static::create([
-            'id_acceso'  => $idAcceso,
-            'correo'     => $correo,
-            'ip'         => $ip ?? request()->ip(),
+            'id_acceso' => $idAcceso,
+            'correo' => $correo,
+            'ip' => $ip ?? request()->ip(),
             'user_agent' => $userAgent ?? request()->userAgent(),
-            'resultado'  => $resultado,
-            'motivo'     => $motivo,
+            'resultado' => $resultado,
+            'motivo' => $motivo,
         ]);
     }
 }

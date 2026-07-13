@@ -10,7 +10,7 @@ return new class extends Migration
     {
         Schema::table('pats_pasaportes', function (Blueprint $table) {
             $table->string('code_pasaporte', 30)->nullable()->unique()->after('token_qr')
-                  ->comment('Código legible: inicial_nombre + inicial_apellido + CRT + MMDDYY. Ej: JFCRT082281');
+                ->comment('Código legible: inicial_nombre + inicial_apellido + CRT + MMDDYY. Ej: JFCRT082281');
         });
     }
 

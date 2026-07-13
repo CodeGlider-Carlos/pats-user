@@ -5,9 +5,13 @@ namespace App\Support;
 class EncuestaPats
 {
     public const HOSPITAL = 'HOSPITAL';
+
     public const CONSULTA = 'CONSULTA';
+
     public const LABORATORIO = 'LABORATORIO';
+
     public const FARMACIA = 'FARMACIA';
+
     public const IMAGENOLOGIA = 'IMAGENOLOGIA';
 
     /**

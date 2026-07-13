@@ -768,21 +768,6 @@
                 @php
                     // Contar cuántos bloques disponibles tiene esta especialidad
                     $bloquesEsp = $medicos->sum(fn($m) => $disponibilidad->get($m->id_recurso, 0));
-                    $icons = [
-                        'stethoscope',
-                        'heart-pulse',
-                        'brain',
-                        'eye',
-                        'bone',
-                        'baby',
-                        'lungs',
-                        'stomach',
-                        'needle',
-                        'pill',
-                        'tooth',
-                        'ear-hearing',
-                    ];
-                    $icon = $icons[$loop->index % count($icons)];
                     $slug = \Illuminate\Support\Str::slug($especialidad);
                 @endphp
 

@@ -5,22 +5,22 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Carbon\Carbon;
 
-use App\Models\PatsUser;
-use App\Services\Feenicia\OneStepSaleService;
-use App\DTO\Feenicia\OneStepSaleData;
-use App\Exceptions\Feenicia\FeeniciaException;
-use App\Exceptions\Feenicia\FeeniciaTimeoutException;
-use App\Services\Feenicia\ReversalService;
+use App\Models\ProsaPendingCheckout;
+use App\DTO\Prosa\CardData;
+use App\DTO\Prosa\ChargeData;
+use App\DTO\Prosa\ThreeDSData;
+use App\Exceptions\Prosa\ProsaTimeoutException;
+use App\Services\Prosa\PaymentService;
+use App\Services\Prosa\Checkout\AdquirirCheckout;
+use App\Services\Prosa\Checkout\CheckoutManager;
 
 class AdquirirController extends Controller
 {
     public function __construct(
-        private readonly OneStepSaleService $oneStepSaleService,
-        private readonly ReversalService    $reversalService,
+        private readonly PaymentService $paymentService,
     ) {}
 
     // ──────────────────────────────────────────────
@@ -145,7 +145,7 @@ class AdquirirController extends Controller
             'nombre_empresa'      => $request->nombre_empresa,
             'estatus_orden'       => 'PENDIENTE',
             'estatus_pago'        => 'PENDIENTE',
-            'proveedor_pasarela'  => 'FEENICIA',
+            'proveedor_pasarela'  => 'PROSA',
             'user_creo'           => $correo,
             'payload_checkout_json' => json_encode(['token_publico' => $request->token_publico, 'ctx' => $ctx]),
             'fecha_orden'         => $ahora,
@@ -153,239 +153,124 @@ class AdquirirController extends Controller
             'updated_at'          => $ahora,
         ]);
 
-        // ── 2. Cobrar con Feenicia ─────────────────────────────
-        try {
-            $resultado = $this->oneStepSaleService->execute(new OneStepSaleData(
-                affiliation:     config('feenicia.affiliation'),
-                amount:          (float) $request->monto_orden,
-                transactionDate: (int) (microtime(true) * 1000),
-                pan:             $request->pan,
-                cardholderName:  $request->cardholderName,
-                cvv2:            $request->cvv2,
-                expDate:         $request->expDate,
-                userId:          config('feenicia.user'),
-                tip:             '0.0',
-            ));
+        // ── 2. Iniciar cobro con Prosa + 3-D Secure ────────────
+        $card = CardData::fromForm(
+            number:   $request->pan,
+            holder:   $request->cardholderName,
+            expMonth: substr($request->expDate, 2, 2),
+            expYear:  substr($request->expDate, 0, 2),
+            cvv:      $request->cvv2,
+        );
 
-        } catch (FeeniciaTimeoutException $e) {
+        $checkout = ProsaPendingCheckout::create([
+            'merchant_transaction_id' => $this->mtxFromReference($referencia),
+            'flow'                    => AdquirirCheckout::FLOW,
+            'status'                  => ProsaPendingCheckout::STATUS_PENDING,
+            'amount'                  => $request->monto_orden,
+            'payload'                 => [
+                'id_orden'         => $idOrden,
+                'referencia'       => $referencia,
+                'folio'            => $folio,
+                'token_publico'    => $request->token_publico,
+                'ctx'              => $ctx,
+                'correo'           => $correo,
+                'password_hash'    => Hash::make($request->password),
+                'telefono_usuario' => $request->telefono_usuario,
+                'nombre_usuario'   => $request->nombre_usuario,
+                'apellido_pa'      => $request->apellido_pa,
+                'apellido_ma'      => $request->apellido_ma,
+                'curp_usuario'     => $request->curp_usuario,
+                'fecha_nacimiento' => $request->fecha_nacimiento,
+                'tipo_cliente'     => $request->tipo_cliente,
+                'nombre_empresa'   => $request->nombre_empresa,
+                'frecuencia'       => $request->frecuencia,
+                'monto_orden'      => $request->monto_orden,
+                'id_tipo_precio'   => $request->id_tipo_precio,
+            ],
+        ]);
+
+        $threeDs = ThreeDSData::fromRequest(
+            request: $request,
+            shopperResultUrl: route('prosa.3ds.return', ['mtx' => $checkout->merchant_transaction_id]),
+            email: $correo,
+            givenName: $request->nombre_usuario,
+            surname: $request->apellido_pa,
+            billing: [
+                'street1'  => trim($request->dom_calle . ' ' . $request->dom_num_ext),
+                'city'     => $request->dom_municipio,
+                'state'    => $request->dom_estado,
+                'postcode' => $request->dom_cp,
+                'country'  => 'MX',
+            ],
+            browser: $request->input('browser'),
+        );
+
+        try {
+            $result = $this->paymentService->initiate(new ChargeData(
+                card:     $card,
+                amount:   (float) $request->monto_orden,
+                currency: config('prosa.currency'),
+                merchantTransactionId: $checkout->merchant_transaction_id,
+            ), $threeDs);
+        } catch (ProsaTimeoutException $e) {
+            $checkout->update(['status' => ProsaPendingCheckout::STATUS_DECLINED]);
             DB::table('pats_ordenes_pago')->where('id_orden', $idOrden)->update([
                 'estatus_orden'     => 'FALLIDA',
                 'estatus_pago'      => 'TIMEOUT',
                 'error_integracion' => 'Timeout',
                 'updated_at'        => now(),
             ]);
-            try { $this->reversalService->executeFromTimeout($e); } catch (\Throwable) {}
-            return response()->json(['success' => false, 'error' => 'Timeout al procesar el pago.', 'code' => 'TIMEOUT'], 504);
 
-        } catch (FeeniciaException $e) {
-            DB::table('pats_ordenes_pago')->where('id_orden', $idOrden)->update([
-                'estatus_orden'     => 'FALLIDA',
-                'estatus_pago'      => 'RECHAZADO',
-                'error_integracion' => $e->getMessage(),
-                'updated_at'        => now(),
-            ]);
-            return response()->json(['success' => false, 'error' => $e->getMessage(), 'code' => $e->responseCode], 400);
+            return response()->json(['success' => false, 'error' => 'Timeout al procesar el pago.', 'code' => 'TIMEOUT'], 504);
         }
 
-        // ── 3. Pago aprobado → pipeline completo ──────────────
-        return DB::transaction(function () use (
-            $request, $correo, $ctx, $resultado,
-            $idOrden, $referencia, $folio, $ahora
-        ) {
-            $transactionId = $resultado['transactionId'];
-            $authnum       = $resultado['authnum'];
-            $cardBrand     = $resultado['card']['brand']       ?? 'CARD';
-            $cardLast4     = $resultado['card']['last4Digits'] ?? '????';
-            $frecuencia    = strtoupper($request->frecuencia);
+        $checkout->update(['payment_id' => $result['paymentId'] ?? null]);
 
-            $vigencia        = $frecuencia === 'ANUAL'
-                ? $ahora->copy()->addYear()->toDateString()
-                : $ahora->copy()->addMonth()->toDateString();
-            $vencimientoReal = $frecuencia === 'ANUAL'
-                ? $ahora->copy()->addYear()->endOfDay()
-                : $ahora->copy()->addMonth()->endOfDay();
-
-            // ── 3a. Crear pasaporte ────────────────────────────
-            $idPasaporte = DB::table('pats_pasaportes')->insertGetId([
-                'id_franquicia'          => $ctx['id_franquicia'],
-                'id_distribuidor'        => $ctx['id_distribuidor'],
-                'id_tipo_precio'         => $request->id_tipo_precio,
-                'curp'                   => strtoupper($request->curp_usuario),
-                'nombres'                => $request->nombre_usuario,
-                'apellido_pa'            => $request->apellido_pa,
-                'apellido_ma'            => $request->apellido_ma ?? '',
-                'fecha_nacimiento'       => $request->fecha_nacimiento,
-                'telefono'               => $request->telefono_usuario,
-                'correo'                 => $correo,
-                'fecha_alta'             => $ahora,
-                'vigencia'               => $vigencia,
-                'frecuencia_pago'        => $frecuencia,
-                'estatus'                => 'activo',
-                'valor_pasaporte'        => $request->monto_orden,
-                'valor_final_pasaporte'  => $request->monto_orden,
-                'pais'                   => $ctx['pais'],
-                'region'                 => $ctx['region'],
-                'zona'                   => $ctx['zona'],
-                'unidad'                 => $ctx['unidad'],
-                'tipo_cliente'           => $request->tipo_cliente,
-                'nombre_empresa'         => $request->nombre_empresa,
-                'fecha_ultimo_pago'      => $ahora,
-                'fecha_vencimiento_real' => $vencimientoReal,
-                'meses_vencidos'         => 0,
-                'recargo_acumulado'      => 0.00,
-                'activo'                 => 1,
-                'created_at'             => $ahora,
-                'updated_at'             => $ahora,
+        // ── 3. Resolver según estado ───────────────────────────
+        if ($result['status'] === 'challenge') {
+            $checkout->update([
+                'status'   => ProsaPendingCheckout::STATUS_CHALLENGE,
+                'redirect' => $result['redirect'],
             ]);
-
-            // ── 3b. Crear usuario ──────────────────────────────
-            $nombreCompleto = trim("{$request->nombre_usuario} {$request->apellido_pa} {$request->apellido_ma}");
-            $idUsuario = DB::table('pats_users')->insertGetId([
-                'app'                  => 'PATS',
-                'rolapp'               => 'CLIENTEPATS',
-                'rol'                  => 'CLIENTE',
-                'tipo_actor'           => 'DISTRIBUIDOR',
-                'id_actor'             => $ctx['id_distribuidor'],
-                'nombre'               => $nombreCompleto,
-                'usuario'              => $correo,
-                'correo'               => $correo,
-                'contrasena'           => Hash::make($request->password),
-                'region'               => $ctx['region'],
-                'acroregion'           => $ctx['region'],
-                'unidad'               => $ctx['unidad'],
-                'acronu'               => $ctx['unidad'],
-                'activo'               => 1,
-                'must_change_password' => 0,
-                'telefono'             => $request->telefono_usuario,
-                'created_at'           => $ahora,
-                'updated_at'           => $ahora,
-            ]);
-
-            DB::table('pats_usuarios_scope')->insert([
-                'user_id'         => $idUsuario,
-                'rol_pats'        => 'CLIENTE',
-                'pais'            => $ctx['pais'],
-                'region'          => $ctx['region'],
-                'zona'            => $ctx['zona'],
-                'unidad'          => $ctx['unidad'],
-                'id_distribuidor' => $ctx['id_distribuidor'],
-                'id_franquicia'   => $ctx['id_franquicia'],
-                'activo'          => 1,
-                'created_at'      => $ahora,
-                'updated_at'      => $ahora,
-            ]);
-
-            // ── 3c. Confirmar orden ────────────────────────────
-            DB::table('pats_ordenes_pago')->where('id_orden', $idOrden)->update([
-                'id_pasaporte'                    => $idPasaporte,
-                'estatus_orden'                   => 'PAGADA',
-                'estatus_pago'                    => 'CONFIRMADO',
-                'transaccion_id_externa'          => (string) $transactionId,
-                'payment_intent_id'               => $authnum,
-                'usuario_creado'                  => 1,
-                'id_usuario_generado'             => $idUsuario,
-                'fecha_alta_usuario'              => $ahora,
-                'pasaporte_creado'                => 1,
-                'id_pasaporte_generado'           => $idPasaporte,
-                'fecha_alta_pasaporte'            => $ahora,
-                'procesado_integracion'           => 1,
-                'fecha_procesamiento_integracion' => $ahora,
-                'intentos_procesamiento'          => 1,
-                'fecha_pago'                      => $ahora,
-                'fecha_confirmacion'              => $ahora,
-                'payload_confirmacion_json'       => json_encode($resultado),
-                'user_confirmo'                   => $correo,
-                'updated_at'                      => $ahora,
-            ]);
-
-            // ── 3d. Pago histórico ─────────────────────────────
-            DB::table('pats_pagos_pasaporte')->insert([
-                'id_orden'               => $idOrden,
-                'id_pasaporte'           => $idPasaporte,
-                'id_franquicia'          => $ctx['id_franquicia'],
-                'id_distribuidor'        => $ctx['id_distribuidor'],
-                'id_tipo_precio'         => $request->id_tipo_precio,
-                'correo'                 => $correo,
-                'curp'                   => strtoupper($request->curp_usuario),
-                'nombre_usuario'         => $request->nombre_usuario,
-                'apellido_pa'            => $request->apellido_pa,
-                'apellido_ma'            => $request->apellido_ma,
-                'tipo_operacion'         => 'ALTA_PATS',
-                'monto'                  => $request->monto_orden,
-                'monto_nominal_base'     => $request->monto_orden,
-                'monto_extra_recargo'    => 0.00,
-                'frecuencia'             => strtolower($request->frecuencia),
-                'metodo_pago'            => 'tarjeta_' . $cardBrand,
-                'referencia_pago'        => $referencia,
-                'referencia_externa'     => $authnum,
-                'transaccion_id_externa' => (string) $transactionId,
-                'proveedor_pasarela'     => 'FEENICIA',
-                'estatus_pago'           => 'confirmado',
-                'response_json'          => json_encode($resultado),
-                'fecha_pago'             => $ahora,
-                'fecha_confirmacion'     => $ahora,
-                'moneda'                 => 'MXN',
-                'observaciones'          => "Feenicia Auth:{$authnum} {$cardBrand}···{$cardLast4}",
-                'created_at'             => $ahora,
-                'updated_at'             => $ahora,
-            ]);
-
-            // ── 3e. Comisiones ─────────────────────────────────
-            $reglas = DB::table('pats_reglas_comision')
-                ->where('tipo_operacion', 'pasaporte')
-                ->where('subtipo_operacion', 'membresia')
-                ->where('modalidad_pago', strtolower($request->frecuencia))
-                ->where('activo', 1)
-                ->whereNull('vigencia_fin')
-                ->get();
-
-            foreach ($reglas as $regla) {
-                $mc = $regla->tipo_calculo === 'monto_fijo'
-                    ? (float) $regla->valor_calculo
-                    : round((float) $request->monto_orden * (float) $regla->valor_calculo / 100, 2);
-
-                $tipo  = match($regla->beneficiario) { 'admin' => 'corpo', 'unidad' => 'unidad', 'franquicia' => 'franquicia', 'distribuidor' => 'distribuidor', default => 'corpo' };
-                $idRel = match($regla->beneficiario) { 'franquicia' => $ctx['id_franquicia'], 'distribuidor' => $ctx['id_distribuidor'], default => 1 };
-
-                if (in_array($regla->beneficiario, ['franquicia', 'distribuidor'])) {
-                    DB::table('pats_comisiones_generadas')->insert([
-                        'tipo_origen' => 'pago_pasaporte', 'id_origen' => $idOrden,
-                        'id_regla' => $regla->id_regla, 'beneficiario_tipo' => $regla->beneficiario,
-                        'beneficiario_id' => $idRel, 'monto_comision' => $mc,
-                        'monto_aplicado_deuda' => 0, 'monto_liberado' => 0, 'moneda' => 'MXN',
-                        'fecha_generacion' => $ahora, 'created_at' => $ahora, 'updated_at' => $ahora,
-                    ]);
-                }
-
-                DB::table('pats_movimientos_financieros')->insert([
-                    'tipo' => $tipo, 'id_relacionado' => $idRel, 'id_pasaporte' => $idPasaporte,
-                    'monto' => $mc, 'tipo_movimiento' => "comision_pats_{$regla->beneficiario}",
-                    'referencia' => $referencia,
-                    'estatus' => in_array($regla->beneficiario, ['admin','unidad']) ? 'pagado' : 'pendiente',
-                    'fecha_generado' => $ahora, 'moneda' => 'MXN',
-                    'observaciones' => "Feenicia Auth:{$authnum} | {$regla->beneficiario}",
-                    'origen_tabla' => 'pats_ordenes_pago', 'origen_id' => $idOrden,
-                    'created_at' => $ahora, 'updated_at' => $ahora,
-                ]);
-            }
-
-            // ── 4. Login automático ────────────────────────────
-            $userModel = PatsUser::find($idUsuario);
-            Auth::login($userModel);
 
             return response()->json([
-                'success'       => true,
-                'transactionId' => $transactionId,
-                'authnum'       => $authnum,
-                'referencia'    => $referencia,
-                'folio'         => $folio,
-                'idPasaporte'   => $idPasaporte,
-                'card'          => ['brand' => $cardBrand, 'last4' => $cardLast4],
-                'monto'         => $request->monto_orden,
-                'vigencia'      => $vigencia,
-                'redirect'      => route('pasaporte'),
+                'success'   => true,
+                'status'    => 'challenge',
+                'challenge' => $result['redirect'],
             ]);
-        });
+        }
+
+        if ($result['status'] === 'approved') {
+            $redirectUrl = app(CheckoutManager::class)->finish($checkout, $result);
+
+            return response()->json([
+                'success'  => true,
+                'status'   => 'approved',
+                'redirect' => $redirectUrl,
+            ]);
+        }
+
+        $checkout->update(['status' => ProsaPendingCheckout::STATUS_DECLINED]);
+        DB::table('pats_ordenes_pago')->where('id_orden', $idOrden)->update([
+            'estatus_orden'     => 'FALLIDA',
+            'estatus_pago'      => 'RECHAZADO',
+            'error_integracion' => $result['resultDescription'] ?? 'Rechazado',
+            'updated_at'        => now(),
+        ]);
+
+        return response()->json([
+            'success' => false,
+            'status'  => 'declined',
+            'error'   => $result['resultDescription'] ?: 'El pago fue rechazado.',
+            'code'    => $result['resultCode'] ?? '',
+        ], 400);
+    }
+
+    private function mtxFromReference(string $referencia): string
+    {
+        $clean = preg_replace('/[^A-Za-z0-9]/', '', $referencia);
+
+        return substr($clean, 0, 255);
     }
 
     // ──────────────────────────────────────────────
