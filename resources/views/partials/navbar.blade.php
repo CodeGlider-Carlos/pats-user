@@ -98,6 +98,7 @@
                             }
                             $esEmpresa = strtoupper($navPasaporte?->tipo_cliente ?? '') === 'EMPRESA';
                         }
+                        $pagosEnabled = strtoupper((string) optional($navPasaporte)->tipo_cliente) !== 'EMPRESA';
                     @endphp
                     @if($navUser)
                     <button class="digi-user-btn" data-dropdown="user">

@@ -2,14 +2,16 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class PatsCatMedico extends Model
 {
     protected $table = 'pats_cats_medicos';
+
     protected $primaryKey = 'id_registro';
+
     public $incrementing = false;
+
     protected $keyType = 'string';
 
     protected $fillable = [
@@ -27,16 +29,18 @@ class PatsCatMedico extends Model
         'email',
         'region',
         'unidad',
+        'precio_consulta',
         'redes_json',
         'activo',
         'usuario_registro',
-        'usuario_actualizo'
+        'usuario_actualizo',
     ];
 
     protected $casts = [
         'id_medico_leadplus' => 'integer',
-        'id_recurso'         => 'integer',
-        'activo'             => 'boolean',
+        'id_recurso' => 'integer',
+        'precio_consulta' => 'decimal:2',
+        'activo' => 'boolean',
     ];
 
     public function getNombreRecursoAttribute()

@@ -2,15 +2,32 @@
 
 namespace App\Http\Controllers;
 
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Carbon\Carbon;
 
 class AgendaController extends Controller
 {
     private function now(): Carbon
     {
         return Carbon::now('America/Mexico_City');
+    }
+
+    /**
+     * CURP del paciente asociado al pasaporte del usuario autenticado.
+     * Devuelve null si el acceso no tiene un pasaporte vinculado.
+     */
+    private function curpUsuario(): ?string
+    {
+        $user = auth('pasaporte')->user();
+
+        if (! $user || ! $user->id_pasaporte) {
+            return null;
+        }
+
+        return DB::table('pats_pasaportes')
+            ->where('id_pasaporte', $user->id_pasaporte)
+            ->value('curp');
     }
 
     // ─────────────────────────────────────────────────────────────
@@ -23,30 +40,37 @@ class AgendaController extends Controller
 
         // Month navigation (default = current month)
         $anio = (int) $request->query('anio', $now->year);
-        $mes  = (int) $request->query('mes',  $now->month);
+        $mes = (int) $request->query('mes', $now->month);
 
         $mesNav = Carbon::createFromDate($anio, $mes, 1, 'America/Mexico_City');
-        $min    = $now->copy()->startOfMonth();
-        $max    = $now->copy()->addMonths(12)->startOfMonth();
-        if ($mesNav->lt($min)) $mesNav = $min->copy();
-        if ($mesNav->gt($max)) $mesNav = $max->copy();
+        $min = $now->copy()->startOfMonth();
+        $max = $now->copy()->addMonths(12)->startOfMonth();
+        if ($mesNav->lt($min)) {
+            $mesNav = $min->copy();
+        }
+        if ($mesNav->gt($max)) {
+            $mesNav = $max->copy();
+        }
 
         $inicioMes = $mesNav->copy()->startOfMonth();
-        $finMes    = $mesNav->copy()->endOfMonth();
+        $finMes = $mesNav->copy()->endOfMonth();
 
         $idServicio = $request->query('servicio');
-        $idRecurso  = $request->query('recurso');
+        $idRecurso = $request->query('recurso');
 
-        // ── Citas del mes desde agenda_pats_demo ──────────────────
+        $curp = $this->curpUsuario();
+
+        // ── Citas del mes desde agenda_pats_demo (solo del usuario) ──
         $query = DB::table('agenda_pats_demo as a')
             ->leftJoin('pats_cats_medicos as m', 'm.id_medico_leadplus', '=', 'a.id_recurso')
             ->where('a.activo', 1)
+            ->when($curp !== null, fn ($q) => $q->where('a.curp', $curp), fn ($q) => $q->whereRaw('1 = 0'))
             ->whereBetween('a.fecha_programada', [
                 $inicioMes->toDateString(),
                 $finMes->toDateString(),
             ])
-            ->when($idServicio, fn($q) => $q->where('a.id_servicio', $idServicio))
-            ->when($idRecurso,  fn($q) => $q->where('a.id_recurso',  $idRecurso))
+            ->when($idServicio, fn ($q) => $q->where('a.id_servicio', $idServicio))
+            ->when($idRecurso, fn ($q) => $q->where('a.id_recurso', $idRecurso))
             ->select([
                 'a.id_agenda',
                 'a.id_recurso',
@@ -69,37 +93,37 @@ class AgendaController extends Controller
         $bloquesPorFecha = $query->groupBy('fecha_programada');
 
         // Stats by estatus
-        $totalDisp   = $query->where('estatus', 'PROGRAMADO')->count();
+        $totalDisp = $query->where('estatus', 'PROGRAMADO')->count();
         $totalReserv = $query->whereIn('estatus', ['CONFIRMADO', 'EN_PROCESO'])->count();
-        $totalBloq   = $query->where('estatus', 'CANCELADO')->count();
+        $totalBloq = $query->where('estatus', 'CANCELADO')->count();
 
-        $diasMes      = $inicioMes->daysInMonth;
+        $diasMes = $inicioMes->daysInMonth;
         $offsetInicio = ($inicioMes->dayOfWeek + 6) % 7; // 0=Mon … 6=Sun
 
         return view('servicios.agenda', [
-            'now'             => $now,
-            'fecha_display'   => $now->isoFormat('dddd D [de] MMMM [de] YYYY'),
-            'hora_actual'     => $now->format('H:i'),
-            'fecha_hoy'       => $now->toDateString(),
-            'mesNav'          => $mesNav,
-            'anio'            => $mesNav->year,
-            'mes'             => $mesNav->month,
-            'nombreMes'       => $mesNav->isoFormat('MMMM YYYY'),
-            'diasMes'         => $diasMes,
-            'offsetInicio'    => $offsetInicio,
-            'mesPrev'         => $mesNav->copy()->subMonth(),
-            'mesSig'          => $mesNav->copy()->addMonth(),
+            'now' => $now,
+            'fecha_display' => $now->isoFormat('dddd D [de] MMMM [de] YYYY'),
+            'hora_actual' => $now->format('H:i'),
+            'fecha_hoy' => $now->toDateString(),
+            'mesNav' => $mesNav,
+            'anio' => $mesNav->year,
+            'mes' => $mesNav->month,
+            'nombreMes' => $mesNav->isoFormat('MMMM YYYY'),
+            'diasMes' => $diasMes,
+            'offsetInicio' => $offsetInicio,
+            'mesPrev' => $mesNav->copy()->subMonth(),
+            'mesSig' => $mesNav->copy()->addMonth(),
             'puedeRetroceder' => $mesNav->gt($min),
-            'puedeAvanzar'    => $mesNav->lt($max),
+            'puedeAvanzar' => $mesNav->lt($max),
             'bloquesPorFecha' => $bloquesPorFecha,
-            'servicios'       => collect(), // filter form is commented out in the blade
-            'recursos'        => collect(),
-            'filtroServicio'  => $idServicio,
-            'filtroRecurso'   => $idRecurso,
-            'soloDisp'        => false,
-            'totalDisp'       => $totalDisp,
-            'totalReserv'     => $totalReserv,
-            'totalBloq'       => $totalBloq,
+            'servicios' => collect(), // filter form is commented out in the blade
+            'recursos' => collect(),
+            'filtroServicio' => $idServicio,
+            'filtroRecurso' => $idRecurso,
+            'soloDisp' => false,
+            'totalDisp' => $totalDisp,
+            'totalReserv' => $totalReserv,
+            'totalBloq' => $totalBloq,
         ]);
     }
 
@@ -109,12 +133,15 @@ class AgendaController extends Controller
 
     public function dia(Request $request, string $fecha)
     {
+        $curp = $this->curpUsuario();
+
         $bloques = DB::table('agenda_pats_demo as a')
             ->leftJoin('pats_cats_medicos as m', 'm.id_medico_leadplus', '=', 'a.id_recurso')
             ->where('a.activo', 1)
+            ->when($curp !== null, fn ($q) => $q->where('a.curp', $curp), fn ($q) => $q->whereRaw('1 = 0'))
             ->whereDate('a.fecha_programada', $fecha)
-            ->when($request->query('servicio'), fn($q, $v) => $q->where('a.id_servicio', $v))
-            ->when($request->query('recurso'),  fn($q, $v) => $q->where('a.id_recurso',  $v))
+            ->when($request->query('servicio'), fn ($q, $v) => $q->where('a.id_servicio', $v))
+            ->when($request->query('recurso'), fn ($q, $v) => $q->where('a.id_recurso', $v))
             ->select([
                 'a.id_agenda',
                 'a.id_recurso',
@@ -130,19 +157,19 @@ class AgendaController extends Controller
             ])
             ->orderBy('a.hora_inicio')
             ->get()
-            ->map(fn($b) => [
+            ->map(fn ($b) => [
                 ...(array) $b,
-                'hora_inicio'  => substr($b->hora_inicio, 0, 5),
-                'hora_fin'     => $b->hora_fin ? substr($b->hora_fin, 0, 5) : null,
+                'hora_inicio' => substr($b->hora_inicio, 0, 5),
+                'hora_fin' => $b->hora_fin ? substr($b->hora_fin, 0, 5) : null,
                 'duracion_min' => ($b->hora_inicio && $b->hora_fin)
                     ? Carbon::parse($b->hora_inicio)->diffInMinutes(Carbon::parse($b->hora_fin))
                     : null,
             ]);
 
         return response()->json([
-            'fecha'   => $fecha,
+            'fecha' => $fecha,
             'bloques' => $bloques,
-            'total'   => $bloques->count(),
+            'total' => $bloques->count(),
         ]);
     }
 }
