@@ -9,8 +9,12 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('pats_pasaporte_datos_extra', function (Blueprint $table) {
-            $table->string('metodo_pago', 30)->default('')->after('nacionalidad_tipo');
-            $table->string('pago_referencia', 100)->default('')->after('metodo_pago');
+            if (! Schema::hasColumn('pats_pasaporte_datos_extra', 'metodo_pago')) {
+                $table->string('metodo_pago', 30)->default('')->after('nacionalidad_tipo');
+            }
+            if (! Schema::hasColumn('pats_pasaporte_datos_extra', 'pago_referencia')) {
+                $table->string('pago_referencia', 100)->default('')->after('metodo_pago');
+            }
         });
     }
 

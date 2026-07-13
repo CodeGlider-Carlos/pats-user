@@ -66,6 +66,8 @@ class Kernel extends HttpKernel
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
 
         'feenicia.webhook' => \App\Http\Middleware\ValidateWebhookJwt::class,
-        'auth.api-key'    => \App\Http\Middleware\ApiKeyMiddleware::class,
+        'auth.api-key' => \App\Http\Middleware\ApiKeyMiddleware::class,
+        'demo.readonly' => \App\Http\Middleware\DemoModeMiddleware::class,
+        'password.forzar' => \App\Http\Middleware\ForzarCambioPassword::class,
     ];
 }

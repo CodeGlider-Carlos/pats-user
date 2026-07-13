@@ -65,11 +65,17 @@ Route::post('/logout', [LoginController::class, 'logout'])
     ->name('logout')
     ->middleware('auth:pasaporte');
 
+// Cambio de contraseña forzado (cuando debe_cambiar_password = 1)
+Route::middleware('auth:pasaporte')->group(function () {
+    Route::get('/password/cambiar', [PerfilController::class, 'showCambiarPassword'])->name('password.cambiar');
+    Route::post('/password/cambiar', [PerfilController::class, 'forzarCambioPassword'])->name('password.cambiar.post');
+});
+
 // ──────────────────────────────────────────────────────────────────────────────
 //  ÁREA DE USUARIO (guard: pasaporte)
 // ──────────────────────────────────────────────────────────────────────────────
 
-Route::middleware('auth:pasaporte')->group(function () {
+Route::middleware(['auth:pasaporte', 'demo.readonly', 'password.forzar'])->group(function () {
 
     // Dashboard / servicios
     Route::get('/servicios', function () {
@@ -95,7 +101,26 @@ Route::middleware('auth:pasaporte')->group(function () {
     })->name('servicios');
 
     Route::get('/pasaporte', [PasaporteController::class,  'index'])->name('pasaporte');
-    Route::get('/pagos', [PagosController::class,      'index'])->name('pagos');
+    Route::get('/pagos', [PagosController::class,          'index'])->name('pagos');
+    Route::post('/pagos/stripe/intent', [PagosController::class, 'crearIntentStripe'])->name('pagos.stripe.intent');
+    Route::post('/pagos/stripe/confirmar', [PagosController::class, 'confirmarStripe'])->name('pagos.stripe.confirmar');
+
+    // Tarjetas guardadas Stripe
+    Route::get('/pagos/stripe/tarjetas', [PagosController::class, 'stripeListarTarjetas'])->name('pagos.stripe.tarjetas');
+    Route::post('/pagos/stripe/setup-intent', [PagosController::class, 'stripeCrearSetupIntent'])->name('pagos.stripe.setup');
+    Route::post('/pagos/stripe/tarjeta/eliminar', [PagosController::class, 'stripeEliminarTarjeta'])->name('pagos.stripe.tarjeta.eliminar');
+    Route::post('/pagos/stripe/tarjeta-guardada', [PagosController::class, 'stripePagarConGuardada'])->name('pagos.stripe.tarjeta.pagar');
+
+    // Recurrente Stripe
+    Route::post('/pagos/stripe/suscripcion', [PagosController::class, 'stripeCrearSuscripcion'])->name('pagos.stripe.suscripcion');
+    Route::post('/pagos/recurrente/cancelar', [PagosController::class, 'cancelarRecurrente'])->name('pagos.recurrente.cancelar');
+
+    // Efectivo
+    Route::post('/pagos/efectivo/solicitar', [PagosController::class, 'registrarPagoEfectivo'])->name('pagos.efectivo.solicitar');
+
+    // OXXO via Stripe
+    Route::post('/pagos/oxxo/intent', [PagosController::class, 'crearIntentOxxo'])->name('pagos.oxxo.intent');
+    Route::post('/pagos/oxxo/verificar', [PagosController::class, 'verificarPagoOxxo'])->name('pagos.oxxo.verificar');
 
     // Reseña de citas completadas (modal del dashboard)
     Route::post('/servicios/resena', [ResenaController::class, 'guardar'])->name('servicios.resena');
@@ -112,7 +137,7 @@ Route::middleware('auth:pasaporte')->group(function () {
 //  SERVICIOS / ESPECIALIDADES / AGENDA — área de usuario (guard: pasaporte)
 // ──────────────────────────────────────────────────────────────────────────────
 
-Route::middleware('auth:pasaporte')->group(function () {
+Route::middleware(['auth:pasaporte', 'demo.readonly'])->group(function () {
     Route::controller(ServiciosController::class)->group(function () {
         Route::get('/atencion-medica', 'atencionMedica')->name('atencion.index');
         Route::get('/estudios-clinicos', 'estudiosСlinicos')->name('estudios.index');
@@ -198,6 +223,11 @@ Route::prefix('admin/solicitudes-distribuidor')->name('admin.dist.')->group(func
     Route::get('/{id}', [SolicitudDistribuidorAdminController::class, 'show'])->name('show')->where('id', '[0-9]+');
     Route::post('/{id}/accion', [SolicitudDistribuidorAdminController::class, 'accion'])->name('accion')->where('id', '[0-9]+');
     Route::get('/{id}/archivo/{tipo}', [SolicitudDistribuidorAdminController::class, 'archivo'])->name('archivo')->where('id', '[0-9]+');
+});
+
+Route::prefix('admin/renovacion')->name('admin.renovacion.')->group(function () {
+    Route::get('/preview', [PagosController::class, 'previewRenovacion'])->name('preview');
+    Route::post('/enviar', [PagosController::class, 'enviarRenovacion'])->name('enviar');
 });
 
 // ──────────────────────────────────────────────────────────────────────────────

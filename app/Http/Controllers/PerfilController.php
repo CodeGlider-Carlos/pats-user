@@ -73,6 +73,36 @@ class PerfilController extends Controller
         return back()->with('password_ok', 'Contraseña actualizada correctamente.');
     }
 
+    public function showCambiarPassword(): \Illuminate\View\View
+    {
+        return view('auth.cambiar-password');
+    }
+
+    public function forzarCambioPassword(Request $request): \Illuminate\Http\RedirectResponse
+    {
+        $request->validate([
+            'password_nuevo' => ['required', 'string', 'min:8', 'confirmed'],
+            'password_nuevo_confirmation' => ['required'],
+        ], [
+            'password_nuevo.required' => 'La nueva contraseña es obligatoria.',
+            'password_nuevo.min' => 'Debe tener al menos 8 caracteres.',
+            'password_nuevo.confirmed' => 'Las contraseñas no coinciden.',
+        ]);
+
+        $user = auth('pasaporte')->user();
+
+        DB::table('pats_pasaporte_accesos')
+            ->where('id_acceso', $user->id_acceso)
+            ->update([
+                'password_hash' => Hash::make($request->password_nuevo),
+                'debe_cambiar_password' => 0,
+                'password_temporal' => 0,
+                'updated_at' => now(),
+            ]);
+
+        return redirect()->route('servicios')->with('success', '¡Contraseña actualizada! Bienvenido a PATS.');
+    }
+
     public function servirFoto(): mixed
     {
         $user = auth()->user();

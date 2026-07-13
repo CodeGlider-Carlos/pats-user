@@ -45,10 +45,11 @@ class PasaporteController extends Controller
         $diasVigencia = now()->diffInDays($vencimiento, false); // negativo si vencido
 
         // ── Color y texto de estatus ──────────────────────────
+        // La fecha de vigencia es la fuente de verdad; el campo estatus puede estar desincronizado
         [$estadoColor, $estadoTexto] = match (true) {
-            $pasaporte->estatus === 'vencido' => ['danger',  'Vencido'],
+            $diasVigencia < 0 => ['danger',  'No activo'],
             $diasVigencia <= 7 => ['warning', 'Por vencer'],
-            $pasaporte->estatus === 'activo' => ['success', 'Vigente'],
+            $diasVigencia > 0 => ['success', 'Activo'],
             default => ['secondary', 'Inactivo'],
         };
 

@@ -342,7 +342,7 @@
             <div class="db-badges">
                 @if($pasaporte)
                 <span class="db-badge db-badge--plan">
-                    PATS-{{ str_pad($pasaporte->id_pasaporte, 6, '0', STR_PAD_LEFT) }}
+                    {{ $pasaporte->code_pasaporte ?: str_pad($pasaporte->id_pasaporte, 6, '0', STR_PAD_LEFT) }}
                 </span>
                 @endif
                 <span class="db-badge {{ $badgeEstatus['class'] }}">{{ $badgeEstatus['label'] }}</span>

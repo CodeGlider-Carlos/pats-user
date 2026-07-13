@@ -15,15 +15,17 @@
             </div>
             <div class="digi-passport-id mt-2">
                 <i class="mdi mdi-card-account-details"></i>
-                #PATS-{{ str_pad($pasaporte->id_pasaporte, 8, '0', STR_PAD_LEFT) }}
+                {{ $pasaporte->code_pasaporte ?: str_pad($pasaporte->id_pasaporte, 8, '0', STR_PAD_LEFT) }}
             </div>
             <div class="mt-2">
-                @if($pasaporte->estatus === 'activo')
-                    <span class="digi-badge digi-badge--success"><i class="mdi mdi-check-circle"></i> Vigente</span>
-                @elseif($pasaporte->estatus === 'vencido')
-                    <span class="digi-badge digi-badge--danger"><i class="mdi mdi-alert-circle"></i> Vencido</span>
+                @php
+                    $fvrCard = $pasaporte->fecha_vencimiento_real ?? $pasaporte->vigencia ?? null;
+                    $cardVigente = $fvrCard && \Carbon\Carbon::parse($fvrCard)->gte(\Carbon\Carbon::now());
+                @endphp
+                @if($cardVigente)
+                    <span class="digi-badge digi-badge--success"><i class="mdi mdi-check-circle"></i> Activo</span>
                 @else
-                    <span class="digi-badge digi-badge--muted">{{ ucfirst($pasaporte->estatus) }}</span>
+                    <span class="digi-badge digi-badge--danger"><i class="mdi mdi-alert-circle"></i> No activo</span>
                 @endif
             </div>
         </div>
@@ -72,11 +74,11 @@
                 </div>
                 <div class="digi-info-item">
                     <span class="digi-info-label">Vigencia hasta</span>
-                    <span class="digi-info-value" style="{{ $pasaporte->estatus === 'vencido' ? 'color:#dc2626;font-weight:600;' : 'color:#059669;' }}">
+                    <span class="digi-info-value" style="{{ $cardVigente ? 'color:#059669;' : 'color:#dc2626;font-weight:600;' }}">
                         {{ $pasaporte->fecha_vencimiento_real
                             ? \Carbon\Carbon::parse($pasaporte->fecha_vencimiento_real)->format('d/m/Y')
                             : '—' }}
-                        @if($pasaporte->estatus === 'activo' && $pasaporte->fecha_vencimiento_real)
+                        @if($cardVigente && $pasaporte->fecha_vencimiento_real)
                             <small style="color:#64748b;font-weight:400;">
                                 ({{ max(0, now()->diffInDays(\Carbon\Carbon::parse($pasaporte->fecha_vencimiento_real), false)) }} días)
                             </small>
@@ -85,8 +87,8 @@
                 </div>
             </div>
 
-            {{-- Alerta de recargo --}}
-            @if($pasaporte->meses_vencidos > 0)
+            {{-- Alerta de recargo: solo si realmente está vencido por fecha --}}
+            @if($pasaporte->meses_vencidos > 0 && !$cardVigente)
             <div style="margin-top:1rem;padding:.75rem 1rem;background:#fee2e2;border:1px solid #fca5a5;border-radius:8px;font-size:.83rem;color:#991b1b;">
                 <i class="mdi mdi-alert-circle"></i>
                 <strong>Pasaporte vencido</strong> · Meses vencidos: <strong>{{ $pasaporte->meses_vencidos }}</strong>
