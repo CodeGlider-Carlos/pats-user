@@ -85,16 +85,22 @@
 
                 {{-- USUARIO --}}
                 <div class="digi-dropdown">
-                    @php 
-                        $navUser = auth()->user() ?? auth('pasaporte')->user(); 
-                        $navFoto = null;
+                    @php
+                        $navUser  = auth()->user() ?? auth('pasaporte')->user();
+                        $esDemo   = $navUser?->esDemo() ?? false;
+                        $navFoto  = null;
+                        $navPasaporte = null;
+                        $esEmpresa = false;
                         if ($navUser && $navUser->id_pasaporte) {
                             $navPasaporte = \Illuminate\Support\Facades\DB::table('pats_pasaportes')->where('id_pasaporte', $navUser->id_pasaporte)->first();
                             if ($navPasaporte && isset($navPasaporte->foto_usuario) && $navPasaporte->foto_usuario) {
                                 $navFoto = $navPasaporte->foto_usuario;
                             }
+                            $esEmpresa = strtoupper($navPasaporte?->tipo_cliente ?? '') === 'EMPRESA';
                         }
+                        $pagosEnabled = strtoupper((string) optional($navPasaporte)->tipo_cliente) !== 'EMPRESA';
                     @endphp
+                    @if($navUser)
                     <button class="digi-user-btn" data-dropdown="user">
                         @if($navFoto)
                             <img src="{{ route('perfil.foto') }}" class="digi-avatar" style="object-fit:cover; border: 1.5px solid var(--blue);" alt="Avatar">
@@ -153,6 +159,17 @@
                             Cerrar sesión
                         </a>
                     </div>
+                    @else
+                        <a href="{{ route('login') }}" class="digi-user-btn">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" />
+                                <polyline points="10 17 15 12 10 7" />
+                                <line x1="15" y1="12" x2="3" y2="12" />
+                            </svg>
+                            <span class="digi-user-info__name">Iniciar sesión</span>
+                        </a>
+                    @endif
                 </div>
 
             </div>
@@ -197,9 +214,10 @@
                         Mi agenda
                     </a>
                 </li>
+                @unless($esEmpresa)
                 <li class="digi-nav__item">
-                    <a href="javascript:void(0)"
-                        class="digi-nav__link" style="cursor: not-allowed; opacity: 0.5; pointer-events: none;">
+                    <a href="{{ route('pagos') }}"
+                        class="digi-nav__link {{ request()->routeIs('pagos') ? 'is-active' : '' }}">
                         <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                             stroke-width="2">
                             <rect x="1" y="4" width="22" height="16" rx="2" />
@@ -208,6 +226,7 @@
                         Mis pagos
                     </a>
                 </li>
+                @endunless
             </ul>
         </div>
     </div>
@@ -243,8 +262,9 @@
                 </svg>
                 <span>Agenda</span>
             </a>
-            <a href="javascript:void(0)"
-                class="digi-fab__item" style="cursor: not-allowed; opacity: 0.5; pointer-events: none;">
+            @unless($esEmpresa)
+            <a href="{{ route('pagos') }}"
+                class="digi-fab__item {{ request()->routeIs('pagos') ? 'is-active' : '' }}">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                     stroke-width="2">
                     <rect x="1" y="4" width="22" height="16" rx="2" />
@@ -252,6 +272,7 @@
                 </svg>
                 <span>Pagos</span>
             </a>
+            @endunless
         </div>
         <button class="digi-fab__btn" id="digiFabToggle">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -295,8 +316,9 @@
             </div>
             <span>Agenda</span>
         </a>
-        <a href="javascript:void(0)"
-            class="digi-bottom-nav__item" style="cursor: not-allowed; opacity: 0.5; pointer-events: none;">
+        @unless($esEmpresa)
+        <a href="{{ route('pagos') }}"
+            class="digi-bottom-nav__item {{ request()->routeIs('pagos') ? 'is-active' : '' }}">
             <div class="digi-bottom-nav__icon-wrap">
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <rect x="1" y="4" width="22" height="16" rx="2"/>
@@ -305,6 +327,7 @@
             </div>
             <span>Pagos</span>
         </a>
+        @endunless
         <a href="{{ route('perfil') }}"
             class="digi-bottom-nav__item {{ request()->routeIs('perfil') ? 'is-active' : '' }}">
             <div class="digi-bottom-nav__icon-wrap">

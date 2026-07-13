@@ -2353,7 +2353,7 @@
 
                                         {{-- Iframe + overlay absoluto --}}
                                         <div class="contrato-wrapper">
-                                            <iframe id="contratoIframe" src="{{ route('dist.contrato') }}"
+                                            <iframe id="contratoIframe" src="{{ route('dist.contrato.fisica') }}"
                                                 style="width:100%;height:500px;border:none;display:block;"
                                                 title="Contrato de Distribuidor PATS">
                                             </iframe>
@@ -2478,7 +2478,7 @@
                                         <i class="mdi mdi-calendar-range icon-left"></i>
                                         <select class="select" id="plazo_meses" name="plazo_meses" disabled>
                                             <option value="">Seleccionar...</option>
-                                            @foreach ([3, 6, 9, 12, 18, 24] as $m)
+                                            @foreach ([3, 6, 9, 12] as $m)
                                                 <option value="{{ $m }}">{{ $m }} meses
                                                 </option>
                                             @endforeach
@@ -2584,6 +2584,7 @@
                                 </div>
 
                                 {{-- ── Tarjeta de pago ── --}}
+                                @if (!isset($link) || $link->type_pay === 'card')
                                 <div class="field--full">
                                     <div class="divider" style="margin-bottom:14px;">
                                         <div class="divider__line"></div>
@@ -2682,6 +2683,7 @@
                                         <span><i class="mdi mdi-lock-check-outline"></i> 3D Secure</span>
                                     </div>
                                 </div>
+                                @endif
 
                             </div>
                         </div>
@@ -2735,6 +2737,9 @@
             let current = 1;
             let goingBack = false;
 
+            const TYPE_PAY = '{{ isset($link) ? $link->type_pay : 'card' }}';
+            const CONTRATO_FISICA_URL = '{{ route('dist.contrato.fisica') }}';
+            const CONTRATO_MORAL_URL  = '{{ route('dist.contrato.moral') }}';
 
             const STEP_META = [{
                     tag: 'Paso 1 de 6',
@@ -2972,14 +2977,16 @@
                             return false;
                         }
                     }
-                    if (!$('cc_nombre')?.value.trim()) {
-                        toast('Escribe el nombre del titular de la tarjeta.', 'error');
-                        $('cc_nombre')?.focus();
-                        return false;
-                    }
-                    if (!readCard()) {
-                        toast('Ingresa los datos completos de tu tarjeta.', 'error');
-                        return false;
+                    if (TYPE_PAY === 'card') {
+                        if (!$('cc_nombre')?.value.trim()) {
+                            toast('Escribe el nombre del titular de la tarjeta.', 'error');
+                            $('cc_nombre')?.focus();
+                            return false;
+                        }
+                        if (!readCard()) {
+                            toast('Ingresa los datos completos de tu tarjeta.', 'error');
+                            return false;
+                        }
                     }
                 }
                 return true;
@@ -3035,6 +3042,13 @@
                         const razon = $('razon_social');
                         if (razonWrap) razonWrap.style.display = moral ? '' : 'none';
                         if (razon) razon.required = moral;
+
+                        // Cambiar el contrato en el iframe según tipo de persona
+                        const iframe = $('contratoIframe');
+                        if (iframe) {
+                            const newBase = moral ? CONTRATO_MORAL_URL : CONTRATO_FISICA_URL;
+                            iframe.src = newBase + '?ts=' + Date.now();
+                        }
                     });
                 });
             }
@@ -3178,6 +3192,9 @@
                 set('prev_apt8', nombre);
                 set('prev_apt9', demarcacion || '—');
 
+                // Para persona moral, guardar también el nombre del representante (individuo)
+                const rep_nombre = moral ? ($('nombre')?.value.trim() || '') : '';
+
                 // Guardar en sessionStorage para que el iframe los lea
                 try {
                     sessionStorage.setItem('pats_caratula', JSON.stringify({
@@ -3188,6 +3205,7 @@
                         telefono,
                         correo,
                         pais: paisText,
+                        rep_nombre,
                     }));
                 } catch (_) {}
             }
@@ -3242,11 +3260,11 @@
 
                 overlay.style.display = '';
 
-                // ── Recargar el iframe con firma y nombre como query params ──
-                // El contrato es mismo origen (Laravel), así que los params llegan sin restricciones CORS.
+                // ── Recargar el iframe con la URL correcta según tipo_persona ──
                 const iframe = $('contratoIframe');
                 if (iframe) {
-                    const base = iframe.src.split('?')[0];
+                    const isMoral = document.querySelector('input[name=tipo_persona]:checked')?.value === 'MORAL';
+                    const base = isMoral ? CONTRATO_MORAL_URL : CONTRATO_FISICA_URL;
                     const qs = new URLSearchParams({
                         firma: firmaData,
                         nombre: nombreVal,
@@ -3303,9 +3321,15 @@
             /* ─── Submit ─── */
             function bindSubmit() {
                 @php
-                    $chargeUrl = route('dist.prosa.charge'); // ← distribución $20K
-                    $submitUrl = route('dist.publico.guardar');
-                    $preValidarUrl = route('dist.publico.pre-validar');
+                    if (!empty($linkMode)) {
+                        $chargeUrl     = route('dist.link.prosa.charge', $token);
+                        $submitUrl     = route('dist.link.guardar', $token);
+                        $preValidarUrl = route('dist.link.pre-validar', $token);
+                    } else {
+                        $chargeUrl     = route('dist.prosa.charge'); // ← distribución $20K
+                        $submitUrl     = route('dist.publico.guardar');
+                        $preValidarUrl = route('dist.publico.pre-validar');
+                    }
                 @endphp
 
                 // Retorno de reto 3DS: si hay ?3ds=ok&prosa_payment_id=xxx, recuperar el ID confirmado.
@@ -3331,7 +3355,17 @@
                             ?.value || 'CONTADO';
                         const plazoMeses = parseInt(document.getElementById('plazo_meses')?.value || '0');
 
-                        if (!confirmedPaymentId) {
+                        if (TYPE_PAY !== 'card') {
+                            btn.innerHTML = '<i class="mdi mdi-loading mdi-spin"></i> Verificando datos...';
+                            const fdPreFree = new FormData(e.target);
+                            const preResFree = await fetch('{{ $preValidarUrl }}', {
+                                method: 'POST',
+                                body: fdPreFree,
+                                headers: { 'X-Requested-With': 'XMLHttpRequest', 'X-CSRF-TOKEN': csrf },
+                            });
+                            const preDataFree = await preResFree.json().catch(() => ({}));
+                            if (!preResFree.ok || preDataFree.ok === false) throw new Error(preDataFree.error || 'Error en la validación de datos.');
+                        } else if (!confirmedPaymentId) {
                             const card = readCard();
                             if (!card) {
                                 btn.disabled = false;
@@ -3391,7 +3425,7 @@
 
                         btn.innerHTML = '<i class="mdi mdi-loading mdi-spin"></i> Guardando solicitud...';
                         const fd = new FormData(e.target);
-                        fd.append('prosa_payment_id', confirmedPaymentId);
+                        fd.append('prosa_payment_id', confirmedPaymentId || '');
                         const res = await fetch('{{ $submitUrl }}', {
                             method: 'POST',
                             body: fd,
@@ -3409,7 +3443,7 @@
                             nombre: $('nombre')?.value.trim() || '',
                             correo: $('correo')?.value.trim() || '',
                         });
-                        window.location.href = '{{ route('franq.publico.confirmacion') }}?' + params
+                        window.location.href = '{{ route('dist.publico.confirmacion') }}?' + params
                             .toString();
 
                     } catch (err) {
@@ -3709,7 +3743,7 @@
                 bindModalidad();
                 bindSubmit();
                 bindNav();
-                bindCard();
+                if (TYPE_PAY === 'card') bindCard();
                 bindSelfie();
                 bindSignature();
                 bindContractName();

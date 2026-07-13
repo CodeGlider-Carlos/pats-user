@@ -63,6 +63,23 @@ return [
             ]) : [],
         ],
 
+        'modelpats' => [
+            'driver' => 'mysql',
+            'url' => env('DB_MODELPATS_URL'),
+            'host' => env('DB_MODELPATS_HOST', env('DB_HOST', '127.0.0.1')),
+            'port' => env('DB_MODELPATS_PORT', env('DB_PORT', '3306')),
+            'database' => env('DB_MODELPATS_DATABASE', 'dcommx1_ezsystem_modelpats'),
+            'username' => env('DB_MODELPATS_USERNAME', env('DB_USERNAME', 'forge')),
+            'password' => env('DB_MODELPATS_PASSWORD', env('DB_PASSWORD', '')),
+            'unix_socket' => env('DB_SOCKET', ''),
+            'charset' => 'utf8mb4',
+            'collation' => 'utf8mb4_unicode_ci',
+            'prefix' => '',
+            'prefix_indexes' => true,
+            'strict' => true,
+            'engine' => null,
+        ],
+
         'pgsql' => [
             'driver' => 'pgsql',
             'url' => env('DATABASE_URL'),

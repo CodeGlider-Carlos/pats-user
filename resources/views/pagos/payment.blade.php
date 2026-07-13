@@ -5,6 +5,86 @@
 @section('content')
 
     <link rel="stylesheet" href="{{ asset('styles/payments.css') }}">
+    <style>
+        @keyframes toastIn {
+            from { opacity:0; transform:translateY(12px); }
+            to   { opacity:1; transform:translateY(0); }
+        }
+        @keyframes psOverlayIn {
+            from { opacity:0; }
+            to   { opacity:1; }
+        }
+        @keyframes psBannerIn {
+            from { opacity:0; transform:translateY(-28px) scale(.95); }
+            to   { opacity:1; transform:translateY(0) scale(1); }
+        }
+        @keyframes psCheckPop {
+            0%   { transform:scale(0) rotate(-30deg); opacity:0; }
+            65%  { transform:scale(1.18) rotate(6deg); opacity:1; }
+            100% { transform:scale(1) rotate(0); opacity:1; }
+        }
+        @keyframes psRingPulse {
+            0%,100% { box-shadow:0 0 0 0 rgba(22,163,74,.35); }
+            50%      { box-shadow:0 0 0 18px rgba(22,163,74,0); }
+        }
+        #ps-overlay {
+            position:fixed;inset:0;z-index:10000;
+            background:rgba(10,20,10,.62);
+            backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);
+            display:flex;align-items:center;justify-content:center;
+            animation:psOverlayIn .25s ease;
+            padding:1rem;
+        }
+        #ps-banner {
+            background:#fff;border-radius:24px;
+            max-width:480px;width:100%;
+            padding:2.8rem 2.4rem 2.4rem;
+            box-shadow:0 24px 60px rgba(0,0,0,.28);
+            animation:psBannerIn .35s cubic-bezier(.22,1,.36,1);
+            text-align:center;position:relative;
+        }
+        #ps-banner .ps-ring {
+            width:90px;height:90px;border-radius:50%;
+            background:linear-gradient(135deg,#16a34a,#22c55e);
+            display:flex;align-items:center;justify-content:center;
+            margin:0 auto 1.6rem;
+            animation:psCheckPop .5s cubic-bezier(.22,1,.36,1) .1s both,
+                       psRingPulse 2s ease-in-out 1s infinite;
+        }
+        #ps-banner .ps-ring i { color:#fff;font-size:2.8rem;line-height:1; }
+        #ps-banner .ps-title {
+            font-size:1.6rem;font-weight:800;
+            color:#15803d;margin:0 0 .6rem;letter-spacing:-.02em;
+        }
+        #ps-banner .ps-msg {
+            font-size:1rem;color:#374151;line-height:1.6;
+            margin:0 0 2rem;
+        }
+        #ps-banner .ps-close-btn {
+            display:inline-flex;align-items:center;gap:.5rem;
+            background:linear-gradient(135deg,#16a34a,#22c55e);
+            color:#fff;border:none;border-radius:12px;
+            padding:.85rem 2.4rem;font-size:1rem;font-weight:700;
+            cursor:pointer;transition:transform .15s,box-shadow .15s;
+            box-shadow:0 4px 14px rgba(22,163,74,.4);
+        }
+        #ps-banner .ps-close-btn:hover {
+            transform:translateY(-2px);
+            box-shadow:0 8px 20px rgba(22,163,74,.5);
+        }
+        #ps-banner .ps-x {
+            position:absolute;top:1rem;right:1rem;
+            background:none;border:none;cursor:pointer;
+            color:#9ca3af;font-size:1.4rem;line-height:1;
+            padding:.25rem;border-radius:50%;
+            transition:color .15s,background .15s;
+        }
+        #ps-banner .ps-x:hover { color:#374151;background:#f3f4f6; }
+        #ps-banner .ps-confetti {
+            position:absolute;top:0;left:0;width:100%;height:100%;
+            pointer-events:none;border-radius:24px;overflow:hidden;
+        }
+    </style>
 
     <div class="pago-wrap">
 
@@ -41,10 +121,14 @@
             <div class="stat-card">
                 <div class="stat-icon"><i class="mdi mdi-shield-check"></i></div>
                 <div>
-                    @if ($pasaporte?->estatus === 'activo')
-                        <div class="stat-val" style="color:#10b981;">Activa</div>
-                    @elseif($pasaporte?->estatus === 'vencido')
-                        <div class="stat-val" style="color:#dc2626;">Vencida</div>
+                    @php
+                        $fvr = $pasaporte?->fecha_vencimiento_real ?? $pasaporte?->vigencia ?? null;
+                        $estaVigente = $fvr && \Carbon\Carbon::parse($fvr)->gte(\Carbon\Carbon::now());
+                    @endphp
+                    @if($pasaporte && $estaVigente)
+                        <div class="stat-val" style="color:#10b981;">Activo</div>
+                    @elseif($pasaporte)
+                        <div class="stat-val" style="color:#dc2626;">No activo</div>
                     @else
                         <div class="stat-val" style="color:#94a3b8;">Sin Pasaporte</div>
                     @endif
@@ -56,7 +140,18 @@
         {{-- ① Passport Card dinámica --}}
         @include('pagos._passport_card')
 
-        {{-- ② Panel de pago --}}
+        {{-- ② Panel de pago (solo para clientes NO empresa) --}}
+        @if (strtoupper($pasaporte?->tipo_cliente ?? '') === 'EMPRESA')
+            <div class="section-card" style="text-align:center;padding:2.5rem 1.5rem;">
+                <i class="mdi mdi-office-building-outline" style="font-size:3rem;color:#94a3b8;display:block;margin-bottom:1rem;"></i>
+                <h3 style="font-size:1.1rem;color:#1e3a5f;margin-bottom:.5rem;">Pasaporte corporativo</h3>
+                <p style="color:#64748b;font-size:.9rem;max-width:400px;margin:0 auto;">
+                    Tu pasaporte está vinculado a un plan empresarial.
+                    Los pagos y renovaciones son gestionados por tu empresa.
+                    Contacta a tu área de RH o a tu representante PATS.
+                </p>
+            </div>
+        @else
         <div class="section-card">
 
             {{-- Selector de plan con meses, recargos y renovación --}}
@@ -70,22 +165,23 @@
                 <li><button class="ptab-btn" data-target="tab-token">
                         <i class="mdi mdi-wallet"></i> Tarjetas guardadas
                     </button></li>
-                <li><button class="ptab-btn" data-target="tab-recurring">
+                <li><button class="ptab-btn" data-target="tab-recurring" id="tabBtnRecurrente">
                         <i class="mdi mdi-repeat"></i> Recurrente
+                        <span id="badgeRecurrente" style="display:none;background:#10b981;color:#fff;font-size:.6rem;font-weight:700;padding:.1rem .35rem;border-radius:4px;vertical-align:middle;margin-left:.25rem;">ACTIVO</span>
                     </button></li>
                 <li><button class="ptab-btn" data-target="tab-cash">
                         <i class="mdi mdi-store"></i> OXXO
                     </button></li>
+                <li><button class="ptab-btn" data-target="tab-historial">
+                        <i class="mdi mdi-history"></i> Historial
+                        @if($totalPagos > 0)
+                            <span style="background:#1e3a5f;color:#fff;font-size:.6rem;font-weight:700;padding:.1rem .35rem;border-radius:4px;vertical-align:middle;margin-left:.25rem;">{{ $totalPagos }}</span>
+                        @endif
+                    </button></li>
             </ul>
 
-            <div class="alert alert-success" id="alertSuccess">
-                <i class="mdi mdi-check-circle"></i>
-                <span id="alertSuccessMsg">Pago procesado correctamente.</span>
-            </div>
-            <div class="alert alert-danger" id="alertError">
-                <i class="mdi mdi-alert-circle"></i>
-                <span id="alertErrorMsg">Error al procesar el pago.</span>
-            </div>
+            {{-- Toast container (global) --}}
+            <div id="toast-container" style="position:fixed;bottom:1.5rem;right:1.5rem;z-index:9999;display:flex;flex-direction:column;gap:.6rem;pointer-events:none;"></div>
 
             {{-- TAB: Tarjeta --}}
             <div class="ptab-panel active" id="tab-card">
@@ -184,104 +280,137 @@
 
             {{-- TAB: Tarjetas guardadas --}}
             <div class="ptab-panel" id="tab-token">
-                <div id="tokenList">
-                    <div style="text-align:center;padding:2rem;color:var(--text-muted);">
-                        <div class="spin"
-                            style="border-color:var(--blue);border-top-color:transparent;margin:0 auto 1rem;width:28px;height:28px;">
-                        </div>
-                        Cargando tarjetas...
-                    </div>
-                </div>
+                <div id="tokenList"></div>
                 <div class="mb-3">
                     <label class="form-lbl">CVV</label>
-                    <input class="form-ctrl" id="inp-token-cvv" type="password" maxlength="4" placeholder="•••"
-                        style="max-width:140px;">
+                    <input class="form-ctrl" id="inp-token-cvv" type="password" maxlength="4" placeholder="•••" style="max-width:140px;">
                 </div>
                 <button class="btn btn-primary btn-w" id="btnPagarToken" disabled>
                     <i class="mdi mdi-lock"></i>
-                    <span id="btnTokenTxt">Pagar</span>
+                    <span id="btnTokenTxt">Selecciona una tarjeta</span>
                 </button>
             </div>
 
             {{-- TAB: Recurrente --}}
             <div class="ptab-panel" id="tab-recurring">
-                <div class="row g-4">
-                    <div class="col-md-6">
-                        <form id="formRecurring">
-                            @csrf
-                            <div class="mb-3">
-                                <label class="form-lbl">Número de tarjeta</label>
-                                <input class="form-ctrl" id="rec-num" type="text" maxlength="19"
-                                    placeholder="0000 0000 0000 0000">
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-lbl">Nombre del titular</label>
-                                <input class="form-ctrl" id="rec-name" type="text"
-                                    value="{{ strtoupper(($pasaporte->nombres ?? ($user->nombre_usuario ?? '')) . ' ' . ($pasaporte->apellido_pa ?? '')) }}">
-                            </div>
-                            <div class="form-row mb-3">
-                                <div>
-                                    <label class="form-lbl">Vencimiento (MM/AA)</label>
-                                    <input class="form-ctrl" id="rec-exp" type="text" maxlength="5"
-                                        placeholder="MM/AA">
-                                </div>
-                                <div>
-                                    <label class="form-lbl">CVV</label>
-                                    <input class="form-ctrl" id="rec-cvv" type="password" maxlength="4">
-                                </div>
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-lbl">Número de contrato</label>
-                                <input class="form-ctrl" id="rec-contract" type="text"
-                                    value="{{ $pasaporte ? 'PATS-' . str_pad($pasaporte->id_pasaporte, 8, '0', STR_PAD_LEFT) : '' }}">
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-lbl">Correo para recibo</label>
-                                <input class="form-ctrl" id="rec-email" type="email" value="{{ $user->correo_usuario }}">
-                            </div>
 
-                            {{-- Dirección de facturación (requerida por 3-D Secure) --}}
-                            <div class="mb-3">
-                                <label class="form-lbl">Dirección (calle y número)</label>
-                                <input class="form-ctrl" id="rec-bill-street" type="text" placeholder="Calle y número">
-                            </div>
-                            <div class="form-row mb-3">
-                                <div>
-                                    <label class="form-lbl">Ciudad</label>
-                                    <input class="form-ctrl" id="rec-bill-city" type="text" placeholder="Ciudad">
-                                </div>
-                                <div>
-                                    <label class="form-lbl">Código postal</label>
-                                    <input class="form-ctrl" id="rec-bill-postcode" type="text" maxlength="10"
-                                        placeholder="C.P.">
-                                </div>
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-lbl">País</label>
-                                <input class="form-ctrl" id="rec-bill-country" type="text" maxlength="2" value="MX"
-                                    placeholder="MX">
-                            </div>
+                {{-- === Stripe: recurrente === --}}
+                <div id="stripe-recurring-section">
 
-                            <button type="submit" class="btn btn-primary btn-w" id="btnRecurring">
-                                <i class="mdi mdi-repeat"></i>
-                                <span id="btnRecurringTxt">Iniciar cobro recurrente $800 MXN</span>
-                            </button>
-                        </form>
+                    {{-- ── Estado de renovación automática ── --}}
+                    <div id="rec-estado-wrap" style="margin-bottom:1.25rem;">
+                        <div id="rec-estado-loading" style="font-size:.84rem;color:var(--text-muted);padding:.6rem 0;">
+                            <span class="spin" style="width:14px;height:14px;border-width:2px;margin-right:.4rem;vertical-align:middle;display:inline-block;"></span>
+                            Verificando estado de renovación...
+                        </div>
+
+                        {{-- Con tarjeta guardada → renovación activa --}}
+                        <div id="rec-activo-box" style="display:none;background:#f0fdf4;border:1.5px solid #86efac;border-radius:12px;padding:1rem 1.1rem;margin-bottom:1rem;">
+                            <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:1rem;flex-wrap:wrap;">
+                                <div>
+                                    <div style="font-weight:700;color:#15803d;font-size:.9rem;margin-bottom:.35rem;">
+                                        <i class="mdi mdi-check-circle"></i> Renovación automática activa
+                                    </div>
+                                    <div id="rec-tarjeta-info" style="font-size:.82rem;color:var(--text-muted);"></div>
+                                </div>
+                                <button type="button" id="btnCancelarRecurrente"
+                                    style="border:1.5px solid #dc2626;background:transparent;color:#dc2626;border-radius:8px;padding:.45rem .9rem;font-size:.82rem;font-weight:600;cursor:pointer;font-family:inherit;white-space:nowrap;flex-shrink:0;">
+                                    <i class="mdi mdi-cancel"></i>
+                                    <span id="btnCancelarRecurrenteTxt">Cancelar renovación</span>
+                                </button>
+                            </div>
+                            <div id="rec-cancel-msg" style="font-size:.8rem;margin-top:.6rem;min-height:1em;"></div>
+                        </div>
+
+                        {{-- Sin tarjeta → no hay renovación --}}
+                        <div id="rec-inactivo-box" style="display:none;background:#f8fafc;border:1px solid var(--border);border-radius:10px;padding:.75rem 1rem;margin-bottom:1rem;font-size:.83rem;color:var(--text-muted);">
+                            <i class="mdi mdi-information-outline"></i>
+                            No tienes renovación automática configurada. Ingresa tu tarjeta para activarla.
+                        </div>
                     </div>
-                    <div class="col-md-6">
-                        <div style="background:var(--navy);border-radius:12px;padding:1.25rem;">
-                            <p style="font-size:.85rem;font-weight:600;color:var(--cream);margin:0 0 .75rem;">¿Cómo
-                                funciona?</p>
-                            <ul style="list-style:none;padding:0;margin:0;font-size:.83rem;color:var(--text-muted);">
-                                <li style="padding:.35rem 0;border-bottom:1px solid var(--border);display:flex;gap:.5rem;">
-                                    <i class="mdi mdi-check" style="color:var(--success);"></i> Se registra tu tarjeta de
-                                    forma segura</li>
-                                <li style="padding:.35rem 0;border-bottom:1px solid var(--border);display:flex;gap:.5rem;">
-                                    <i class="mdi mdi-check" style="color:var(--success);"></i> El cobro se ejecuta
-                                    automáticamente</li>
-                                <li style="padding:.35rem 0;display:flex;gap:.5rem;"><i class="mdi mdi-check"
-                                        style="color:var(--success);"></i> Puedes cancelar en cualquier momento</li>
-                            </ul>
+
+                    <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:10px;padding:.85rem 1.1rem;margin-bottom:1.5rem;font-size:.84rem;color:#1e40af;">
+                        <i class="mdi mdi-information-outline"></i>
+                        <strong>Cobro recurrente:</strong> Guardamos tu tarjeta de forma segura y renovamos tu membresía automáticamente en cada ciclo.
+                    </div>
+                    <div class="row g-4">
+                        <div class="col-md-7">
+                            <form id="formRecurring">
+                                @csrf
+                                <div class="mb-3">
+                                    <label class="form-lbl">Número de tarjeta</label>
+                                    <input class="form-ctrl" id="rec-num" type="text" maxlength="19"
+                                        placeholder="0000 0000 0000 0000">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-lbl">Nombre del titular</label>
+                                    <input class="form-ctrl" id="rec-name" type="text"
+                                        value="{{ strtoupper(($pasaporte->nombres ?? ($user->nombre_usuario ?? '')) . ' ' . ($pasaporte->apellido_pa ?? '')) }}">
+                                </div>
+                                <div class="form-row mb-3">
+                                    <div>
+                                        <label class="form-lbl">Vencimiento (MM/AA)</label>
+                                        <input class="form-ctrl" id="rec-exp" type="text" maxlength="5"
+                                            placeholder="MM/AA">
+                                    </div>
+                                    <div>
+                                        <label class="form-lbl">CVV</label>
+                                        <input class="form-ctrl" id="rec-cvv" type="password" maxlength="4">
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-lbl">Número de contrato</label>
+                                    <input class="form-ctrl" id="rec-contract" type="text"
+                                        value="{{ $pasaporte ? 'PATS-' . str_pad($pasaporte->id_pasaporte, 8, '0', STR_PAD_LEFT) : '' }}">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-lbl">Correo para recibo</label>
+                                    <input class="form-ctrl" id="rec-email" type="email" value="{{ $user->correo_usuario }}">
+                                </div>
+
+                                {{-- Dirección de facturación (requerida por 3-D Secure) --}}
+                                <div class="mb-3">
+                                    <label class="form-lbl">Dirección (calle y número)</label>
+                                    <input class="form-ctrl" id="rec-bill-street" type="text" placeholder="Calle y número">
+                                </div>
+                                <div class="form-row mb-3">
+                                    <div>
+                                        <label class="form-lbl">Ciudad</label>
+                                        <input class="form-ctrl" id="rec-bill-city" type="text" placeholder="Ciudad">
+                                    </div>
+                                    <div>
+                                        <label class="form-lbl">Código postal</label>
+                                        <input class="form-ctrl" id="rec-bill-postcode" type="text" maxlength="10"
+                                            placeholder="C.P.">
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-lbl">País</label>
+                                    <input class="form-ctrl" id="rec-bill-country" type="text" maxlength="2" value="MX"
+                                        placeholder="MX">
+                                </div>
+
+                                <button type="submit" class="btn btn-primary btn-w" id="btnRecurring">
+                                    <i class="mdi mdi-repeat"></i>
+                                    <span id="btnRecurringTxt">Iniciar cobro recurrente $800 MXN</span>
+                                </button>
+                            </form>
+                        </div>
+                        <div class="col-md-5">
+                            <div style="background:var(--navy);border-radius:12px;padding:1.25rem;">
+                                <p style="font-size:.85rem;font-weight:600;color:var(--cream);margin:0 0 .75rem;">¿Cómo
+                                    funciona?</p>
+                                <ul style="list-style:none;padding:0;margin:0;font-size:.83rem;color:var(--text-muted);">
+                                    <li style="padding:.35rem 0;border-bottom:1px solid var(--border);display:flex;gap:.5rem;">
+                                        <i class="mdi mdi-check" style="color:var(--success);"></i> Se registra tu tarjeta de
+                                        forma segura</li>
+                                    <li style="padding:.35rem 0;border-bottom:1px solid var(--border);display:flex;gap:.5rem;">
+                                        <i class="mdi mdi-check" style="color:var(--success);"></i> El cobro se ejecuta
+                                        automáticamente</li>
+                                    <li style="padding:.35rem 0;display:flex;gap:.5rem;"><i class="mdi mdi-check"
+                                            style="color:var(--success);"></i> Puedes cancelar en cualquier momento</li>
+                                </ul>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -370,10 +499,190 @@
                         </div>
                     </div>
                 </div>
+            </div>
 
+            {{-- TAB: Historial --}}
+            <div class="ptab-panel" id="tab-historial">
+                @if ($pagos->isEmpty())
+                    <div style="text-align:center;padding:2.5rem;color:#64748b;">
+                        <i class="mdi mdi-receipt-text-outline" style="font-size:3rem;display:block;margin-bottom:.75rem;color:#cbd5e1;"></i>
+                        <p>Aún no tienes pagos registrados.</p>
+                    </div>
+                @else
+                    <div style="margin-bottom:1rem;font-size:.82rem;color:var(--text-muted);">
+                        {{ $totalPagos }} pago(s) · Total pagado: <strong style="color:var(--cream);">${{ number_format($totalPagado, 2) }} MXN</strong>
+                    </div>
+                    {{-- Desktop --}}
+                    <div class="d-sm-none">
+                        <table class="htable">
+                            <thead>
+                                <tr>
+                                    <th>Folio</th>
+                                    <th>Producto</th>
+                                    <th>Fecha</th>
+                                    <th>Monto</th>
+                                    <th>Método</th>
+                                    <th>Estatus</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach ($pagos as $p)
+                                    <tr>
+                                        <td><strong>{{ $p['folio'] }}</strong></td>
+                                        <td>{{ $p['producto'] }}</td>
+                                        <td>{{ $p['fecha'] }}</td>
+                                        <td><strong>${{ number_format($p['monto'], 2) }}</strong></td>
+                                        <td>
+                                            @php
+                                                $metodoIcon = match(strtolower($p['metodo'] ?? '')) {
+                                                    'oxxo'   => 'mdi-store',
+                                                    'tarjeta', 'stripe' => 'mdi-credit-card-outline',
+                                                    default  => 'mdi-cash',
+                                                };
+                                            @endphp
+                                            <i class="mdi {{ $metodoIcon }}"></i> {{ $p['metodo'] }}
+                                        </td>
+                                        <td>
+                                            @php
+                                                $badgeClass = match($p['estatus']) {
+                                                    'Pagado'   => 'success',
+                                                    'Pendiente', 'Pendiente Oxxo', 'Pendiente Validacion' => 'warning',
+                                                    default    => 'danger',
+                                                };
+                                            @endphp
+                                            <span class="badge badge-{{ $badgeClass }}">{{ $p['estatus'] }}</span>
+                                        </td>
+                                        <td>
+                                            <button class="btn btn-outline btn-sm" onclick="verDetalle({{ json_encode($p) }})">
+                                                <i class="mdi mdi-eye"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                    {{-- Móvil --}}
+                    <div class="d-sm-block">
+                        @foreach ($pagos as $p)
+                            <div class="mob-card">
+                                <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:.5rem;">
+                                    <span style="font-size:.78rem;color:var(--text-muted);">{{ $p['fecha'] }}</span>
+                                    @php
+                                        $bc = match($p['estatus']) {
+                                            'Pagado' => 'success',
+                                            'Pendiente', 'Pendiente Oxxo', 'Pendiente Validacion' => 'warning',
+                                            default  => 'danger',
+                                        };
+                                    @endphp
+                                    <span class="badge badge-{{ $bc }}">{{ $p['estatus'] }}</span>
+                                </div>
+                                <div style="font-weight:600;color:var(--cream);margin-bottom:.25rem;">{{ $p['producto'] }}</div>
+                                <div style="font-size:.82rem;color:var(--text-muted);margin-bottom:.75rem;">
+                                    {{ $p['folio'] }}@if(!empty($p['authnum'])) · Auth: {{ $p['authnum'] }}@endif
+                                </div>
+                                <div style="display:flex;justify-content:space-between;align-items:center;">
+                                    <strong style="color:var(--blue);">${{ number_format($p['monto'], 2) }} MXN</strong>
+                                    <button class="btn btn-outline btn-sm" onclick="verDetalle({{ json_encode($p) }})">Ver</button>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                @endif
+            </div>
+
+        </div>
+        @endif {{-- fin @else empresa --}}
+
+    </div>
+
+    {{-- ══ Modal vencimiento ══ --}}
+    @php
+        // fecha_vencimiento_real es la fuente de verdad (datetime fin de dia)
+        $vigRaw  = $pasaporte?->fecha_vencimiento_real ?? $pasaporte?->vigencia ?? null;
+        $vigDate = $vigRaw ? \Carbon\Carbon::parse($vigRaw)->startOfDay() : null;
+        $hoy     = \Carbon\Carbon::now()->startOfDay();
+        $diasRestantes = $vigDate ? (int)$hoy->diffInDays($vigDate, false) : null;
+        $pasaporteVencido   = $diasRestantes !== null && $diasRestantes < 0;
+        $pasaportePorVencer = $diasRestantes !== null && $diasRestantes >= 0 && $diasRestantes <= 30;
+        $mostrarModalVenc   = ($pasaporteVencido || $pasaportePorVencer) && $pasaporte;
+        $vigFormato = $vigDate ? $vigDate->format('d/m/Y') : '—';
+    @endphp
+    @if($mostrarModalVenc)
+    <div class="modal fade" id="modalVencimiento" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
+        <div class="modal-dialog modal-dialog-centered" style="max-width:400px;">
+            <div class="modal-content" style="border-radius:20px;border:none;box-shadow:0 25px 60px rgba(0,0,0,.35);overflow:hidden;background:#fff;">
+
+                {{-- Franja superior de color --}}
+                <div style="height:5px;background:{{ $pasaporteVencido ? '#dc2626' : '#f59e0b' }};"></div>
+
+                {{-- Cuerpo blanco --}}
+                <div style="padding:2rem 1.75rem 1.75rem;background:#fff;text-align:center;">
+
+                    {{-- Icono en círculo --}}
+                    <div style="width:68px;height:68px;border-radius:50%;background:{{ $pasaporteVencido ? '#fef2f2' : '#fffbeb' }};display:flex;align-items:center;justify-content:center;margin:0 auto 1rem;">
+                        <i class="mdi {{ $pasaporteVencido ? 'mdi-shield-off-outline' : 'mdi-clock-alert-outline' }}"
+                           style="font-size:2rem;color:{{ $pasaporteVencido ? '#dc2626' : '#f59e0b' }};"></i>
+                    </div>
+
+                    {{-- Título --}}
+                    <h5 style="font-family:'Syne',sans-serif;font-size:1.2rem;font-weight:700;color:#0f172a;margin:0 0 .4rem;">
+                        {{ $pasaporteVencido ? '¡Tu pasaporte ha expirado!' : 'Tu pasaporte vence pronto' }}
+                    </h5>
+                    <p style="font-size:.85rem;color:#64748b;margin:0 0 1.25rem;line-height:1.55;">
+                        @if($pasaporteVencido)
+                            Renueva ahora para recuperar el acceso a todos tus beneficios PATS.
+                        @else
+                            Vence en <strong style="color:#0f172a;">{{ $diasRestantes }} {{ $diasRestantes === 1 ? 'día' : 'días' }}</strong>. Renueva antes de perder tus beneficios.
+                        @endif
+                    </p>
+
+                    {{-- Tarjeta de fechas --}}
+                    <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:.9rem 1.25rem;margin-bottom:1.5rem;display:flex;justify-content:space-around;align-items:center;">
+                        <div>
+                            <div style="font-size:.65rem;text-transform:uppercase;font-weight:700;color:#94a3b8;letter-spacing:.05em;margin-bottom:.3rem;">Vigencia</div>
+                            <div style="font-size:.95rem;font-weight:700;color:#0f172a;">{{ $vigFormato }}</div>
+                        </div>
+                        <div style="width:1px;height:32px;background:#e2e8f0;"></div>
+                        <div>
+                            <div style="font-size:.65rem;text-transform:uppercase;font-weight:700;color:#94a3b8;letter-spacing:.05em;margin-bottom:.3rem;">
+                                {{ $pasaporteVencido ? 'Venció hace' : 'Vence en' }}
+                            </div>
+                            <div style="font-size:1.1rem;font-weight:700;color:{{ $pasaporteVencido ? '#dc2626' : '#f59e0b' }};">
+                                {{ abs($diasRestantes) }} {{ abs($diasRestantes) === 1 ? 'día' : 'días' }}
+                            </div>
+                        </div>
+                        @php
+                            $mesesVenc = $pasaporteVencido && $pasaporte->fecha_vencimiento_real
+                                ? (int) \Carbon\Carbon::parse($pasaporte->fecha_vencimiento_real)->startOfDay()->diffInMonths(\Carbon\Carbon::now()->startOfDay())
+                                : 0;
+                        @endphp
+                        @if($pasaporteVencido && $mesesVenc > 0)
+                        <div style="width:1px;height:32px;background:#e2e8f0;"></div>
+                        <div>
+                            <div style="font-size:.65rem;text-transform:uppercase;font-weight:700;color:#94a3b8;letter-spacing:.05em;margin-bottom:.3rem;">Con recargo</div>
+                            <div style="font-size:.95rem;font-weight:700;color:#dc2626;">{{ $mesesVenc }} mes(es)</div>
+                        </div>
+                        @endif
+                    </div>
+
+                    {{-- Botón principal --}}
+                    <button type="button" data-bs-dismiss="modal" data-renovar-tab="tab-card"
+                        style="width:100%;padding:.9rem 1rem;border-radius:12px;border:none;background:{{ $pasaporteVencido ? '#dc2626' : '#2563eb' }};color:#fff;font-size:.95rem;font-weight:700;cursor:pointer;font-family:inherit;margin-bottom:.6rem;display:flex;align-items:center;justify-content:center;gap:.5rem;">
+                        <i class="mdi mdi-credit-card-outline"></i> Renovar ahora
+                    </button>
+
+                    {{-- Botón secundario --}}
+                    <button type="button" data-bs-dismiss="modal"
+                        style="width:100%;padding:.65rem 1rem;border-radius:12px;border:1.5px solid #e2e8f0;background:transparent;color:#64748b;font-size:.85rem;font-weight:600;cursor:pointer;font-family:inherit;">
+                        Recordármelo después
+                    </button>
+                </div>
             </div>
         </div>
     </div>
+    @endif
 
     {{-- Modal detalle --}}
     <div class="modal fade" id="modalDetalle" tabindex="-1">
@@ -441,21 +750,63 @@
             };
         }
 
-        function showSuccess(msg) {
-            const el = document.getElementById('alertSuccess');
-            document.getElementById('alertSuccessMsg').textContent = msg;
-            el.classList.add('show');
-            document.getElementById('alertError').classList.remove('show');
-            setTimeout(() => el.classList.remove('show'), 6000);
+        function showToast(msg, type) {
+            if (!msg) return;
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            const isSuccess = type === 'success';
+            toast.style.cssText = `
+                pointer-events:auto;display:flex;align-items:flex-start;gap:.65rem;
+                background:${isSuccess ? '#f0fdf4' : '#fef2f2'};
+                border:1.5px solid ${isSuccess ? '#86efac' : '#fca5a5'};
+                color:${isSuccess ? '#15803d' : '#991b1b'};
+                border-radius:12px;padding:.85rem 1rem;min-width:280px;max-width:360px;
+                box-shadow:0 8px 24px rgba(0,0,0,.12);
+                animation:toastIn .25s ease;font-size:.85rem;font-family:inherit;
+                opacity:1;transition:opacity .3s ease;
+            `;
+            toast.innerHTML = `
+                <i class="mdi ${isSuccess ? 'mdi-check-circle' : 'mdi-alert-circle'}" style="font-size:1.2rem;margin-top:.05rem;flex-shrink:0;"></i>
+                <span style="flex:1;line-height:1.45;">${msg}</span>
+                <button onclick="this.parentElement.remove()" style="background:none;border:none;cursor:pointer;color:inherit;opacity:.6;padding:0;font-size:1rem;line-height:1;flex-shrink:0;">✕</button>
+            `;
+            container.appendChild(toast);
+            const delay = isSuccess ? 5000 : 7000;
+            setTimeout(() => { toast.style.opacity = '0'; setTimeout(() => toast.remove(), 300); }, delay);
         }
 
-        function showError(msg) {
-            const el = document.getElementById('alertError');
-            document.getElementById('alertErrorMsg').textContent = msg;
-            el.classList.add('show');
-            document.getElementById('alertSuccess').classList.remove('show');
-            setTimeout(() => el.classList.remove('show'), 7000);
+        function showSuccess(msg) { showToast(msg, 'success'); }
+        function showError(msg)   { if (msg) showToast(msg, 'error'); }
+
+        function showPaymentSuccessBanner(msg) {
+            const overlay = document.createElement('div');
+            overlay.id = 'ps-overlay';
+            overlay.innerHTML = `
+                <div id="ps-banner">
+                    <button class="ps-x" onclick="document.getElementById('ps-overlay').remove()" title="Cerrar">✕</button>
+                    <div class="ps-ring"><i class="mdi mdi-check-bold"></i></div>
+                    <p class="ps-title">¡Pago exitoso!</p>
+                    <p class="ps-msg">${msg}</p>
+                    <button class="ps-close-btn" onclick="document.getElementById('ps-overlay').remove()">
+                        <i class="mdi mdi-check-circle-outline"></i> Entendido
+                    </button>
+                </div>
+            `;
+            // Cerrar al hacer clic en el fondo oscuro
+            overlay.addEventListener('click', function (e) {
+                if (e.target === overlay) overlay.remove();
+            });
+            document.body.appendChild(overlay);
         }
+
+        // Muestra banner de éxito guardado antes del último reload
+        document.addEventListener('DOMContentLoaded', function () {
+            const pendingMsg = sessionStorage.getItem('pats_success_msg');
+            if (pendingMsg) {
+                sessionStorage.removeItem('pats_success_msg');
+                setTimeout(() => showPaymentSuccessBanner(pendingMsg), 350);
+            }
+        });
 
         function setLoading(btnId, loading, txt) {
             const btn = document.getElementById(btnId);
@@ -521,6 +872,11 @@
                     billing: billingFrom('bill-street', 'bill-city', 'bill-postcode', 'bill-country'),
                     saveCard,   // si true, OPPWA tokeniza la tarjeta junto con el cobro
                     alias,
+                    frecuencia: plan.frecuencia,
+                    meses: plan.meses,
+                    id_tipo_precio: plan.id_tipo_precio,
+                    monto_membresia: plan.monto,
+                    recargo: plan.recargo,
                 });
 
                 // Reto 3DS: redirigir al banco emisor.
@@ -725,13 +1081,21 @@
         // ── Gestión tokens ───────────────────────────────
         async function eliminarToken(id, event) {
             event.stopPropagation();
-            if (!confirm('¿Eliminar esta tarjeta?')) return;
+            showConfirm({
+                title: 'Eliminar tarjeta',
+                msg: '¿Deseas eliminar esta tarjeta guardada? Esta acción no se puede deshacer.',
+                icon: 'mdi-credit-card-remove-outline',
+                color: 'danger',
+                okLabel: '<i class="mdi mdi-delete"></i> Sí, eliminar',
+                onOk: async () => {
             try {
                 await axios.delete(`${API_BASE}/token/${id}`);
                 cargarTokens();
             } catch {
                 showError('No se pudo eliminar la tarjeta');
             }
+                },
+            });
         }
         async function setDefault(id, event) {
             event.stopPropagation();
@@ -742,6 +1106,29 @@
                 showError('No se pudo actualizar la tarjeta');
             }
         }
+
+        // ── Modal vencimiento: auto-show ─────────────────
+        @if(!empty($mostrarModalVenc) && $mostrarModalVenc)
+        document.addEventListener('DOMContentLoaded', () => {
+            const el = document.getElementById('modalVencimiento');
+            if (el) new bootstrap.Modal(el).show();
+        });
+        @endif
+
+        // Botón "Renovar con tarjeta" del modal de vencimiento
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('[data-renovar-tab]').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const target = btn.dataset.renovarTab || 'tab-card';
+                    document.querySelectorAll('.ptab-btn').forEach(b => b.classList.remove('active'));
+                    document.querySelectorAll('.ptab-panel').forEach(p => p.classList.remove('active'));
+                    const tabBtn = document.querySelector(`.ptab-btn[data-target="${target}"]`);
+                    const tabPanel = document.getElementById(target);
+                    if (tabBtn) tabBtn.classList.add('active');
+                    if (tabPanel) tabPanel.classList.add('active');
+                });
+            });
+        });
 
         // ── Modal detalle ────────────────────────────────
         function verDetalle(pago) {
@@ -766,6 +1153,81 @@
         </div>`;
             new bootstrap.Modal(document.getElementById('modalDetalle')).show();
         }
+    </script>
+
+
+    {{-- Modal de confirmación reutilizable --}}
+    <div class="modal fade" id="modalConfirm" tabindex="-1" data-bs-keyboard="true">
+        <div class="modal-dialog modal-dialog-centered" style="max-width:380px;">
+            <div class="modal-content" style="border-radius:20px;border:none;box-shadow:0 25px 60px rgba(0,0,0,.35);overflow:hidden;background:#fff;">
+                <div id="modalConfirmStripe" style="height:4px;"></div>
+                <div style="padding:1.75rem 1.75rem 1.5rem;text-align:center;">
+                    <div id="modalConfirmIcon" style="width:60px;height:60px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto .9rem;">
+                        <i id="modalConfirmIconI" style="font-size:1.8rem;"></i>
+                    </div>
+                    <h5 id="modalConfirmTitle" style="font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:700;color:#0f172a;margin:0 0 .45rem;"></h5>
+                    <p  id="modalConfirmMsg"   style="font-size:.85rem;color:#64748b;margin:0 0 1.5rem;line-height:1.55;"></p>
+                    <div style="display:flex;flex-direction:column;gap:.5rem;">
+                        <button id="modalConfirmOk"
+                            style="width:100%;padding:.8rem 1rem;border-radius:12px;border:none;font-size:.9rem;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:.45rem;transition:opacity .15s;">
+                        </button>
+                        <button data-bs-dismiss="modal"
+                            style="width:100%;padding:.65rem 1rem;border-radius:12px;border:1.5px solid #e2e8f0;background:transparent;color:#64748b;font-size:.85rem;font-weight:600;cursor:pointer;font-family:inherit;">
+                            Cancelar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    (function () {
+        let _confirmCallback = null;
+        let _confirmModal = null;
+
+        function getConfirmModal() {
+            if (!_confirmModal) {
+                _confirmModal = new bootstrap.Modal(document.getElementById('modalConfirm'));
+            }
+            return _confirmModal;
+        }
+
+        /**
+         * showConfirm(options)
+         * options: { title, msg, icon, color, okLabel, onOk }
+         * color: 'danger' | 'warning' | 'primary'
+         */
+        window.showConfirm = function ({ title, msg, icon = 'mdi-help-circle', color = 'danger', okLabel = 'Confirmar', onOk }) {
+            const palette = {
+                danger:  { bg: '#fef2f2', fg: '#dc2626', stripe: '#dc2626' },
+                warning: { bg: '#fffbeb', fg: '#d97706', stripe: '#f59e0b' },
+                primary: { bg: '#eff6ff', fg: '#2563eb', stripe: '#2563eb' },
+            };
+            const p = palette[color] ?? palette.danger;
+
+            document.getElementById('modalConfirmStripe').style.background = p.stripe;
+            document.getElementById('modalConfirmIcon').style.background   = p.bg;
+            document.getElementById('modalConfirmIconI').className         = `mdi ${icon}`;
+            document.getElementById('modalConfirmIconI').style.color       = p.fg;
+            document.getElementById('modalConfirmTitle').textContent       = title;
+            document.getElementById('modalConfirmMsg').textContent         = msg;
+
+            const okBtn = document.getElementById('modalConfirmOk');
+            okBtn.style.background = p.stripe;
+            okBtn.style.color      = '#fff';
+            okBtn.innerHTML        = okLabel;
+
+            _confirmCallback = onOk;
+            getConfirmModal().show();
+        };
+
+        document.getElementById('modalConfirmOk')?.addEventListener('click', () => {
+            getConfirmModal().hide();
+            if (typeof _confirmCallback === 'function') _confirmCallback();
+            _confirmCallback = null;
+        });
+    })();
     </script>
 
 @endsection

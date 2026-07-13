@@ -4,44 +4,49 @@ namespace App\Http\Controllers\Pats;
 
 use App\Http\Controllers\Controller;
 use App\Mail\SolicitudDistribucionRecibida;
-use Carbon\Carbon;
-use Illuminate\Http\{JsonResponse, Request};
-use Illuminate\Support\Facades\{DB, Hash, Log, Mail, Storage};
-use Illuminate\Support\Str;
 use App\Services\Prosa\PaymentService;
 use App\Services\Prosa\ProsaResultCode;
+use Carbon\Carbon;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class DistribucionLinkController extends Controller
 {
     private const ESTADOS = [
-        'AGS'  => 'Aguascalientes',      'BCN'  => 'Baja California',
-        'BCS'  => 'Baja California Sur', 'CAM'  => 'Campeche',
-        'CHP'  => 'Chiapas',             'CHH'  => 'Chihuahua',
-        'CDMX' => 'Ciudad de México',    'COA'  => 'Coahuila',
-        'COL'  => 'Colima',              'DUR'  => 'Durango',
-        'MEX'  => 'Estado de México',    'GTO'  => 'Guanajuato',
-        'GRO'  => 'Guerrero',            'HGO'  => 'Hidalgo',
-        'JAL'  => 'Jalisco',             'MIC'  => 'Michoacán',
-        'MOR'  => 'Morelos',             'NAY'  => 'Nayarit',
-        'NLE'  => 'Nuevo León',          'OAX'  => 'Oaxaca',
-        'PUE'  => 'Puebla',              'QRO'  => 'Querétaro',
-        'ROO'  => 'Quintana Roo',        'SLP'  => 'San Luis Potosí',
-        'SIN'  => 'Sinaloa',             'SON'  => 'Sonora',
-        'TAB'  => 'Tabasco',             'TAM'  => 'Tamaulipas',
-        'TLAX' => 'Tlaxcala',            'VER'  => 'Veracruz',
-        'YUC'  => 'Yucatán',             'ZAC'  => 'Zacatecas',
+        'AGS' => 'Aguascalientes',      'BCN' => 'Baja California',
+        'BCS' => 'Baja California Sur', 'CAM' => 'Campeche',
+        'CHP' => 'Chiapas',             'CHH' => 'Chihuahua',
+        'CDMX' => 'Ciudad de México',    'COA' => 'Coahuila',
+        'COL' => 'Colima',              'DUR' => 'Durango',
+        'MEX' => 'Estado de México',    'GTO' => 'Guanajuato',
+        'GRO' => 'Guerrero',            'HGO' => 'Hidalgo',
+        'JAL' => 'Jalisco',             'MIC' => 'Michoacán',
+        'MOR' => 'Morelos',             'NAY' => 'Nayarit',
+        'NLE' => 'Nuevo León',          'OAX' => 'Oaxaca',
+        'PUE' => 'Puebla',              'QRO' => 'Querétaro',
+        'ROO' => 'Quintana Roo',        'SLP' => 'San Luis Potosí',
+        'SIN' => 'Sinaloa',             'SON' => 'Sonora',
+        'TAB' => 'Tabasco',             'TAM' => 'Tamaulipas',
+        'TLAX' => 'Tlaxcala',            'VER' => 'Veracruz',
+        'YUC' => 'Yucatán',             'ZAC' => 'Zacatecas',
     ];
 
     private const DOCS_REQUERIDOS = [
-        'doc_ine'       => 'INE',
+        'doc_ine' => 'INE',
         'doc_domicilio' => 'COMPROBANTE_DOMICILIO',
-        'doc_cedula'    => 'CEDULA_FISCAL',
+        'doc_cedula' => 'CEDULA_FISCAL',
     ];
 
     private const DOCS_OPCIONALES = [
         'doc_caratula_bancaria' => 'CARATULA_BANCARIA',
         'doc_acta_constitutiva' => 'ACTA_CONSTITUTIVA',
-        'doc_poder_notarial'    => 'PODER_NOTARIAL',
+        'doc_poder_notarial' => 'PODER_NOTARIAL',
     ];
 
     // ─────────────────────────────────────────────────────────────────────────
@@ -92,13 +97,13 @@ class DistribucionLinkController extends Controller
         }
 
         return view('pats.solicitud_distribuidor', [
-            'link'               => $link,
-            'linkMode'           => true,
-            'token'              => $token,
-            'conToken'           => false,
+            'link' => $link,
+            'linkMode' => true,
+            'token' => $token,
+            'conToken' => false,
             'precioDistribucion' => (float) $link->amount,
-            'estados'            => self::ESTADOS,
-            'prefill'            => json_decode($link->prefill_json ?? 'null', true) ?: null,
+            'estados' => self::ESTADOS,
+            'prefill' => json_decode($link->prefill_json ?? 'null', true) ?: null,
         ]);
     }
 
@@ -120,7 +125,9 @@ class DistribucionLinkController extends Controller
         $this->applyPrefillToRequest($request, $link);
 
         $error = $this->validarDatos($request);
-        if ($error !== null) return $error;
+        if ($error !== null) {
+            return $error;
+        }
 
         return response()->json(['ok' => true]);
     }
@@ -153,11 +160,11 @@ class DistribucionLinkController extends Controller
                     ->first();
                 if ($existing) {
                     return response()->json([
-                        'ok'           => true,
+                        'ok' => true,
                         'id_solicitud' => $existing->id_solicitud,
-                        'referencia'   => 'DIST-' . strtoupper(Str::random(6)) . '-' . $existing->id_solicitud,
-                        'estatus'      => $existing->estatus,
-                        'message'      => 'Solicitud procesada correctamente.',
+                        'referencia' => 'DIST-'.strtoupper(Str::random(6)).'-'.$existing->id_solicitud,
+                        'estatus' => $existing->estatus,
+                        'message' => 'Solicitud procesada correctamente.',
                     ]);
                 }
             }
@@ -176,59 +183,61 @@ class DistribucionLinkController extends Controller
         $this->applyPrefillToRequest($request, $link);
 
         // ── 1. Inputs ─────────────────────────────────────────────────────────
-        $pais     = $this->clean($request->input('pais'));
-        $region   = strtoupper($this->clean($request->input('region')));
-        $municipio= $this->clean($request->input('municipio'));
-        $ciudad   = $this->clean($request->input('ciudad'));
-        $calle    = $this->clean($request->input('calle'));
-        $numExt   = $this->clean($request->input('num_ext'));
-        $numInt   = $this->clean($request->input('num_int'));
-        $cp       = $this->digits($request->input('cp'));
-        $colonia  = $this->clean($request->input('colonia'));
+        $pais = $this->clean($request->input('pais'));
+        $region = strtoupper($this->clean($request->input('region')));
+        $municipio = $this->clean($request->input('municipio'));
+        $ciudad = $this->clean($request->input('ciudad')) ?: $municipio;
+        $calle = $this->clean($request->input('calle'));
+        $numExt = $this->clean($request->input('num_ext'));
+        $numInt = $this->clean($request->input('num_int'));
+        $cp = $this->digits($request->input('cp'));
+        $colonia = $this->clean($request->input('colonia'));
 
         $direccion = implode(', ', array_filter([
-            trim("{$calle} {$numExt}" . ($numInt ? " Int. {$numInt}" : '')),
+            trim("{$calle} {$numExt}".($numInt ? " Int. {$numInt}" : '')),
             "Col. {$colonia}",
             "C.P. {$cp}",
             $municipio,
             self::ESTADOS[$region] ?? $region,
         ]));
 
-        $tipoPersona     = strtoupper($this->clean($request->input('tipo_persona', 'FISICA')));
+        $tipoPersona = strtoupper($this->clean($request->input('tipo_persona', 'FISICA')));
         $apellidoPaterno = $this->clean($request->input('apellido_paterno'));
         $apellidoMaterno = $this->clean($request->input('apellido_materno'));
-        $nombre          = $this->clean($request->input('nombre'));
-        $razonSocial     = $this->clean($request->input('razon_social'));
-        $rfc             = strtoupper($this->clean($request->input('rfc')));
+        $nombre = $this->clean($request->input('nombre'));
+        $razonSocial = $this->clean($request->input('razon_social'));
+        $rfc = strtoupper($this->clean($request->input('rfc')));
         $fechaNacimiento = $this->clean($request->input('fecha_nacimiento'));
-        $paisNacimiento  = $this->clean($request->input('pais_nacimiento'));
-        $nacionalidad    = $this->clean($request->input('nacionalidad'));
-        $ocupacion       = $this->clean($request->input('ocupacion'));
-        $tipoIdentificacion       = $this->clean($request->input('tipo_identificacion'));
+        $paisNacimiento = $this->clean($request->input('pais_nacimiento'));
+        $nacionalidad = $this->clean($request->input('nacionalidad'));
+        $ocupacion = $this->clean($request->input('ocupacion'));
+        $tipoIdentificacion = $this->clean($request->input('tipo_identificacion'));
         $identificacionEmitidaPor = $this->clean($request->input('identificacion_emitida_por'));
-        $numeroIdentificacion     = $this->clean($request->input('numero_identificacion'));
-        $telefono        = $this->digits($request->input('telefono'));
-        $correo          = strtolower($this->clean($request->input('correo')));
+        $numeroIdentificacion = $this->clean($request->input('numero_identificacion'));
+        $telefono = $this->digits($request->input('telefono'));
+        $correo = strtolower($this->clean($request->input('correo')));
 
-        $banco         = $this->clean($request->input('banco'));
-        $numeroCuenta  = $this->clean($request->input('numero_cuenta'));
-        $clabe         = $this->digits($request->input('clabe'));
+        $banco = $this->clean($request->input('banco'));
+        $numeroCuenta = $this->clean($request->input('numero_cuenta'));
+        $clabe = $this->digits($request->input('clabe'));
         $titularCuenta = $this->clean($request->input('titular_cuenta'));
 
-        $modalidad    = strtoupper($this->clean($request->input('modalidad_pago', 'CONTADO')));
-        $tipoOperacion= $this->clean($request->input('tipo_operacion', 'Adquisición de Derecho de Distribución'));
-        $moneda       = $this->clean($request->input('moneda', 'MXN'));
-        $plazoMeses   = (int) $request->input('plazo_meses', 0);
+        $modalidad = strtoupper($this->clean($request->input('modalidad_pago', 'CONTADO')));
+        $tipoOperacion = $this->clean($request->input('tipo_operacion', 'Adquisición de Derecho de Distribución'));
+        $moneda = $this->clean($request->input('moneda', 'MXN'));
+        $plazoMeses = (int) $request->input('plazo_meses', 0);
         $periodicidad = strtoupper($this->clean($request->input('periodicidad', 'MENSUAL')));
-        $fechaInicio  = now()->toDateString();
+        $fechaInicio = now()->toDateString();
         $fechaPrimerV = $this->clean($request->input('fecha_primer_vencimiento'));
 
         $selfieData = $request->input('selfie_data', '');
-        $firmaData  = $request->input('firma_data', '');
+        $firmaData = $request->input('firma_data', '');
 
         // ── 2. Validaciones ───────────────────────────────────────────────────
         $errorValidacion = $this->validarDatos($request);
-        if ($errorValidacion !== null) return $errorValidacion;
+        if ($errorValidacion !== null) {
+            return $errorValidacion;
+        }
 
         // ── 3. Prosa (solo si type_pay = card) ────────────────────────────────
         $prosaPaymentId = $this->clean($request->input('prosa_payment_id'));
@@ -249,10 +258,11 @@ class DistribucionLinkController extends Controller
                 if (round((float) $pago['amount'], 2) !== $expected) {
                     Log::warning('DistribucionLink.Prosa.amountMismatch', [
                         'payment_id' => $prosaPaymentId,
-                        'expected'   => $expected,
-                        'received'   => $pago['amount'],
-                        'link_id'    => $link->id,
+                        'expected' => $expected,
+                        'received' => $pago['amount'],
+                        'link_id' => $link->id,
                     ]);
+
                     return $this->err('El monto del pago no coincide. Contacta a soporte.');
                 }
 
@@ -262,17 +272,18 @@ class DistribucionLinkController extends Controller
 
             } catch (\Throwable $e) {
                 Log::error('DistribucionLink.Prosa.verify', ['error' => $e->getMessage(), 'payment_id' => $prosaPaymentId]);
+
                 return $this->err('No fue posible verificar el pago. Intenta de nuevo.');
             }
         }
 
         // ── 4. Precio y plan ──────────────────────────────────────────────────
         $valorTotal = (float) $link->amount;
-        $enganche   = 0.00;
-        $saldoFin   = $modalidad !== 'CONTADO' ? $valorTotal : 0.00;
+        $enganche = 0.00;
+        $saldoFin = $modalidad !== 'CONTADO' ? $valorTotal : 0.00;
 
         if ($modalidad === 'CONTADO') {
-            $plazoMeses   = 0;
+            $plazoMeses = 0;
             $fechaPrimerV = null;
         }
 
@@ -286,74 +297,74 @@ class DistribucionLinkController extends Controller
 
         try {
             $idSolicitud = DB::table('pats_solicitudes_distribuidor')->insertGetId([
-                'token_referido'             => null,
-                'id_franquicia'              => (int) $link->id_franquicia,
-                'id_gestor'                  => 0,
-                'id_distribuidor_generado'   => null,
-                'user_solicita'              => null,
-                'user_valida'                => null,
-                'user_autoriza'              => null,
-                'pais'                       => $pais,
-                'region'                     => $region,
-                'zona'                       => $municipio,
-                'ciudad'                     => $ciudad ?: null,
-                'unidad'                     => null,
-                'apellido_paterno'           => $apellidoPaterno ?: null,
-                'apellido_materno'           => $apellidoMaterno ?: null,
-                'nombre'                     => $nombre,
-                'tipo_persona'               => $tipoPersona,
-                'razon_social'               => $razonSocial ?: null,
-                'rfc'                        => $rfc ?: null,
-                'fecha_nacimiento'           => $fechaNacimiento ?: null,
-                'pais_nacimiento'            => $paisNacimiento ?: null,
-                'nacionalidad'               => $nacionalidad ?: null,
-                'ocupacion'                  => $ocupacion ?: null,
-                'tipo_identificacion'        => $tipoIdentificacion ?: null,
+                'token_referido' => null,
+                'id_franquicia' => (int) $link->id_franquicia,
+                'id_gestor' => 0,
+                'id_distribuidor_generado' => null,
+                'user_solicita' => null,
+                'user_valida' => null,
+                'user_autoriza' => null,
+                'pais' => $pais,
+                'region' => $region,
+                'zona' => $municipio,
+                'ciudad' => $ciudad ?: null,
+                'unidad' => null,
+                'apellido_paterno' => $apellidoPaterno ?: null,
+                'apellido_materno' => $apellidoMaterno ?: null,
+                'nombre' => $nombre,
+                'tipo_persona' => $tipoPersona,
+                'razon_social' => $razonSocial ?: null,
+                'rfc' => $rfc ?: null,
+                'fecha_nacimiento' => $fechaNacimiento ?: null,
+                'pais_nacimiento' => $paisNacimiento ?: null,
+                'nacionalidad' => $nacionalidad ?: null,
+                'ocupacion' => $ocupacion ?: null,
+                'tipo_identificacion' => $tipoIdentificacion ?: null,
                 'identificacion_emitida_por' => $identificacionEmitidaPor ?: null,
-                'numero_identificacion'      => $numeroIdentificacion ?: null,
-                'telefono'                   => $telefono,
-                'correo'                     => $correo,
-                'direccion'                  => $direccion,
-                'banco'                      => $banco ?: null,
-                'numero_cuenta'              => $numeroCuenta ?: null,
-                'clabe'                      => $clabe ?: null,
-                'titular_cuenta'             => $titularCuenta ?: null,
-                'modalidad_pago'             => $modalidad,
-                'tipo_operacion'             => $tipoOperacion ?: null,
-                'moneda'                     => $moneda ?: 'MXN',
-                'valor_total'                => $valorTotal,
-                'enganche'                   => $enganche,
-                'saldo_financiado'           => $saldoFin,
-                'plazo_meses'                => $plazoMeses,
-                'periodicidad'               => $periodicidad,
-                'fecha_inicio'               => $fechaInicio,
-                'fecha_primer_vencimiento'   => $fechaPrimerV,
-                'esquema_pagos_json'         => $esquemaPagos ? json_encode($esquemaPagos, JSON_UNESCAPED_UNICODE) : null,
-                'estatus'                    => 'ENVIADA',
-                'motivo_rechazo'             => null,
-                'observaciones_admin'        => null,
-                'observaciones_franquicia'   => null,
-                'fecha_envio_contrato'       => null,
-                'fecha_carga_firmado'        => null,
-                'fecha_autorizacion'         => null,
-                'fecha_conversion_alta'      => null,
-                'activo'                     => 1,
-                'created_at'                 => now(),
-                'updated_at'                 => now(),
+                'numero_identificacion' => $numeroIdentificacion ?: null,
+                'telefono' => $telefono,
+                'correo' => $correo,
+                'direccion' => $direccion,
+                'banco' => $banco ?: null,
+                'numero_cuenta' => $numeroCuenta ?: null,
+                'clabe' => $clabe ?: null,
+                'titular_cuenta' => $titularCuenta ?: null,
+                'modalidad_pago' => $modalidad,
+                'tipo_operacion' => $tipoOperacion ?: null,
+                'moneda' => $moneda ?: 'MXN',
+                'valor_total' => $valorTotal,
+                'enganche' => $enganche,
+                'saldo_financiado' => $saldoFin,
+                'plazo_meses' => $plazoMeses,
+                'periodicidad' => $periodicidad,
+                'fecha_inicio' => $fechaInicio,
+                'fecha_primer_vencimiento' => $fechaPrimerV,
+                'esquema_pagos_json' => $esquemaPagos ? json_encode($esquemaPagos, JSON_UNESCAPED_UNICODE) : null,
+                'estatus' => 'ENVIADA',
+                'motivo_rechazo' => null,
+                'observaciones_admin' => null,
+                'observaciones_franquicia' => null,
+                'fecha_envio_contrato' => null,
+                'fecha_carga_firmado' => null,
+                'fecha_autorizacion' => null,
+                'fecha_conversion_alta' => null,
+                'activo' => 1,
+                'created_at' => now(),
+                'updated_at' => now(),
             ]);
 
             // Registrar pago en tabla centralizada
             DB::table('pats_pagos')->insert([
-                'tipo_solicitud'      => 'distribuidor',
-                'id_solicitud'        => $idSolicitud,
-                'pasarela'            => $link->type_pay === 'card' ? 'prosa' : 'free',
-                'referencia_pasarela' => $prosaPaymentId ?: ('FREE-' . $idSolicitud),
-                'estatus'             => $link->type_pay === 'card' ? 'succeeded' : 'free',
-                'monto'               => (float) $link->amount,
-                'moneda'              => 'MXN',
-                'metadata_json'       => null,
-                'created_at'          => now(),
-                'updated_at'          => now(),
+                'tipo_solicitud' => 'distribuidor',
+                'id_solicitud' => $idSolicitud,
+                'pasarela' => $link->type_pay === 'card' ? 'prosa' : 'free',
+                'referencia_pasarela' => $prosaPaymentId ?: ('FREE-'.$idSolicitud),
+                'estatus' => $link->type_pay === 'card' ? 'succeeded' : 'free',
+                'monto' => (float) $link->amount,
+                'moneda' => 'MXN',
+                'metadata_json' => null,
+                'created_at' => now(),
+                'updated_at' => now(),
             ]);
 
             // Documentos requeridos
@@ -370,37 +381,37 @@ class DistribucionLinkController extends Controller
             // Biometría
             $previewRow = ['id_solicitud' => $idSolicitud, 'created_at' => now(), 'updated_at' => now()];
             $selfieInfo = $this->guardarBase64Imagen($selfieData, $baseDir, 'selfie');
-            $firmaInfo  = $this->guardarBase64Imagen($firmaData,  $baseDir, 'firma');
+            $firmaInfo = $this->guardarBase64Imagen($firmaData, $baseDir, 'firma');
 
-            $previewRow['selfie_path']   = $selfieInfo['path'] ?? null;
-            $previewRow['selfie_mime']   = $selfieInfo['mime'] ?? null;
-            $previewRow['selfie_kb']     = $selfieInfo['kb']   ?? null;
-            $previewRow['firma_path']    = $firmaInfo['path']  ?? null;
-            $previewRow['firma_mime']    = $firmaInfo['mime']  ?? null;
-            $previewRow['firma_kb']      = $firmaInfo['kb']    ?? null;
+            $previewRow['selfie_path'] = $selfieInfo['path'] ?? null;
+            $previewRow['selfie_mime'] = $selfieInfo['mime'] ?? null;
+            $previewRow['selfie_kb'] = $selfieInfo['kb'] ?? null;
+            $previewRow['firma_path'] = $firmaInfo['path'] ?? null;
+            $previewRow['firma_mime'] = $firmaInfo['mime'] ?? null;
+            $previewRow['firma_kb'] = $firmaInfo['kb'] ?? null;
             $previewRow['contrato_path'] = 'static/contrato_dist.pdf';
             $previewRow['contrato_mime'] = 'application/pdf';
-            $previewRow['contrato_kb']   = 662;
+            $previewRow['contrato_kb'] = 662;
 
             DB::table('pats_preview_dist')->insert($previewRow);
 
             // Historial
             DB::table('pats_solicitudes_distribuidor_historial')->insert([
-                'id_solicitud'     => $idSolicitud,
-                'evento_tipo'      => 'solicitud_enviada',
+                'id_solicitud' => $idSolicitud,
+                'evento_tipo' => 'solicitud_enviada',
                 'estatus_anterior' => null,
-                'estatus_nuevo'    => 'ENVIADA',
-                'payload_json'     => json_encode([
-                    'nombre'    => $nombre,
-                    'correo'    => $correo,
-                    'region'    => $region,
-                    'link_id'   => $link->id,
-                    'type_pay'  => $link->type_pay,
-                    'amount'    => $link->amount,
+                'estatus_nuevo' => 'ENVIADA',
+                'payload_json' => json_encode([
+                    'nombre' => $nombre,
+                    'correo' => $correo,
+                    'region' => $region,
+                    'link_id' => $link->id,
+                    'type_pay' => $link->type_pay,
+                    'amount' => $link->amount,
                 ], JSON_UNESCAPED_UNICODE),
-                'user_evento'  => null,
+                'user_evento' => null,
                 'fecha_evento' => now(),
-                'created_at'   => now(),
+                'created_at' => now(),
             ]);
 
             // Desactivar link
@@ -413,16 +424,17 @@ class DistribucionLinkController extends Controller
         } catch (\Throwable $e) {
             DB::rollBack();
             Log::error('DistribucionLink.procesarSolicitud', ['error' => $e->getMessage(), 'correo' => $correo ?? '']);
+
             return response()->json(['ok' => false, 'error' => 'No fue posible guardar la solicitud. Intenta de nuevo.'], 500);
         }
 
-        $referencia = 'DIST-' . strtoupper(Str::random(6)) . '-' . $idSolicitud;
+        $referencia = 'DIST-'.strtoupper(Str::random(6)).'-'.$idSolicitud;
 
         try {
             Mail::to($correo)->send(new SolicitudDistribucionRecibida(
                 nombreSolicitante: trim("{$apellidoPaterno} {$nombre}"),
-                referencia:        $referencia,
-                correo:            $correo,
+                referencia: $referencia,
+                correo: $correo,
             ));
         } catch (\Throwable $e) {
             Log::warning('DistribucionLink.correoConfirmacion', ['error' => $e->getMessage(), 'correo' => $correo]);
@@ -431,11 +443,11 @@ class DistribucionLinkController extends Controller
         session()->forget("dist_link_auth_{$link->token}");
 
         return response()->json([
-            'ok'           => true,
+            'ok' => true,
             'id_solicitud' => $idSolicitud,
-            'referencia'   => $referencia,
-            'estatus'      => 'ENVIADA',
-            'message'      => 'Solicitud enviada correctamente.',
+            'referencia' => $referencia,
+            'estatus' => 'ENVIADA',
+            'message' => 'Solicitud enviada correctamente.',
         ]);
     }
 
@@ -445,9 +457,13 @@ class DistribucionLinkController extends Controller
 
     private function applyPrefillToRequest(Request $request, object $link): void
     {
-        if (empty($link->prefill_json)) return;
+        if (empty($link->prefill_json)) {
+            return;
+        }
         $prefill = json_decode($link->prefill_json, true);
-        if (! is_array($prefill)) return;
+        if (! is_array($prefill)) {
+            return;
+        }
 
         $merge = [];
         foreach ($prefill as $key => $value) {
@@ -471,52 +487,68 @@ class DistribucionLinkController extends Controller
 
     private function validarDatos(Request $request): ?JsonResponse
     {
-        $correo    = strtolower($this->clean($request->input('correo')));
-        $telefono  = $this->digits($request->input('telefono'));
-        $nombre    = $this->clean($request->input('nombre'));
-        $apellido  = $this->clean($request->input('apellido_paterno'));
-        $pais      = $this->clean($request->input('pais'));
-        $region    = $this->clean($request->input('region'));
+        $pais = $this->clean($request->input('pais'));
+        $region = strtoupper($this->clean($request->input('region')));
         $municipio = $this->clean($request->input('municipio'));
-        $ciudad    = $this->clean($request->input('ciudad'));
-        $calle     = $this->clean($request->input('calle'));
-        $numExt    = $this->clean($request->input('num_ext'));
-        $cp        = $this->digits($request->input('cp'));
-        $colonia   = $this->clean($request->input('colonia'));
-        $clabe     = $this->digits($request->input('clabe'));
-
-        $tipoPersona  = strtoupper($this->clean($request->input('tipo_persona', 'FISICA')));
-        $razonSocial  = $this->clean($request->input('razon_social'));
-        $modalidad    = strtoupper($this->clean($request->input('modalidad_pago', 'CONTADO')));
-        $plazoMeses   = (int) $request->input('plazo_meses', 0);
+        $ciudad = $this->clean($request->input('ciudad')) ?: $municipio;
+        $calle = $this->clean($request->input('calle'));
+        $numExt = $this->clean($request->input('num_ext'));
+        $cp = $this->digits($request->input('cp'));
+        $colonia = $this->clean($request->input('colonia'));
+        $tipoPersona = strtoupper($this->clean($request->input('tipo_persona', 'FISICA')));
+        $razonSocial = $this->clean($request->input('razon_social'));
+        $nombre = $this->clean($request->input('nombre'));
+        $telefono = $this->digits($request->input('telefono'));
+        $correo = strtolower($this->clean($request->input('correo')));
+        $clabe = $this->digits($request->input('clabe'));
+        $routingNumber = $this->digits($request->input('routing_number'));
+        $modalidad = strtoupper($this->clean($request->input('modalidad_pago', 'CONTADO')));
+        $plazoMeses = (int) $request->input('plazo_meses', 0);
         $fechaPrimerV = $this->clean($request->input('fecha_primer_vencimiento'));
 
-        $fechaNacimiento          = $this->clean($request->input('fecha_nacimiento'));
-        $paisNacimiento           = $this->clean($request->input('pais_nacimiento'));
-        $nacionalidad             = $this->clean($request->input('nacionalidad'));
-        $ocupacion                = $this->clean($request->input('ocupacion'));
-        $tipoIdentificacion       = $this->clean($request->input('tipo_identificacion'));
-        $identificacionEmitidaPor = $this->clean($request->input('identificacion_emitida_por'));
-        $numeroIdentificacion     = $this->clean($request->input('numero_identificacion'));
+        $isUS = strtoupper($pais) === 'US';
 
-        foreach (compact(
-            'pais', 'region', 'municipio', 'ciudad', 'calle', 'numExt', 'cp', 'colonia',
-            'apellido', 'nombre', 'telefono', 'correo',
-            'fechaNacimiento', 'paisNacimiento', 'nacionalidad', 'ocupacion',
-            'tipoIdentificacion', 'identificacionEmitidaPor', 'numeroIdentificacion'
-        ) as $campo => $valor) {
-            if ($valor === '') return $this->err("El campo '{$campo}' es obligatorio.");
+        $camposBase = ['pais', 'region', 'ciudad', 'calle', 'numExt', 'cp', 'nombre', 'telefono', 'correo'];
+        if (! $isUS) {
+            array_push($camposBase, 'municipio', 'colonia');
+        }
+        foreach (compact(...$camposBase) as $campo => $valor) {
+            if ($valor === '') {
+                return $this->err("El campo '{$campo}' es obligatorio.");
+            }
         }
 
-        if (! filter_var($correo, FILTER_VALIDATE_EMAIL))      return $this->err('El correo electrónico no es válido.');
-        if (strlen($telefono) !== 10)                          return $this->err('El teléfono debe tener 10 dígitos.');
-        if ($clabe !== '' && strlen($clabe) !== 18)            return $this->err('La CLABE debe tener 18 dígitos.');
-        if (! in_array($tipoPersona, ['FISICA', 'MORAL'], true)) return $this->err('Tipo de persona no válido.');
-        if ($tipoPersona === 'MORAL' && $razonSocial === '')   return $this->err('Para persona moral es obligatoria la razón social.');
-        if (! in_array($modalidad, ['CONTADO', 'DIFERIDO'], true)) return $this->err('Modalidad de pago no válida.');
+        if (! filter_var($correo, FILTER_VALIDATE_EMAIL)) {
+            return $this->err('El correo electrónico no es válido.');
+        }
+        if (strlen($telefono) !== 10) {
+            return $this->err('El teléfono debe tener 10 dígitos.');
+        }
+        if ($isUS) {
+            if ($routingNumber !== '' && strlen($routingNumber) !== 9) {
+                return $this->err('El ABA Routing Number debe tener 9 dígitos.');
+            }
+        } else {
+            if ($clabe !== '' && ! $this->validarClabe($clabe)) {
+                return $this->err('La CLABE interbancaria no es válida.');
+            }
+        }
+        if (! in_array($tipoPersona, ['FISICA', 'MORAL'], true)) {
+            return $this->err('Tipo de persona no válido.');
+        }
+        if ($tipoPersona === 'MORAL' && $razonSocial === '') {
+            return $this->err('Para persona moral es obligatoria la razón social.');
+        }
+        if (! in_array($modalidad, ['CONTADO', 'DIFERIDO'], true)) {
+            return $this->err('Modalidad de pago no válida.');
+        }
         if ($modalidad !== 'CONTADO') {
-            if ($plazoMeses <= 0)   return $this->err('Indica el número de meses.');
-            if ($fechaPrimerV === '') return $this->err('La fecha del primer vencimiento es obligatoria.');
+            if ($plazoMeses <= 0) {
+                return $this->err('Indica el número de meses para el financiamiento.');
+            }
+            if ($fechaPrimerV === '') {
+                return $this->err('La fecha del primer vencimiento es obligatoria para pago diferido.');
+            }
         }
 
         $etiquetas = ['doc_ine' => 'INE / IFE', 'doc_domicilio' => 'Comprobante de domicilio', 'doc_cedula' => 'Cédula fiscal'];
@@ -527,33 +559,67 @@ class DistribucionLinkController extends Controller
         }
 
         if ($tipoPersona === 'MORAL') {
-            $tieneActa  = $request->hasFile('doc_acta_constitutiva') && $request->file('doc_acta_constitutiva')->isValid();
-            $tienePoder = $request->hasFile('doc_poder_notarial')    && $request->file('doc_poder_notarial')->isValid();
-            if (! $tieneActa && ! $tienePoder) return $this->err('Para persona moral sube al menos el acta constitutiva o el poder notarial.');
+            $tieneActa = $request->hasFile('doc_acta_constitutiva') && $request->file('doc_acta_constitutiva')->isValid();
+            $tienePoder = $request->hasFile('doc_poder_notarial') && $request->file('doc_poder_notarial')->isValid();
+            if (! $tieneActa && ! $tienePoder) {
+                return $this->err('Para persona moral sube al menos el acta constitutiva o el poder notarial.');
+            }
         }
 
-        if (! str_starts_with($request->input('selfie_data', ''), 'data:image')) return $this->err('La selfie del titular es obligatoria.');
-        if (! str_starts_with($request->input('firma_data',  ''), 'data:image')) return $this->err('La firma del titular es obligatoria.');
+        if (! str_starts_with($request->input('selfie_data', ''), 'data:image')) {
+            return $this->err('La selfie del titular es obligatoria.');
+        }
+        if (! str_starts_with($request->input('firma_data', ''), 'data:image')) {
+            return $this->err('La firma del titular es obligatoria.');
+        }
+
+        $beneficiarioDirecto = strtoupper($this->clean($request->input('beneficiario_directo')));
+        if (! in_array($beneficiarioDirecto, ['SI', 'NO'], true)) {
+            return $this->err('La declaración de dueño beneficiario es obligatoria (Anexo 12).');
+        }
+        if ($beneficiarioDirecto === 'NO') {
+            return $this->err('No es posible procesar la solicitud si existe otro dueño beneficiario. Contacta a soporte.');
+        }
 
         if (DB::table('pats_distribuidores')->where('correo', $correo)->exists()) {
-            return $this->err('Ya existe un registro con ese correo.', 409);
+            return $this->err('Ya existe un registro con ese correo electrónico.', 409);
         }
         if (DB::table('pats_solicitudes_distribuidor')->where('correo', $correo)->whereNotIn('estatus', ['RECHAZADA', 'CONVERTIDA_ALTA'])->exists()) {
-            return $this->err('Ya existe una solicitud activa con ese correo.', 409);
+            return $this->err('Ya existe una solicitud activa con ese correo electrónico.', 409);
         }
 
         return null;
     }
 
+    private function validarClabe(string $clabe): bool
+    {
+        if (strlen($clabe) !== 18) {
+            return false;
+        }
+        $factores = [3, 7, 1];
+        $suma = 0;
+        for ($i = 0; $i < 17; $i++) {
+            $suma += ((int) $clabe[$i] * $factores[$i % 3]) % 10;
+        }
+
+        return ((10 - ($suma % 10)) % 10) === (int) $clabe[17];
+    }
+
     private function guardarBase64Imagen(string $dataUrl, string $baseDir, string $prefix): ?array
     {
-        if (! preg_match('/^data:(image\/[a-z+]+);base64,(.+)$/s', $dataUrl, $m)) return null;
+        if (! preg_match('/^data:(image\/[a-z+]+);base64,(.+)$/s', $dataUrl, $m)) {
+            return null;
+        }
         $mime = $m[1];
-        $raw  = base64_decode($m[2], true);
-        if ($raw === false) return null;
+        $raw = base64_decode($m[2], true);
+        if ($raw === false) {
+            return null;
+        }
 
-        $ext  = match ($mime) { 'image/jpeg' => 'jpg', 'image/png' => 'png', 'image/webp' => 'webp', default => 'bin' };
-        $path = "{$baseDir}/" . now()->format('YmdHis') . '_' . Str::random(8) . "__{$prefix}.{$ext}";
+        $ext = match ($mime) {
+            'image/jpeg' => 'jpg', 'image/png' => 'png', 'image/webp' => 'webp', default => 'bin'
+        };
+        $path = "{$baseDir}/".now()->format('YmdHis').'_'.Str::random(8)."__{$prefix}.{$ext}";
         Storage::disk('local')->put("private/{$path}", $raw);
 
         return ['path' => "private/{$path}", 'mime' => $mime, 'kb' => (int) ceil(strlen($raw) / 1024)];
@@ -561,9 +627,9 @@ class DistribucionLinkController extends Controller
 
     private function guardarDocumento(\Illuminate\Http\UploadedFile $file, int $idSolicitud, string $tipoDoc, string $baseDir): void
     {
-        $ext      = preg_replace('/[^a-z0-9]/i', '', strtolower($file->getClientOriginalExtension())) ?: 'bin';
-        $filename = now()->format('YmdHis') . '_' . Str::random(8) . '.' . $ext;
-        $path     = "{$baseDir}/{$filename}";
+        $ext = preg_replace('/[^a-z0-9]/i', '', strtolower($file->getClientOriginalExtension())) ?: 'bin';
+        $filename = now()->format('YmdHis').'_'.Str::random(8).'.'.$ext;
+        $path = "{$baseDir}/{$filename}";
         Storage::disk('local')->put("private/{$path}", file_get_contents($file->getRealPath()));
 
         DB::table('pats_solicitudes_distribuidor_documentos')
@@ -571,45 +637,60 @@ class DistribucionLinkController extends Controller
             ->update(['vigente' => 0, 'updated_at' => now()]);
 
         DB::table('pats_solicitudes_distribuidor_documentos')->insert([
-            'id_solicitud'            => $idSolicitud,
-            'tipo_documento'          => $tipoDoc,
-            'archivo_path'            => "private/{$path}",
+            'id_solicitud' => $idSolicitud,
+            'tipo_documento' => $tipoDoc,
+            'archivo_path' => "private/{$path}",
             'archivo_nombre_original' => $file->getClientOriginalName(),
-            'mime_type'               => $file->getMimeType(),
-            'size_kb'                 => (int) ceil($file->getSize() / 1024),
-            'vigente'                 => 1,
-            'observaciones'           => null,
-            'user_alta'               => null,
-            'created_at'              => now(),
-            'updated_at'              => now(),
+            'mime_type' => $file->getMimeType(),
+            'size_kb' => (int) ceil($file->getSize() / 1024),
+            'vigente' => 1,
+            'observaciones' => null,
+            'user_alta' => null,
+            'created_at' => now(),
+            'updated_at' => now(),
         ]);
     }
 
     private function generarEsquema(float $total, int $plazo, string $periodicidad, string $fechaPrimerPago): array
     {
-        $base      = Carbon::parse($fechaPrimerPago);
+        $base = Carbon::parse($fechaPrimerPago);
         $montoBase = floor(($total / $plazo) * 100) / 100;
-        $acum      = 0.0;
-        $pagos     = [];
+        $acum = 0.0;
+        $pagos = [];
 
         for ($i = 0; $i < $plazo; $i++) {
             $fecha = match ($periodicidad) {
-                'SEMANAL'   => $base->copy()->addWeeks($i),
+                'SEMANAL' => $base->copy()->addWeeks($i),
                 'QUINCENAL' => $base->copy()->addDays($i * 15),
-                'UNICA'     => $base->copy(),
-                default     => $base->copy()->addMonthsNoOverflow($i),
+                'UNICA' => $base->copy(),
+                default => $base->copy()->addMonthsNoOverflow($i),
             };
-            $monto  = $montoBase;
-            $acum  += $monto;
-            if ($i === $plazo - 1) $monto = round($total - ($acum - $monto), 2);
+            $monto = $montoBase;
+            $acum += $monto;
+            if ($i === $plazo - 1) {
+                $monto = round($total - ($acum - $monto), 2);
+            }
             $pagos[] = ['parcialidad' => $i + 1, 'fecha' => $fecha->toDateString(), 'monto' => round($monto, 2)];
-            if ($periodicidad === 'UNICA') break;
+            if ($periodicidad === 'UNICA') {
+                break;
+            }
         }
 
         return $pagos;
     }
 
-    private function clean(mixed $v): string  { return trim((string) ($v ?? '')); }
-    private function digits(mixed $v): string  { return preg_replace('/\D+/', '', (string) ($v ?? '')); }
-    private function err(string $msg, int $status = 422): JsonResponse { return response()->json(['ok' => false, 'error' => $msg], $status); }
+    private function clean(mixed $v): string
+    {
+        return trim((string) ($v ?? ''));
+    }
+
+    private function digits(mixed $v): string
+    {
+        return preg_replace('/\D+/', '', (string) ($v ?? ''));
+    }
+
+    private function err(string $msg, int $status = 422): JsonResponse
+    {
+        return response()->json(['ok' => false, 'error' => $msg], $status);
+    }
 }

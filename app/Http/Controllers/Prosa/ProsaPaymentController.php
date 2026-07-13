@@ -64,6 +64,17 @@ class ProsaPaymentController extends Controller
             'billing.state' => ['nullable', 'string', 'max:50'],
             'billing.postcode' => ['nullable', 'string', 'max:30'],
             'billing.country' => ['nullable', 'string', 'max:3'],
+            'frecuencia' => ['required', 'in:MENSUAL,ANUAL'],
+            'meses' => ['required', 'integer', 'min:1'],
+            'id_tipo_precio' => ['required', 'integer'],
+            'monto_membresia' => ['nullable', 'numeric', 'min:0'],
+            'recargo' => ['nullable', 'numeric', 'min:0'],
+            // Datos del titular, sólo se usan si aún no existe pasaporte (ALTA_PATS).
+            'curp_usuario' => ['nullable', 'string', 'max:18'],
+            'nombre_usuario' => ['nullable', 'string', 'max:120'],
+            'apellido_pa' => ['nullable', 'string', 'max:80'],
+            'apellido_ma' => ['nullable', 'string', 'max:80'],
+            'fecha_nacimiento' => ['nullable', 'date'],
         ]);
 
         $saveCard = (bool) ($data['saveCard'] ?? false);
@@ -76,8 +87,46 @@ class ProsaPaymentController extends Controller
             cvv: $data['cvv2'],
         );
 
-        // Resolver user_id probando primero el guard 'pasaporte'.
-        $userId = $request->user('pasaporte')?->getKey() ?? $request->user()?->getKey();
+        $user = $request->user('pasaporte') ?? $request->user();
+        $userId = $user?->getKey();
+        $correo = $user?->correo_usuario ?? ($data['email'] ?? '');
+
+        $pasaporte = \Illuminate\Support\Facades\DB::table('pats_pasaportes')
+            ->where('correo', $correo)
+            ->where('activo', 1)
+            ->orderBy('fecha_alta', 'desc')
+            ->first();
+
+        $operacion = $pasaporte ? 'RENOVACION_PATS' : 'ALTA_PATS';
+
+        $ahora = \Carbon\Carbon::now();
+        $referencia = 'PATS-'.$ahora->format('YmdHis').'-'.strtoupper(substr(md5(uniqid()), 0, 8));
+        $folio = 'ORD-'.$ahora->format('Ymd').'-'.strtoupper(substr(md5(uniqid()), 0, 6));
+
+        $idOrden = \Illuminate\Support\Facades\DB::table('pats_ordenes_pago')->insertGetId([
+            'folio_orden' => $folio,
+            'referencia_pago' => $referencia,
+            'tipo_origen' => 'PORTAL_CLIENTE',
+            'origen_checkout' => 'PORTAL_CLIENTE',
+            'id_distribuidor' => $pasaporte->id_distribuidor ?? 1,
+            'id_franquicia' => $pasaporte->id_franquicia ?? 1,
+            'id_pasaporte' => $pasaporte->id_pasaporte ?? null,
+            'correo_usuario_pats' => $correo,
+            'id_tipo_precio' => $data['id_tipo_precio'],
+            'tipo_operacion' => $operacion,
+            'frecuencia' => $data['frecuencia'],
+            'monto_orden' => $data['amount'],
+            'monto_nominal_base' => $data['amount'],
+            'monto_extra_recargo' => 0.00,
+            'moneda' => 'MXN',
+            'estatus_orden' => 'PENDIENTE',
+            'estatus_pago' => 'PENDIENTE',
+            'proveedor_pasarela' => 'PROSA',
+            'user_creo' => $correo,
+            'fecha_orden' => $ahora,
+            'created_at' => $ahora,
+            'updated_at' => $ahora,
+        ]);
 
         $mtx = $this->reference();
 
@@ -89,6 +138,17 @@ class ProsaPaymentController extends Controller
             'amount' => $data['amount'],
             'payload' => [
                 'origen' => 'one_step',
+                'id_orden' => $idOrden,
+                'referencia' => $referencia,
+                'folio' => $folio,
+                'operacion' => $operacion,
+                'correo_usuario' => $correo,
+                'frecuencia' => $data['frecuencia'],
+                'meses' => (int) $data['meses'],
+                'id_tipo_precio' => (int) $data['id_tipo_precio'],
+                'monto_orden' => $data['amount'],
+                'monto_membresia' => (float) ($data['monto_membresia'] ?? $data['amount']),
+                'recargo' => (float) ($data['recargo'] ?? 0),
                 'brand' => $card->brand(),
                 'last4' => $card->last4(),
                 'saveCard' => $saveCard,
@@ -96,6 +156,12 @@ class ProsaPaymentController extends Controller
                 'holder' => $card->holder,
                 'expMonth' => $card->expiryMonth,
                 'expYear' => $card->expiryYear,
+                // Datos del titular para ALTA_PATS (cuando no hay pasaporte aún).
+                'curp' => strtoupper($pasaporte->curp ?? $data['curp_usuario'] ?? ''),
+                'nombres' => $pasaporte->nombres ?? $data['nombre_usuario'] ?? '',
+                'apellido_pa' => $pasaporte->apellido_pa ?? $data['apellido_pa'] ?? '',
+                'apellido_ma' => $pasaporte->apellido_ma ?? $data['apellido_ma'] ?? null,
+                'fecha_nacimiento' => $pasaporte->fecha_nacimiento ?? $data['fecha_nacimiento'] ?? null,
             ],
         ]);
 
@@ -333,13 +399,52 @@ class ProsaPaymentController extends Controller
             'recargo' => ['nullable', 'numeric', 'min:0'],
         ]);
 
-        $userId = $request->user('pasaporte')?->getKey() ?? $request->user()?->getKey();
+        $user = $request->user('pasaporte') ?? $request->user();
+        $userId = $user?->getKey();
+        $correo = $user?->correo_usuario ?? $data['email'];
         $mtx = $this->reference();
 
         // Separar nombre en givenName / surname para OPPWA.
         $parts = explode(' ', trim($data['name']), 2);
         $givenName = $parts[0];
         $surname = $parts[1] ?? $parts[0];
+
+        $pasaporte = \Illuminate\Support\Facades\DB::table('pats_pasaportes')
+            ->where('correo', $correo)
+            ->where('activo', 1)
+            ->orderBy('fecha_alta', 'desc')
+            ->first();
+
+        $operacion = $pasaporte ? 'RENOVACION_PATS' : 'ALTA_PATS';
+
+        $ahora = \Carbon\Carbon::now();
+        $referencia = 'PATS-'.$ahora->format('YmdHis').'-'.strtoupper(substr(md5(uniqid()), 0, 8));
+        $folio = 'ORD-'.$ahora->format('Ymd').'-'.strtoupper(substr(md5(uniqid()), 0, 6));
+
+        $idOrden = \Illuminate\Support\Facades\DB::table('pats_ordenes_pago')->insertGetId([
+            'folio_orden' => $folio,
+            'referencia_pago' => $referencia,
+            'tipo_origen' => 'PORTAL_CLIENTE',
+            'origen_checkout' => 'PORTAL_CLIENTE',
+            'id_distribuidor' => $pasaporte->id_distribuidor ?? 1,
+            'id_franquicia' => $pasaporte->id_franquicia ?? 1,
+            'id_pasaporte' => $pasaporte->id_pasaporte ?? null,
+            'correo_usuario_pats' => $correo,
+            'id_tipo_precio' => $data['id_tipo_precio'],
+            'tipo_operacion' => $operacion,
+            'frecuencia' => $data['frecuencia'],
+            'monto_orden' => $data['amount'],
+            'monto_nominal_base' => $data['amount'],
+            'monto_extra_recargo' => 0.00,
+            'moneda' => 'MXN',
+            'estatus_orden' => 'PENDIENTE',
+            'estatus_pago' => 'PENDIENTE',
+            'proveedor_pasarela' => 'PROSA',
+            'user_creo' => $correo,
+            'fecha_orden' => $ahora,
+            'created_at' => $ahora,
+            'updated_at' => $ahora,
+        ]);
 
         // Crear el ProsaPendingCheckout con el contexto del plan.
         // El webhook usará este checkout para completar la renovación.
@@ -351,11 +456,22 @@ class ProsaPaymentController extends Controller
             'amount' => $data['amount'],
             'payload' => [
                 'origen' => 'oxxo',
+                'id_orden' => $idOrden,
+                'referencia' => $referencia,
+                'folio' => $folio,
+                'operacion' => $operacion,
+                'correo_usuario' => $correo,
                 'frecuencia' => $data['frecuencia'],
                 'meses' => (int) $data['meses'],
                 'id_tipo_precio' => (int) $data['id_tipo_precio'],
+                'monto_orden' => $data['amount'],
                 'monto_membresia' => (float) ($data['monto_membresia'] ?? $data['amount']),
                 'recargo' => (float) ($data['recargo'] ?? 0),
+                'curp' => strtoupper($pasaporte->curp ?? ''),
+                'nombres' => $pasaporte->nombres ?? $givenName,
+                'apellido_pa' => $pasaporte->apellido_pa ?? $surname,
+                'apellido_ma' => $pasaporte->apellido_ma ?? null,
+                'fecha_nacimiento' => $pasaporte->fecha_nacimiento ?? null,
                 'email' => $data['email'],
                 'name' => $data['name'],
             ],

@@ -8,7 +8,7 @@ use Tests\TestCase;
 
 class TokenMismatchRedirectTest extends TestCase
 {
-    private const MESSAGE = 'Tu sesión expiró por seguridad. Por favor, inicia sesión de nuevo.';
+    private const MESSAGE = 'Tu sesión expiró. Inicia sesión nuevamente.';
 
     public function test_web_token_mismatch_redirects_to_login_with_message(): void
     {
@@ -18,8 +18,8 @@ class TokenMismatchRedirectTest extends TestCase
 
         $response = $this->get('/_token-mismatch');
 
-        $response->assertRedirect(route('login'));
-        $response->assertSessionHasErrors(['email' => self::MESSAGE]);
+        $response->assertRedirect('/');
+        $response->assertSessionHasErrors(['sesion' => self::MESSAGE]);
     }
 
     public function test_portal_token_mismatch_redirects_to_portal_login(): void
@@ -31,7 +31,7 @@ class TokenMismatchRedirectTest extends TestCase
         $response = $this->get('/portal/_token-mismatch');
 
         $response->assertRedirect(route('portal.login'));
-        $response->assertSessionHasErrors(['email' => self::MESSAGE]);
+        $response->assertSessionHasErrors(['sesion' => self::MESSAGE]);
     }
 
     public function test_json_token_mismatch_returns_419(): void

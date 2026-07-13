@@ -870,8 +870,9 @@
                                 <div class="divider__line"></div>
                             </div>
 
-                            {{-- Contrato incrustado como template --}}
-                            <template id="contratoTpl">@include('pats.contrato_franq')</template>
+                            {{-- Contratos incrustados como templates según tipo de persona --}}
+                            <template id="contratoTplFisica">@include('pats.contrato_franq_fisica')</template>
+                            <template id="contratoTplMoral">@include('pats.contrato_franq_moral')</template>
 
                             <div class="field field--full">
                                 <label class="label">Lee el contrato antes de firmar</label>
@@ -1224,6 +1225,7 @@
                     $('moralSectionDocs')?.classList.toggle('open', moral);
                     const razon = $('razon_social');
                     if (razon) razon.required = moral;
+                    if ($('contratoContainer')?.innerHTML) loadContrato();
                 });
             });
         }
@@ -1340,9 +1342,11 @@
                 setField('c_territorio', territorio);
             }
 
-            // Cargar el contrato desde el <template>
-            const tpl  = document.getElementById('contratoTpl');
-            const html = tpl ? tpl.innerHTML : '';
+            // Cargar el contrato desde el <template> según tipo_persona
+            const moral  = document.querySelector('input[name=tipo_persona]:checked')?.value === 'MORAL';
+            const tplId  = moral ? 'contratoTplMoral' : 'contratoTplFisica';
+            const tpl    = document.getElementById(tplId);
+            const html   = tpl ? tpl.innerHTML : '';
             if (html.trim()) {
                 const bodyMatch  = html.match(/<body[^>]*>([\s\S]*)<\/body>/i);
                 const styleMatch = html.match(/<style[^>]*>([\s\S]*?)<\/style>/gi) || [];

@@ -28,6 +28,10 @@ class DatabaseSeeder extends Seeder
             // PreviewDistSeeder::class,
             PatsChatbotSeeder::class,
             MedicosDemoSeeder::class,
+            PatsCatCxSeeder::class,
+            HospitalesDemoSeeder::class,
+            EstudiosDemoSeeder::class,
+            FarmaciaDemoSeeder::class,
         ]);
     }
 }

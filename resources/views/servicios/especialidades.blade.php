@@ -492,11 +492,10 @@
 
         .med-card__info-item {
             display: inline-flex;
-            align-items: center;
+            align-items: flex-start;
             gap: 4px;
             font-size: 12.5px;
             color: var(--text-muted);
-            white-space: nowrap;
         }
 
         .med-card__info-item i {
@@ -732,7 +731,7 @@
         </div>
 
         {{-- Stats ──────────────────────────────────────── --}}
-        <div class="esp-stats">
+        <!-- <div class="esp-stats">
             <div class="esp-stat">
                 <div class="esp-stat__num">{{ $porEspecialidad->count() }}</div>
                 <div class="esp-stat__label">Especialidades</div>
@@ -749,7 +748,7 @@
                 <div class="esp-stat__num">{{ $citasHoy->count() }}</div>
                 <div class="esp-stat__label">Citas hoy</div>
             </div> --}}
-        </div>
+        </div> -->
 
         {{-- Buscador ────────────────────────────────────── --}}
         <div class="esp-search-wrap">
@@ -780,11 +779,11 @@
                     </div>
 
                     <h3 class="esp-card__esp">{{ $especialidad }}</h3>
-
+<!-- 
                     <div class="esp-card__row">
                         <i class="mdi mdi-doctor"></i>
                         <span>{{ $medicos->count() }} {{ $medicos->count() === 1 ? 'médico' : 'médicos' }}</span>
-                    </div>
+                    </div> -->
 
                     @if ($bloquesEsp > 0)
                         <span class="esp-pill esp-pill--ok">
@@ -794,7 +793,7 @@
                     @else
                         <span class="esp-pill esp-pill--no">
                             <i class="mdi mdi-calendar-remove" style="font-size:13px;"></i>
-                            Sin horarios próximos
+                            Agenda tu cita
                         </span>
                     @endif
                 </div>
@@ -856,25 +855,27 @@
                                                 <i class="mdi mdi-tag-outline"></i>
                                                 {{ $medico->especialidad ?? $especialidad }}
                                             </span>
-                                            @if ($medico->telefono)
+                                            @if ($medico->telefono_consultorio)
                                                 <span class="med-card__info-sep">·</span>
                                                 <span class="med-card__info-item">
                                                     <i class="mdi mdi-phone-outline"></i>
-                                                    {{ $medico->telefono }}
+                                                    {{ $medico->telefono_consultorio }}
                                                 </span>
                                             @endif
                                             @if ($medico->unidad || $medico->region)
                                                 <span class="med-card__info-sep">·</span>
                                                 <span class="med-card__info-item">
                                                     <i class="mdi mdi-map-marker-outline"></i>
-                                                    {{ implode(', ', array_filter([$medico->unidad, $medico->region])) }}
+                                                    {{$medico->direccion }}
                                                 </span>
                                             @endif
                                         </div>
-                                        <span class="med-card__price">
-                                            <i class="mdi mdi-currency-usd" style="font-size:15px;"></i>
-                                            Consulta $300
-                                        </span>
+                                        @if (!is_null($medico->precio_consulta))
+                                            <span class="med-card__price">
+                                                <i class="mdi mdi-currency-usd" style="font-size:15px;"></i>
+                                                Consulta ${{ number_format($medico->precio_consulta, 0) }}
+                                            </span>
+                                        @endif
                                     </div>
                                 </div>
 
@@ -890,8 +891,11 @@
                                     </div>
                                 @else
                                     <div class="med-disp med-disp--no">
-                                        <i class="mdi mdi-calendar-remove"></i>
-                                        <span>Sin horarios disponibles por el momento</span>
+                                        <i class="mdi mdi-phone-outline"></i>
+                                        <span>
+                                            <strong>Agenda tu cita por teléfono</strong><br>
+                                            Llama y agenda el horario que mas te convenga. Pronto podrás reservar tu cita directo desde la plataforma.
+                                        </span>
                                     </div>
                                 @endif
 
@@ -903,14 +907,14 @@
                                             Agendar cita
                                         </a>
                                     @endif
-                                    @if ($medico->telefono)
-                                        <a href="tel:{{ $medico->telefono }}" class="med-btn med-btn--call">
+                                    @if ($medico->telefono_consultorio)
+                                        <a href="tel:{{ $medico->telefono_consultorio }}" class="med-btn med-btn--call">
                                             <i class="mdi mdi-phone"></i>
                                             Llamar
                                         </a>
                                     @endif
                                     @if ($medico->unidad || $medico->region)
-                                        <a href="https://maps.google.com/?q={{ urlencode(implode(' ', array_filter([$medico->nombre_recurso, $medico->unidad, $medico->region]))) }}"
+                                        <a href="https://maps.google.com/?q={{ urlencode(implode(' ', array_filter([$medico->direccion, $medico->unidad, $medico->region]))) }}"
                                             target="_blank" rel="noopener" class="med-btn med-btn--maps">
                                             <i class="mdi mdi-directions"></i>
                                             Ubicación
