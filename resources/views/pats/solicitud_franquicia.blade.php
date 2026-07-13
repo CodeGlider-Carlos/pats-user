@@ -2576,7 +2576,7 @@
                                         <i class="mdi mdi-calendar-range icon-left"></i>
                                         <select class="select" id="plazo_meses" name="plazo_meses" disabled>
                                             <option value="">Seleccionar...</option>
-                                            @foreach ([3, 6, 9, 12, 18, 24] as $m)
+                                            @foreach ([3, 6, 9, 12] as $m)
                                                 <option value="{{ $m }}">{{ $m }} meses
                                                 </option>
                                             @endforeach

@@ -65,7 +65,7 @@
             </span>
             @if($pasaporte && $pasaporte->id_pasaporte)
             <span class="badge badge-secondary">
-                <i class="mdi mdi-passport"></i> {{ str_pad($pasaporte->id_pasaporte, 8, '0', STR_PAD_LEFT) }}
+                <i class="mdi mdi-passport"></i> {{ $pasaporte->code_pasaporte ?: str_pad($pasaporte->id_pasaporte, 8, '0', STR_PAD_LEFT) }}
             </span>
             @endif
         </div>
@@ -162,7 +162,7 @@
         <div class="info-grid">
             <div class="info-item">
                 <div class="info-item__label">N.º de pasaporte</div>
-                <div class="info-item__value mono">{{ str_pad($pasaporte->id_pasaporte, 8, '0', STR_PAD_LEFT) }}</div>
+                <div class="info-item__value mono">{{ $pasaporte->code_pasaporte ?: str_pad($pasaporte->id_pasaporte, 8, '0', STR_PAD_LEFT) }}</div>
             </div>
             <div class="info-item">
                 <div class="info-item__label">Estatus</div>

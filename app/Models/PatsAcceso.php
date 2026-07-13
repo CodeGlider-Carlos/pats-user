@@ -15,7 +15,8 @@ use Illuminate\Support\Facades\DB;
  */
 class PatsAcceso extends Authenticatable
 {
-    protected $table      = 'pats_pasaporte_accesos';
+    protected $table = 'pats_pasaporte_accesos';
+
     protected $primaryKey = 'id_acceso';
 
     protected $hidden = ['password_hash', 'remember_token', 'token_reset'];
@@ -39,12 +40,12 @@ class PatsAcceso extends Authenticatable
     ];
 
     protected $casts = [
-        'activo'               => 'boolean',
-        'password_temporal'    => 'boolean',
-        'debe_cambiar_password'=> 'boolean',
-        'ultimo_login'         => 'datetime',
-        'bloqueado_hasta'      => 'datetime',
-        'token_reset_expira'   => 'datetime',
+        'activo' => 'boolean',
+        'password_temporal' => 'boolean',
+        'debe_cambiar_password' => 'boolean',
+        'ultimo_login' => 'datetime',
+        'bloqueado_hasta' => 'datetime',
+        'token_reset_expira' => 'datetime',
     ];
 
     // ── Auth: Laravel espera 'password', la BD tiene 'password_hash' ──
@@ -66,6 +67,11 @@ class PatsAcceso extends Authenticatable
         return (bool) $this->activo && strtoupper($this->estatus ?? '') === 'ACTIVO';
     }
 
+    public function esDemo(): bool
+    {
+        return strtoupper($this->tipo_acceso ?? '') === 'DEMO';
+    }
+
     public function estaBloqueado(): bool
     {
         return $this->bloqueado_hasta !== null
@@ -84,10 +90,10 @@ class PatsAcceso extends Authenticatable
         DB::table('pats_pasaporte_accesos')
             ->where('id_acceso', $this->id_acceso)
             ->update([
-                'ultimo_login'      => now(),
+                'ultimo_login' => now(),
                 'intentos_fallidos' => 0,
-                'bloqueado_hasta'   => null,
-                'updated_at'        => now(),
+                'bloqueado_hasta' => null,
+                'updated_at' => now(),
             ]);
     }
 
@@ -96,14 +102,14 @@ class PatsAcceso extends Authenticatable
     public function incrementarFallos(): void
     {
         $intentos = (int) $this->intentos_fallidos + 1;
-        $bloqueo  = $intentos >= 5 ? now()->addMinutes(30) : null;
+        $bloqueo = $intentos >= 5 ? now()->addMinutes(30) : null;
 
         DB::table('pats_pasaporte_accesos')
             ->where('id_acceso', $this->id_acceso)
             ->update([
                 'intentos_fallidos' => $intentos,
-                'bloqueado_hasta'   => $bloqueo,
-                'updated_at'        => now(),
+                'bloqueado_hasta' => $bloqueo,
+                'updated_at' => now(),
             ]);
     }
 }

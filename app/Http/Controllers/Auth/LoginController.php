@@ -5,8 +5,8 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Models\PatsAcceso;
 use App\Models\PatsLoginLog;
-use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\View\View;
@@ -27,11 +27,11 @@ class LoginController extends Controller
     public function login(Request $request): RedirectResponse
     {
         $request->validate([
-            'email'    => ['required', 'email'],
+            'email' => ['required', 'email'],
             'password' => ['required', 'string'],
         ], [
-            'email.required'    => 'El correo es obligatorio.',
-            'email.email'       => 'Ingresa un correo válido.',
+            'email.required' => 'El correo es obligatorio.',
+            'email.email' => 'Ingresa un correo válido.',
             'password.required' => 'La contraseña es obligatoria.',
         ]);
 
@@ -43,16 +43,18 @@ class LoginController extends Controller
             ->first();
 
         // ── Usuario no existe ─────────────────────────────
-        if (!$user) {
+        if (! $user) {
             PatsLoginLog::registrar($correo, 'NO_ENCONTRADO', null, 'Correo no registrado');
+
             return back()
                 ->withInput($request->only('email'))
                 ->withErrors(['email' => 'No encontramos una cuenta con ese correo.']);
         }
 
         // ── Usuario inactivo ──────────────────────────────
-        if (!$user->estaActivo()) {
+        if (! $user->estaActivo()) {
             PatsLoginLog::registrar($correo, 'FALLIDO', $user->id_acceso, 'Cuenta inactiva');
+
             return back()
                 ->withInput($request->only('email'))
                 ->withErrors(['email' => 'Tu cuenta está inactiva. Contacta al administrador.']);
@@ -62,13 +64,14 @@ class LoginController extends Controller
         if ($user->estaBloqueado()) {
             $minutos = now()->diffInMinutes($user->bloqueado_hasta);
             PatsLoginLog::registrar($correo, 'BLOQUEADO', $user->id_acceso, "Bloqueado {$minutos} min restantes");
+
             return back()
                 ->withInput($request->only('email'))
                 ->withErrors(['email' => "Cuenta bloqueada por demasiados intentos fallidos. Intenta en {$minutos} min."]);
         }
 
         // ── Verificar contraseña ──────────────────────────
-        if (!Hash::check($request->input('password'), $user->password_hash)) {
+        if (! Hash::check($request->input('password'), $user->password_hash)) {
             $user->incrementarFallos();
 
             $intentos = (int) $user->intentos_fallidos + 1;
@@ -79,6 +82,7 @@ class LoginController extends Controller
                 : 'Cuenta bloqueada por 30 minutos por demasiados intentos.';
 
             PatsLoginLog::registrar($correo, 'FALLIDO', $user->id_acceso, "Contraseña incorrecta (intento {$intentos})");
+
             return back()
                 ->withInput($request->only('email'))
                 ->withErrors(['email' => $msg]);
@@ -99,7 +103,7 @@ class LoginController extends Controller
      */
     public function logout(Request $request): RedirectResponse
     {
-        Auth::logout();
+        Auth::guard('pasaporte')->logout();
 
         $request->session()->invalidate();
         $request->session()->regenerateToken();

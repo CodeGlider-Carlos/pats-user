@@ -598,10 +598,11 @@
                 <h1 class="digi-page-title"><i class="mdi mdi-card-account-details-outline"></i> Mi pasaporte</h1>
                 <p class="digi-page-subtitle">Información general del pasaporte y acceso a servicios</p>
             </div>
-            @if ($pasaporte)
-                <button class="digi-btn digi-btn--primary" disabled style="background:#d1d5db;border-color:#d1d5db;color:#9ca3af;cursor:not-allowed;pointer-events:none;">
-                    <i class="mdi mdi-credit-card-outline"></i> Renovar pasaporte
-                </button>
+            @if ($pasaporte && strtoupper($pasaporte->tipo_cliente ?? '') !== 'EMPRESA')
+                <a href="{{ route('pagos') }}" class="digi-btn digi-btn--primary">
+                    <i class="mdi mdi-credit-card-outline"></i>
+                    {{ ($diasVigencia ?? 0) < 0 ? 'Reactivar pasaporte' : 'Renovar pasaporte' }}
+                </a>
             @endif
         </div>
 
@@ -663,9 +664,9 @@
                                     </div>
                                 @endif
                                 <div style="text-align:center;">
-                                    <span class="info-pill info-pill--highlight">ID Pasaporte</span>
+                                    <span class="info-pill info-pill--highlight">Código</span>
                                     <span style="display:block;margin-top:.5rem;font-weight:600;color:var(--text);">
-                                        #PATS-{{ str_pad($pasaporte->id_pasaporte, 8, '0', STR_PAD_LEFT) }}
+                                        {{ $pasaporte->code_pasaporte ?: str_pad($pasaporte->id_pasaporte, 8, '0', STR_PAD_LEFT) }}
                                     </span>
                                 </div>
                                 @if ($estadoColor === 'success')
@@ -760,13 +761,15 @@
                                     </div>
                                 @endif
 
+                                @if (strtoupper($pasaporte->tipo_cliente ?? '') !== 'EMPRESA')
                                 <div style="margin-top:1rem;">
-                                    <button class="digi-btn digi-btn--primary" disabled
-                                        style="width:100%;justify-content:center;background:#d1d5db;border-color:#d1d5db;color:#9ca3af;cursor:not-allowed;pointer-events:none;">
+                                    <a href="{{ route('pagos') }}" class="digi-btn digi-btn--primary"
+                                        style="width:100%;justify-content:center;">
                                         <i class="mdi mdi-credit-card"></i>
-                                        {{ $pasaporte->estatus === 'vencido' ? 'Reactivar' : 'Renovar' }}
-                                    </button>
+                                        {{ ($diasVigencia ?? 0) < 0 ? 'Reactivar' : 'Renovar' }}
+                                    </a>
                                 </div>
+                                @endif
 
                             </div>
 
@@ -845,8 +848,8 @@
                             <div style="background:#f8fafc;border:1px solid var(--border);border-radius:var(--radius-md);padding:1rem 1.25rem;margin-bottom:1.5rem;text-align:left;">
                                 <div style="display:grid;grid-template-columns:1fr 1fr;gap:.6rem;">
                                     <div>
-                                        <div style="font-size:.7rem;font-weight:600;text-transform:uppercase;letter-spacing:.04em;color:var(--text-muted);">ID Pasaporte</div>
-                                        <div style="font-weight:600;color:var(--text);font-size:.9rem;">#PATS-{{ str_pad($pasaporte->id_pasaporte, 8, '0', STR_PAD_LEFT) }}</div>
+                                        <div style="font-size:.7rem;font-weight:600;text-transform:uppercase;letter-spacing:.04em;color:var(--text-muted);">Código</div>
+                                        <div style="font-weight:600;color:var(--text);font-size:.9rem;">{{ $pasaporte->code_pasaporte ?: str_pad($pasaporte->id_pasaporte, 8, '0', STR_PAD_LEFT) }}</div>
                                     </div>
                                     <div>
                                         <div style="font-size:.7rem;font-weight:600;text-transform:uppercase;letter-spacing:.04em;color:var(--text-muted);">Vigencia</div>
@@ -1106,7 +1109,7 @@
             var canvas = document.querySelector('#pasaporte-qr canvas');
             if (!canvas) return;
             var link = document.createElement('a');
-            link.download = 'qr-pats-{{ $pasaporte->id_pasaporte }}.png';
+            link.download = 'qr-pats-{{ $pasaporte->code_pasaporte ?: $pasaporte->id_pasaporte }}.png';
             link.href = canvas.toDataURL('image/png');
             link.click();
         }

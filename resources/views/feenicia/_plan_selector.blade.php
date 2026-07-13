@@ -5,12 +5,48 @@
 --}}
 
 @php
-    $montoBase = 800;
-    $montoAnual = 9600;
-    $mesesVencidos = (int) ($pasaporte->meses_vencidos ?? 0);
-    $recargoUnit = (float) ($pasaporte->recargo_acumulado ?? 0);
+    $montoBase    = 800;
+    $vigStr       = $pasaporte?->fecha_vencimiento_real ?? $pasaporte?->vigencia ?? null;
+    $hoyAux       = \Carbon\Carbon::now()->startOfDay();
+    // Vigencia es futura si la fecha es mayor o igual a hoy
+    $vigActiva    = $vigStr && \Carbon\Carbon::parse($vigStr)->startOfDay()->gte($hoyAux);
+    // Meses vencidos calculados desde la fecha, no del campo BD (campo no mantenido)
+    $mesesVencidos = (!$vigActiva && $vigStr)
+        ? (int) \Carbon\Carbon::parse($vigStr)->startOfDay()->diffInMonths($hoyAux)
+        : 0;
+    // Recargo = meses completos vencidos × monto mensual base
+    $recargoUnit  = $mesesVencidos * $montoBase;
+    // Recargo solo aplica si hay al menos un mes completo vencido
     $tieneRecargo = $mesesVencidos > 0;
     $esRenovacion = $pasaporte && in_array($pasaporte->estatus, ['activo', 'vencido']);
+
+    // ── Cálculo anual: meses desde la base hasta el próximo aniversario de contratación ──
+    // Base: vigencia futura si está activo, sino hoy
+    $baseCalculo  = ($vigActiva && $vigStr)
+        ? \Carbon\Carbon::parse($vigStr)->startOfDay()
+        : $hoyAux->copy();
+
+    // Próximo aniversario: fecha_alta + N años tal que sea futura respecto a la base
+    $fechaAlta    = $pasaporte?->fecha_alta
+        ? \Carbon\Carbon::parse($pasaporte->fecha_alta)->startOfDay()
+        : $hoyAux->copy();
+    $anniversary  = $fechaAlta->copy()->year($baseCalculo->year)
+        ->month($fechaAlta->month)->day($fechaAlta->day);
+    if ($anniversary->lte($baseCalculo)) {
+        $anniversary->addYear();
+    }
+
+    // Meses completos desde la base hasta el aniversario (ceil: si sobra algún día, sumar 1)
+    $mesesCalculados = (int) $baseCalculo->diffInMonths($anniversary);
+    if ($baseCalculo->copy()->addMonths($mesesCalculados)->lt($anniversary)) {
+        $mesesCalculados++;
+    }
+    $mesesParaAnual = max(1, min(12, $mesesCalculados));
+    $esAnualParcial = $mesesParaAnual < 12;
+    $fechaAltaFmt   = $fechaAlta->format('d/m/Y');
+    $anniversaryFmt = $anniversary->format('d/m/Y');
+
+    $montoAnual = $montoBase * $mesesParaAnual;
 @endphp
 
 {{-- Inputs ocultos que el JS actualiza --}}
@@ -42,7 +78,7 @@
             Selecciona cuántos meses deseas pagar:
         </p>
         <div class="plan-meses-grid" id="mesesGrid">
-            @foreach ([1, 2, 3, 6, 12] as $m)
+            @foreach ([1, 2, 3, 6] as $m)
                 @php
                     $montoMeses = $montoBase * $m;
                     $recargoMes = $tieneRecargo && $m === 1 ? $recargoUnit : 0;
@@ -91,34 +127,51 @@
         <div class="plan-anual-card">
             <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.75rem;">
                 <div>
-                    <div style="font-size:1.1rem;font-weight:700;color:#1e3a5f;">Plan Anual</div>
-                    <div style="font-size:.85rem;color:#64748b;margin-top:.2rem;">12 meses de cobertura · Ahorra vs
-                        mensual</div>
+                    @if($esAnualParcial)
+                        <div style="font-size:1.1rem;font-weight:700;color:#1e3a5f;">Completar anualidad</div>
+                        {{-- <div style="font-size:.85rem;color:#64748b;margin-top:.2rem;">
+                            {{ $mesesParaAnual }} {{ $mesesParaAnual === 1 ? 'mes' : 'meses' }} para tu aniversario del {{ $anniversaryFmt }}
+                        </div> --}}
+                    @else
+                        <div style="font-size:1.1rem;font-weight:700;color:#1e3a5f;">Plan Anual</div>
+                        <div style="font-size:.85rem;color:#64748b;margin-top:.2rem;">12 meses · hasta el {{ $anniversaryFmt }}</div>
+                    @endif
                 </div>
                 <div style="text-align:right;">
-                    <div style="font-size:1.8rem;font-weight:700;color:#2563eb;">$9,600</div>
-                    <div style="font-size:.75rem;color:#64748b;">MXN / año</div>
+                    <div style="font-size:1.8rem;font-weight:700;color:#2563eb;">${{ number_format($montoAnual, 0) }}</div>
+                    <div style="font-size:.75rem;color:#64748b;">
+                        MXN
+                        @if($esAnualParcial)
+                            · $800 × {{ $mesesParaAnual }} mes(es)
+                        @else
+                            / año
+                        @endif
+                    </div>
                 </div>
             </div>
 
-            @if ($tieneRecargo)
-                <div class="plan-desglose" style="margin-top:1rem;">
-                    <div class="desglose-row">
-                        <span>Pasaporte anual</span>
-                        <strong>$9,600 MXN</strong>
-                    </div>
+            <div class="plan-desglose" style="margin-top:1rem;">
+                <div class="desglose-row">
+                    <span>
+                        @if($esAnualParcial)
+                            {{ $mesesParaAnual }} {{ $mesesParaAnual === 1 ? 'mes' : 'meses' }} (hasta {{ $anniversaryFmt }})
+                        @else
+                            Pasaporte anual · 12 meses
+                        @endif
+                    </span>
+                    <strong>${{ number_format($montoAnual, 0) }} MXN</strong>
+                </div>
+                @if($tieneRecargo)
                     <div class="desglose-row desglose-recargo">
                         <span><i class="mdi mdi-alert-circle" style="color:#dc2626;"></i> Recargo acumulado</span>
                         <strong style="color:#dc2626;">${{ number_format($recargoUnit, 2) }} MXN</strong>
                     </div>
-                    <div class="desglose-row desglose-total">
-                        <span>Total a pagar</span>
-                        <strong
-                            style="color:#2563eb;font-size:1.1rem;">${{ number_format($montoAnual + $recargoUnit, 0) }}
-                            MXN</strong>
-                    </div>
+                @endif
+                <div class="desglose-row desglose-total">
+                    <span>Total a pagar</span>
+                    <strong style="color:#2563eb;font-size:1.1rem;">${{ number_format($montoAnual + ($tieneRecargo ? $recargoUnit : 0), 0) }} MXN</strong>
                 </div>
-            @endif
+            </div>
         </div>
     </div>
 </div>
@@ -312,9 +365,10 @@
 
 <script>
     (function() {
-        const MONTO_BASE = {{ $montoBase }};
-        const MONTO_ANUAL = {{ $montoAnual }};
-        const RECARGO = {{ $recargoUnit }};
+        const MONTO_BASE   = {{ $montoBase }};
+        const MONTO_ANUAL  = {{ $montoAnual }};
+        const MESES_ANUAL  = {{ $mesesParaAnual }};
+        const RECARGO      = {{ $recargoUnit }};
         const TIENE_RECARGO = {{ $tieneRecargo ? 'true' : 'false' }};
 
         let planActual = {
@@ -360,7 +414,7 @@
                 if (tipo === 'anual') {
                     planActual = {
                         tipo: 'anual',
-                        meses: 12,
+                        meses: MESES_ANUAL,       // dinámico, no siempre 12
                         monto: MONTO_ANUAL,
                         total: MONTO_ANUAL + (TIENE_RECARGO ? RECARGO : 0)
                     };
