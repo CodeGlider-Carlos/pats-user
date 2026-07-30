@@ -178,10 +178,13 @@ jobs:
             echo "cf-proxy: Access service token empty in this process - refusing browser-auth fallback." >&2
             exit 1
           fi
+          # --loglevel debug makes cloudflared report why Access accepted or
+          # rejected the service token. Drop it once the deploy is green.
           exec cloudflared access ssh \
             --hostname "$1" \
             --service-token-id "$TUNNEL_SERVICE_TOKEN_ID" \
-            --service-token-secret "$TUNNEL_SERVICE_TOKEN_SECRET"
+            --service-token-secret "$TUNNEL_SERVICE_TOKEN_SECRET" \
+            --loglevel debug
           SH
           chmod 700 ~/.ssh/cf-proxy.sh
 
@@ -194,7 +197,7 @@ jobs:
             StrictHostKeyChecking $HOST_KEY_CHECKING
             UserKnownHostsFile ~/.ssh/known_hosts
             BatchMode yes
-            ConnectTimeout 30
+            ConnectTimeout 60
             ServerAliveInterval 30
             ProxyCommand $HOME/.ssh/cf-proxy.sh %h
           EOF
