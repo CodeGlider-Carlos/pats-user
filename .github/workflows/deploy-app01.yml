@@ -360,7 +360,13 @@ jobs:
           sudo -n systemctl reload php8.2-fpm
 
           echo "==> Maintenance mode off"
-          php artisan up
+          # Must go through the www-data helper like every other artisan call:
+          # the `down` flag lives in storage/framework, which is www-data-owned
+          # and mode 775, and debian is not in the www-data group. Unlinking a
+          # file needs write permission on its directory, so running this as
+          # debian fails with "Permission denied" and the deploy reports failure
+          # even though the release itself landed cleanly.
+          artisan up
           trap cleanup EXIT
 
           echo "==> Deployed ${RELEASE:-unknown}"
