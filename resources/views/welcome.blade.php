@@ -491,8 +491,8 @@
     {{-- ── RIGHT: form panel ──────────────────────────────── --}}
     <div class="form-panel">
 
-        <p class="form-kicker">Portal de acceso</p>
-        <h2 class="form-title">Bienvenido</h2>
+        <p class="form-kicker">PORTAL DE ACCESO</p>
+        <h2 class="form-title">BIENVENIDO</h2>
         <p class="form-hint">Ingresa tus credenciales para continuar</p>
 
         {{-- Errores --}}
