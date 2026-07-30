@@ -25,6 +25,29 @@ jobs:
       REMOTE_APP_DIR: /var/www/laravel
 
     steps:
+      # Runs first and costs seconds: without it, a missing secret lets
+      # cloudflared fall back to interactive browser login and hang until the
+      # job timeout. Secrets are resolved at job start, so a run triggered
+      # before they were added sees empty values.
+      - name: Verify required secrets are present
+        env:
+          CF_ACCESS_CLIENT_ID: ${{ secrets.CF_ACCESS_CLIENT_ID }}
+          CF_ACCESS_CLIENT_SECRET: ${{ secrets.CF_ACCESS_CLIENT_SECRET }}
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+        run: |
+          missing=0
+          for name in CF_ACCESS_CLIENT_ID CF_ACCESS_CLIENT_SECRET SSH_PRIVATE_KEY; do
+            if [ -z "${!name}" ]; then
+              echo "::error::Required secret $name is empty or not set."
+              missing=1
+            fi
+          done
+          if [ "$missing" -ne 0 ]; then
+            echo "Add the missing secrets, then re-run this workflow."
+            exit 1
+          fi
+          echo "All required secrets are present."
+
       - name: Checkout code
         uses: actions/checkout@v4
 
@@ -131,18 +154,22 @@ jobs:
             IdentitiesOnly yes
             StrictHostKeyChecking $HOST_KEY_CHECKING
             UserKnownHostsFile ~/.ssh/known_hosts
+            BatchMode yes
+            ConnectTimeout 30
             ServerAliveInterval 30
             ProxyCommand cloudflared access ssh --hostname %h
           EOF
           chmod 600 ~/.ssh/config
 
       - name: Upload release to app01
+        timeout-minutes: 6
         env:
           TUNNEL_SERVICE_TOKEN_ID: ${{ secrets.CF_ACCESS_CLIENT_ID }}
           TUNNEL_SERVICE_TOKEN_SECRET: ${{ secrets.CF_ACCESS_CLIENT_SECRET }}
         run: scp "$RUNNER_TEMP/release.tar.gz" app01:/tmp/pats-release.tar.gz
 
       - name: Activate release on app01
+        timeout-minutes: 10
         env:
           TUNNEL_SERVICE_TOKEN_ID: ${{ secrets.CF_ACCESS_CLIENT_ID }}
           TUNNEL_SERVICE_TOKEN_SECRET: ${{ secrets.CF_ACCESS_CLIENT_SECRET }}
