@@ -312,10 +312,12 @@ jobs:
 
           echo "==> Maintenance mode on"
           artisan down --retry=15 >/dev/null 2>&1 || true
-          # From here a failure leaves the site in maintenance mode on purpose -
-          # better than serving a half-swapped tree. Recover with:
-          #   sudo -u www-data php artisan up
-          trap 'artisan up >/dev/null 2>&1 || true; cleanup' EXIT
+          # From here the EXIT trap always attempts to lift maintenance mode, so
+          # a failed deploy still ends with the site serving. If `artisan up`
+          # itself fails - which happens when the failure broke bootstrap, since
+          # that breaks every artisan command - the site stays down and the trap
+          # says so loudly rather than exiting silently.
+          trap 'artisan up >/dev/null 2>&1 || echo "WARNING: artisan up FAILED - site is STILL in maintenance mode. Recover with: sudo -u www-data rm -f $APP_DIR/storage/framework/down"; cleanup' EXIT
 
           echo "==> Syncing files"
           # Replaced wholesale so removed packages/assets cannot linger.
@@ -323,10 +325,21 @@ jobs:
           cp -a "$STAGE/." "$APP_DIR/"
 
           echo "==> Rebuilding caches"
+          # Laravel reads bootstrap/cache/config.php in preference to config/*.php,
+          # so a cache written by an EARLIER release can hide a service provider
+          # added in THIS one. The container then fails to autowire that provider's
+          # bindings and bootstrap dies - which takes down every artisan command,
+          # including the `up` in the EXIT trap, stranding the site in maintenance.
+          # Remove the stale caches with rm rather than `artisan config:clear`:
+          # once bootstrap is broken, no artisan command can run to repair it.
+          sudo -n -u www-data rm -f \
+            bootstrap/cache/config.php \
+            bootstrap/cache/packages.php \
+            bootstrap/cache/services.php
+
           # bootstrap/cache is not shipped in the tarball (www-data owns it), so
           # the package manifest is regenerated here against the new vendor/.
           artisan package:discover >/dev/null
-          artisan config:clear >/dev/null
           artisan config:cache >/dev/null
           artisan view:clear >/dev/null
           artisan view:cache >/dev/null
