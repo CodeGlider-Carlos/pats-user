@@ -37,16 +37,37 @@ jobs:
         run: |
           missing=0
           for name in CF_ACCESS_CLIENT_ID CF_ACCESS_CLIENT_SECRET SSH_PRIVATE_KEY; do
-            if [ -z "${!name}" ]; then
+            value="${!name}"
+            if [ -z "$value" ]; then
               echo "::error::Required secret $name is empty or not set."
               missing=1
+            else
+              # Length only - never the value. Confirms the secret arrived and
+              # is the right shape without leaking it.
+              printf '  %-24s present, length=%s\n' "$name" "${#value}"
             fi
           done
           if [ "$missing" -ne 0 ]; then
-            echo "Add the missing secrets, then re-run this workflow."
+            echo "Secrets are read when the job starts. If you added them after this"
+            echo "run was triggered, start a NEW run (Run workflow) rather than"
+            echo "re-running the old one."
             exit 1
           fi
-          echo "All required secrets are present."
+
+          # Shape checks: a token that is set but malformed fails in ways that
+          # look like a network problem, so catch it here instead.
+          case "$CF_ACCESS_CLIENT_ID" in
+            *.access) ;;
+            *) echo "::error::CF_ACCESS_CLIENT_ID must end in '.access' (expected ~39 chars)."; exit 1 ;;
+          esac
+          case "$CF_ACCESS_CLIENT_ID$CF_ACCESS_CLIENT_SECRET" in
+            *[[:space:]]*) echo "::error::Access token secrets contain whitespace - re-paste without newlines."; exit 1 ;;
+          esac
+          case "$SSH_PRIVATE_KEY" in
+            *"PRIVATE KEY"*) ;;
+            *) echo "::error::SSH_PRIVATE_KEY has no PEM header - paste the whole file including BEGIN/END lines."; exit 1 ;;
+          esac
+          echo "All required secrets are present and well-formed."
 
       - name: Checkout code
         uses: actions/checkout@v4
@@ -146,6 +167,24 @@ jobs:
           fi
           chmod 600 ~/.ssh/known_hosts 2>/dev/null || true
 
+          # ProxyCommand wrapper. Passes the Access service token as explicit
+          # flags rather than relying on env inheritance through ssh, and hard
+          # fails instead of falling back to interactive browser login - which
+          # on a headless runner hangs until the job timeout with no real error.
+          cat > ~/.ssh/cf-proxy.sh <<'SH'
+          #!/usr/bin/env bash
+          set -euo pipefail
+          if [ -z "${TUNNEL_SERVICE_TOKEN_ID:-}" ] || [ -z "${TUNNEL_SERVICE_TOKEN_SECRET:-}" ]; then
+            echo "cf-proxy: Access service token empty in this process - refusing browser-auth fallback." >&2
+            exit 1
+          fi
+          exec cloudflared access ssh \
+            --hostname "$1" \
+            --service-token-id "$TUNNEL_SERVICE_TOKEN_ID" \
+            --service-token-secret "$TUNNEL_SERVICE_TOKEN_SECRET"
+          SH
+          chmod 700 ~/.ssh/cf-proxy.sh
+
           cat > ~/.ssh/config <<EOF
           Host app01
             HostName $SSH_HOST
@@ -157,7 +196,7 @@ jobs:
             BatchMode yes
             ConnectTimeout 30
             ServerAliveInterval 30
-            ProxyCommand cloudflared access ssh --hostname %h
+            ProxyCommand $HOME/.ssh/cf-proxy.sh %h
           EOF
           chmod 600 ~/.ssh/config
 
