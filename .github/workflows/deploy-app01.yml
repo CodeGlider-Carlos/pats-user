@@ -69,6 +69,67 @@ jobs:
           esac
           echo "All required secrets are present and well-formed."
 
+      # Placed before the build so a policy problem costs seconds, not a full
+      # composer+npm run followed by a six-minute scp hang.
+      - name: Verify Cloudflare Access accepts the service token
+        env:
+          CF_ACCESS_CLIENT_ID: ${{ secrets.CF_ACCESS_CLIENT_ID }}
+          CF_ACCESS_CLIENT_SECRET: ${{ secrets.CF_ACCESS_CLIENT_SECRET }}
+        run: |
+          # Access answers an unauthenticated request with a redirect to its
+          # login page. cloudflared reacts to that redirect by starting an
+          # interactive browser login, which on a headless runner blocks until
+          # ssh times out during banner exchange - an error that looks like a
+          # network fault but is really a rejected token. Detect it here.
+          response="$(curl -sS -o /dev/null --max-time 20 \
+            -H "CF-Access-Client-Id: $CF_ACCESS_CLIENT_ID" \
+            -H "CF-Access-Client-Secret: $CF_ACCESS_CLIENT_SECRET" \
+            -w '%{http_code} %{redirect_url}' \
+            "https://$SSH_HOST/")"
+          status="${response%% *}"
+          location="${response#* }"
+          echo "Access responded: HTTP $status"
+
+          case "$location" in
+            *cdn-cgi/access/*) ;;
+            *) echo "Service token accepted by Access."; exit 0 ;;
+          esac
+
+          # The login redirect carries a metadata JWT describing how Access
+          # judged THIS request. service_token_status separates "credentials
+          # not recognised" from "recognised but not permitted" - two failures
+          # that look identical from outside but are fixed in different places.
+          meta="$(printf '%s' "$location" | sed -n 's/.*[?&]meta=\([^&]*\).*/\1/p' | cut -d. -f2)"
+          case $(( ${#meta} % 4 )) in
+            2) meta="$meta==" ;;
+            3) meta="$meta=" ;;
+          esac
+          claims="$(printf '%s' "$meta" | tr '_-' '/+' | base64 -d 2>/dev/null || true)"
+          aud="$(printf '%s' "$claims" | sed -n 's/.*"aud":"\([^"]*\)".*/\1/p')"
+
+          echo "::error::Cloudflare Access rejected the service token and redirected to its login page."
+          echo "Application AUD serving $SSH_HOST: ${aud:-<could not decode>}"
+          echo ""
+          case "$claims" in
+            *'"service_token_status":true'*)
+              echo "Access RECOGNISED the token, so the CF_ACCESS_* secrets are correct."
+              echo "The Service Auth policy is not reaching the application above."
+              echo "In Zero Trust > Access > Applications, open the app whose AUD tag equals"
+              echo "the value printed above and confirm your Service Auth policy is attached"
+              echo "to THAT app, and that its rule is Include > Service Token > your token."
+              ;;
+            *)
+              echo "Access did NOT recognise the token (service_token_status=false), so the"
+              echo "policy never got a chance to match - this is a credential mismatch."
+              echo "  - CF_ACCESS_CLIENT_ID  = full value ending in '.access'  (39 chars)"
+              echo "  - CF_ACCESS_CLIENT_SECRET = 64 hex chars, shown ONCE at creation."
+              echo "Compare those against the lengths printed by the earlier secrets step."
+              echo "If the secret was not captured exactly, rotate the service token and"
+              echo "re-paste both values into the repository secrets."
+              ;;
+          esac
+          exit 1
+
       - name: Checkout code
         uses: actions/checkout@v4
 
