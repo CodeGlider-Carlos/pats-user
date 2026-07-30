@@ -8,17 +8,17 @@
         bottom: 24px;
         left: 24px;
         z-index: 100000;
-        font-family: Inter, system-ui, -apple-system, sans-serif;
+        font-family: 'DM Sans', system-ui, -apple-system, sans-serif;
     }
 
     #chatbot-toggle {
         width: 52px;
         height: 52px;
         border-radius: 50%;
-        background: linear-gradient(135deg, #1a4aa8, #684bff);
+        background: linear-gradient(135deg, #1e3a5f, #2563eb);
         border: none;
         cursor: pointer;
-        box-shadow: 0 4px 18px rgba(26, 74, 168, .45);
+        box-shadow: 0 4px 18px rgba(37, 99, 235, .4);
         display: flex;
         align-items: center;
         justify-content: center;
@@ -27,7 +27,7 @@
 
     #chatbot-toggle:hover {
         transform: scale(1.08);
-        box-shadow: 0 6px 24px rgba(26, 74, 168, .55);
+        box-shadow: 0 6px 24px rgba(37, 99, 235, .55);
     }
 
     /* Chat icon SVG */
@@ -239,8 +239,11 @@
     /* Hide result panel — response shows in chat */
     #chatbot-window [data-cw-result] { display: none !important; }
 
-    @media (max-width: 480px) {
-        #chatbot-bubble { bottom: 16px; left: 16px; }
+    @media (max-width: 767px) {
+        #chatbot-bubble {
+            bottom: calc(58px + env(safe-area-inset-bottom, 0px) + 12px) !important;
+            left: 16px !important;
+        }
         #chatbot-window { width: calc(100vw - 32px); }
     }
 </style>
@@ -372,6 +375,9 @@
 
     /* Keep bubble above fixed bottom banners (e.g. PWA prompt) */
     function adjustForBanner() {
+        /* On mobile, CSS !important handles the bottom nav offset — skip JS override. */
+        if (window.matchMedia('(max-width: 767px)').matches) { return; }
+
         var els = document.querySelectorAll(
             'body > div[style*="position:fixed"][style*="bottom:0"],' +
             'body > div[style*="position: fixed"][style*="bottom: 0"]'

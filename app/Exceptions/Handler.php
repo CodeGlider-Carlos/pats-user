@@ -3,6 +3,9 @@
 namespace App\Exceptions;
 
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 use Throwable;
 
 class Handler extends ExceptionHandler
@@ -25,6 +28,24 @@ class Handler extends ExceptionHandler
     {
         $this->reportable(function (Throwable $e) {
             //
+        });
+
+        $this->renderable(function (HttpExceptionInterface $e, Request $request): ?Response {
+            if ($e->getStatusCode() !== 419) {
+                return null;
+            }
+
+            $message = "Tu sesi\u{00f3}n expir\u{00f3}. Inicia sesi\u{00f3}n nuevamente.";
+
+            if ($request->expectsJson()) {
+                return response()->json(['message' => $message], 419, [], JSON_UNESCAPED_UNICODE);
+            }
+
+            if ($request->is('portal', 'portal/*')) {
+                return redirect()->route('portal.login')->withErrors(['sesion' => $message]);
+            }
+
+            return redirect('/')->withErrors(['sesion' => $message]);
         });
     }
 }

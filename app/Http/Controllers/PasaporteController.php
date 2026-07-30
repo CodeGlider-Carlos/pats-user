@@ -4,12 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Models\PatsHistoriaClinica;
 use Carbon\Carbon;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class PasaporteController extends Controller
 {
-    public function index(Request $request)
+    public function index()
     {
         $user = auth('pasaporte')->user();
 
@@ -45,10 +45,11 @@ class PasaporteController extends Controller
         $diasVigencia = now()->diffInDays($vencimiento, false); // negativo si vencido
 
         // ── Color y texto de estatus ──────────────────────────
+        // La fecha de vigencia es la fuente de verdad; el campo estatus puede estar desincronizado
         [$estadoColor, $estadoTexto] = match (true) {
-            $pasaporte->estatus === 'vencido' => ['danger',  'Vencido'],
+            $diasVigencia < 0 => ['danger',  'No activo'],
             $diasVigencia <= 7 => ['warning', 'Por vencer'],
-            $pasaporte->estatus === 'activo' => ['success', 'Vigente'],
+            $diasVigencia > 0 => ['success', 'Activo'],
             default => ['secondary', 'Inactivo'],
         };
 
@@ -56,6 +57,16 @@ class PasaporteController extends Controller
         $edad = Carbon::parse($pasaporte->fecha_nacimiento)->age;
 
         $historiaClinica = PatsHistoriaClinica::where('id_pasaporte', $pasaporte->id_pasaporte)->first();
+
+        if (! $pasaporte->token_qr) {
+            $token = Str::uuid()->toString();
+            DB::table('pats_pasaportes')
+                ->where('id_pasaporte', $pasaporte->id_pasaporte)
+                ->update(['token_qr' => $token]);
+            $pasaporte->token_qr = $token;
+        }
+
+        $qrUrl = route('expediente.show', $pasaporte->token_qr);
 
         return view('pasaporte.index', [
             'pasaporte' => $pasaporte,
@@ -67,6 +78,7 @@ class PasaporteController extends Controller
             'edad' => $edad,
             'vencimiento' => $vencimiento,
             'historiaClinica' => $historiaClinica,
+            'qrUrl' => $qrUrl,
         ]);
     }
 }

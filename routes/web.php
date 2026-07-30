@@ -7,7 +7,9 @@ use App\Http\Controllers\AgendaController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\PasswordResetController;
 use App\Http\Controllers\ChatbotController;
+use App\Http\Controllers\EncuestaController;
 use App\Http\Controllers\EspecialidadesController;
+use App\Http\Controllers\ExpedienteController;
 use App\Http\Controllers\PagoDistribucionController;
 use App\Http\Controllers\PagosController;
 use App\Http\Controllers\PasaporteController;
@@ -16,15 +18,15 @@ use App\Http\Controllers\Pats\FranquiciaLinkController;
 use App\Http\Controllers\Pats\SolicitudDistribucionController;
 use App\Http\Controllers\Pats\SolicitudFranquiciaController;
 use App\Http\Controllers\Pats\SolicitudPatsController;
-use App\Http\Controllers\Pats\StripeDistribucionController;
-use App\Http\Controllers\Pats\StripeDistribucionLinkController;
-use App\Http\Controllers\Pats\StripeFranquiciaController;
-use App\Http\Controllers\Pats\StripePatsController;
 use App\Http\Controllers\PerfilController;
 use App\Http\Controllers\Portal\PortalAccesoController;
 use App\Http\Controllers\Portal\PortalPasaporteController;
+use App\Http\Controllers\Prosa\Prosa3dsController;
+use App\Http\Controllers\Prosa\ProsaCheckoutController;
 use App\Http\Controllers\ServiciosController;
 use App\Http\Controllers\SoporteController;
+use App\Models\TarjetaMisional;
+use App\Support\EncuestaPats;
 use Illuminate\Support\Facades\Route;
 
 // ──────────────────────────────────────────────────────────────────────────────
@@ -37,11 +39,18 @@ Route::post('/chatbot/ask', [ChatbotController::class, 'ask'])->name('chatbot.as
 Route::post('/chatbot/feedback', [ChatbotController::class, 'feedback'])->name('chatbot.feedback');
 
 // ──────────────────────────────────────────────────────────────────────────────
+//  EXPEDIENTE MÉDICO (público — acceso por QR)
+// ──────────────────────────────────────────────────────────────────────────────
+
+Route::get('/expediente/{token}', [ExpedienteController::class, 'show'])->name('expediente.show');
+Route::get('/expediente/{token}/foto', [ExpedienteController::class, 'foto'])->name('expediente.foto');
+
+// ──────────────────────────────────────────────────────────────────────────────
 //  AUTENTICACIÓN (guard: pasaporte)
 // ──────────────────────────────────────────────────────────────────────────────
 
 Route::middleware('guest:pasaporte')->group(function () {
-    Route::get('/login', [LoginController::class, 'showForm'])->name('login');
+    Route::get('/login', fn () => redirect('/'))->name('login');
     Route::post('/login', [LoginController::class, 'login'])->name('login.post');
 });
 
@@ -55,11 +64,17 @@ Route::post('/logout', [LoginController::class, 'logout'])
     ->name('logout')
     ->middleware('auth:pasaporte');
 
+// Cambio de contraseña forzado (cuando debe_cambiar_password = 1)
+Route::middleware('auth:pasaporte')->group(function () {
+    Route::get('/password/cambiar', [PerfilController::class, 'showCambiarPassword'])->name('password.cambiar');
+    Route::post('/password/cambiar', [PerfilController::class, 'forzarCambioPassword'])->name('password.cambiar.post');
+});
+
 // ──────────────────────────────────────────────────────────────────────────────
 //  ÁREA DE USUARIO (guard: pasaporte)
 // ──────────────────────────────────────────────────────────────────────────────
 
-Route::middleware('auth:pasaporte')->group(function () {
+Route::middleware(['auth:pasaporte', 'demo.readonly', 'password.forzar'])->group(function () {
 
     // Dashboard / servicios
     Route::get('/servicios', function () {
@@ -71,11 +86,40 @@ Route::middleware('auth:pasaporte')->group(function () {
                 ->first();
         }
 
-        return view('servicios.index', compact('user', 'pasaporte'));
+        // Al iniciar sesión, busca una tarjeta misional cerrada (activo = 0)
+        // sin reseña para lanzar la encuesta de satisfacción.
+        $encuestaPendiente = null;
+        if ($pasaporte && ! empty($pasaporte->code_pasaporte)) {
+            try {
+                $tarjeta = TarjetaMisional::query()
+                    ->pendientes($pasaporte->code_pasaporte)
+                    ->orderByDesc('id')
+                    ->first();
+
+                if ($tarjeta) {
+                    $tipo = EncuestaPats::clasificarServicio($tarjeta->modelo);
+                    $encuestaPendiente = [
+                        'id_tarjeta' => (int) $tarjeta->id,
+                        'tipo' => $tipo,
+                        'tipo_label' => EncuestaPats::etiquetaTipo($tipo),
+                        'modelo' => $tarjeta->modelo,
+                        'preguntas' => EncuestaPats::preguntasParaTipo($tipo),
+                    ];
+                }
+            } catch (\Throwable $e) {
+                report($e);
+            }
+        }
+
+        return view('servicios.index', compact('user', 'pasaporte', 'encuestaPendiente'));
     })->name('servicios');
 
     Route::get('/pasaporte', [PasaporteController::class,  'index'])->name('pasaporte');
-    Route::get('/pagos', [PagosController::class,      'index'])->name('pagos');
+    Route::get('/pagos', [PagosController::class, 'index'])->name('pagos');
+    Route::post('/pagos/procesar', [PagosController::class, 'procesar'])->name('pagos.procesar');
+
+    // Encuesta de satisfacción tras alta (modal del dashboard)
+    Route::post('/servicios/encuesta', [EncuestaController::class, 'guardar'])->name('servicios.encuesta');
 
     Route::get('/perfil', [PerfilController::class, 'show'])->name('perfil');
     Route::get('/perfil/foto', [PerfilController::class, 'servirFoto'])->name('perfil.foto');
@@ -86,23 +130,25 @@ Route::middleware('auth:pasaporte')->group(function () {
 });
 
 // ──────────────────────────────────────────────────────────────────────────────
-//  SERVICIOS / ESPECIALIDADES — públicos
+//  SERVICIOS / ESPECIALIDADES / AGENDA — área de usuario (guard: pasaporte)
 // ──────────────────────────────────────────────────────────────────────────────
 
-Route::controller(ServiciosController::class)->group(function () {
-    Route::get('/atencion-medica', 'atencionMedica')->name('atencion.index');
-    Route::get('/estudios-clinicos', 'estudiosСlinicos')->name('estudios.index');
-    Route::get('/farmacia', 'farmacia')->name('farmacia.index');
-    Route::get('/rayos', 'rayos')->name('rayos.index');
-    Route::get('/hospitales', 'hospitales')->name('hospitales.index');
+Route::middleware(['auth:pasaporte', 'demo.readonly'])->group(function () {
+    Route::controller(ServiciosController::class)->group(function () {
+        Route::get('/atencion-medica', 'atencionMedica')->name('atencion.index');
+        Route::get('/estudios-clinicos', 'estudiosСlinicos')->name('estudios.index');
+        Route::get('/farmacia', 'farmacia')->name('farmacia.index');
+        Route::get('/rayos', 'rayos')->name('rayos.index');
+        Route::get('/hospitales', 'hospitales')->name('hospitales.index');
+    });
+
+    Route::get('/especialidades', [EspecialidadesController::class, 'index'])->name('especialidades.index');
+    Route::get('/especialidades/{idRecurso}/agenda', [EspecialidadesController::class, 'bloquesMedico'])->name('especialidades.agenda');
+    Route::post('/especialidades/cita', [EspecialidadesController::class, 'guardarCita'])->name('especialidades.guardar');
+
+    Route::get('/agenda', [AgendaController::class, 'index'])->name('agenda.index');
+    Route::get('/agenda/dia/{fecha}', [AgendaController::class, 'dia'])->name('agenda.dia');
 });
-
-Route::get('/especialidades', [EspecialidadesController::class, 'index'])->name('especialidades.index');
-Route::get('/especialidades/{idRecurso}/agenda', [EspecialidadesController::class, 'bloquesMedico'])->name('especialidades.agenda');
-Route::post('/especialidades/cita', [EspecialidadesController::class, 'guardarCita'])->name('especialidades.guardar');
-
-Route::get('/agenda', [AgendaController::class, 'index'])->name('agenda.index');
-Route::get('/agenda/dia/{fecha}', [AgendaController::class, 'dia'])->name('agenda.dia');
 
 // ──────────────────────────────────────────────────────────────────────────────
 //  FORMULARIOS PÚBLICOS — Distribución
@@ -112,7 +158,7 @@ Route::get('/distribucion/solicitud', [SolicitudDistribucionController::class, '
 Route::post('/distribucion/solicitud', [SolicitudDistribucionController::class, 'guardarPublico'])->name('dist.publico.guardar');
 Route::post('/distribucion/solicitud/pre-validar', [SolicitudDistribucionController::class, 'preValidar'])->name('dist.publico.pre-validar');
 Route::get('/distribucion/solicitud/confirmacion', [SolicitudDistribucionController::class, 'confirmacion'])->name('dist.publico.confirmacion');
-Route::post('/distribucion/stripe/intent', [StripeDistribucionController::class,    'createIntent'])->name('dist.stripe.intent');
+Route::post('/distribucion/prosa/charge', [ProsaCheckoutController::class, 'distribucion'])->name('dist.prosa.charge');
 
 // Links de distribución (protegidos por contraseña)
 Route::get('/distribucion/link/{token}', [DistribucionLinkController::class, 'show'])->name('dist.link.show');
@@ -120,7 +166,7 @@ Route::post('/distribucion/link/{token}/auth', [DistribucionLinkController::clas
 Route::get('/distribucion/link/{token}/formulario', [DistribucionLinkController::class, 'formulario'])->name('dist.link.formulario');
 Route::post('/distribucion/link/{token}/pre-validar', [DistribucionLinkController::class, 'preValidar'])->name('dist.link.pre-validar');
 Route::post('/distribucion/link/{token}/guardar', [DistribucionLinkController::class, 'guardar'])->name('dist.link.guardar');
-Route::post('/distribucion/link/{token}/stripe/intent', [StripeDistribucionLinkController::class, 'createIntent'])->name('dist.link.stripe.intent');
+Route::post('/distribucion/link/{token}/prosa/charge', [ProsaCheckoutController::class, 'distribucionLink'])->name('dist.link.prosa.charge');
 
 Route::get('/pats/distribucion', [PagoDistribucionController::class, 'show'])->name('pats.pago-distribucion.show');
 Route::post('/pats/distribucion/orden', [PagoDistribucionController::class, 'generarOrden'])->name('pats.pago-distribucion.generar-orden');
@@ -134,7 +180,7 @@ Route::get('/franquicia/solicitud', [SolicitudFranquiciaController::class, 'show
 Route::post('/franquicia/solicitud', [SolicitudFranquiciaController::class, 'guardarPublico'])->name('franq.publico.guardar');
 Route::post('/franquicia/solicitud/pre-validar', [SolicitudFranquiciaController::class, 'preValidar'])->name('franq.publico.pre-validar');
 Route::get('/franquicia/solicitud/confirmacion', [SolicitudFranquiciaController::class, 'confirmacion'])->name('franq.publico.confirmacion');
-Route::post('/franquicia/stripe/intent', [StripeFranquiciaController::class,    'createIntent'])->name('franq.stripe.intent');
+Route::post('/franquicia/prosa/charge', [ProsaCheckoutController::class, 'franquicia'])->name('franq.prosa.charge');
 
 // Links de franquicia (protegidos por contraseña)
 Route::get('/franquicia/link/{token}', [FranquiciaLinkController::class, 'show'])->name('franq.link.show');
@@ -153,10 +199,14 @@ Route::get('/pats/registro/directo', [SolicitudPatsController::class, 'showDirec
 Route::post('/pats/registro/orden', [SolicitudPatsController::class, 'generarOrden'])->name('pats.registro.orden');
 Route::post('/pats/registro/contrato', [SolicitudPatsController::class, 'contratoPreview'])->name('pats.registro.contrato');
 Route::post('/pats/registro/pasaporte-validar', [SolicitudPatsController::class, 'validarPasaporte'])->name('pats.registro.pasaporte.validar');
-Route::post('/pats/registro/stripe/intent', [StripePatsController::class,    'createIntent'])->name('pats.registro.stripe.intent');
+Route::post('/pats/registro/prosa/charge', [ProsaCheckoutController::class, 'patsRegistro'])->name('pats.registro.prosa.charge');
 
 Route::get('/adquirir', [AdquirirController::class, 'show'])->name('adquirir');
 Route::post('/adquirir/procesar', [AdquirirController::class, 'procesar'])->name('adquirir.procesar');
+
+// Retorno del reto 3-D Secure (shopperResultUrl). ACS puede regresar por GET o POST.
+Route::match(['get', 'post'], '/prosa/3ds/return/{mtx}', [Prosa3dsController::class, 'return'])
+    ->name('prosa.3ds.return');
 
 // ──────────────────────────────────────────────────────────────────────────────
 //  ADMIN
@@ -173,6 +223,11 @@ Route::prefix('admin/solicitudes-distribuidor')->name('admin.dist.')->group(func
     Route::get('/{id}', [SolicitudDistribuidorAdminController::class, 'show'])->name('show')->where('id', '[0-9]+');
     Route::post('/{id}/accion', [SolicitudDistribuidorAdminController::class, 'accion'])->name('accion')->where('id', '[0-9]+');
     Route::get('/{id}/archivo/{tipo}', [SolicitudDistribuidorAdminController::class, 'archivo'])->name('archivo')->where('id', '[0-9]+');
+});
+
+Route::prefix('admin/renovacion')->name('admin.renovacion.')->group(function () {
+    Route::get('/preview', [PagosController::class, 'previewRenovacion'])->name('preview');
+    Route::post('/enviar', [PagosController::class, 'enviarRenovacion'])->name('enviar');
 });
 
 // ──────────────────────────────────────────────────────────────────────────────
@@ -200,6 +255,54 @@ Route::prefix('portal')->name('portal.')->group(function () {
 //  CONTRATOS (públicos — usados por iframes)
 // ──────────────────────────────────────────────────────────────────────────────
 
+// ──────────────────────────────────────────────────────────────────────────────
+//  LOCAL-ONLY TEST HELPERS  (never run in production)
+// ──────────────────────────────────────────────────────────────────────────────
+
+if (app()->isLocal()) {
+    Route::get('/test/oxxo-confirm/{paymentId}', function (string $paymentId) {
+        $checkout = \App\Models\ProsaPendingCheckout::where('payment_id', $paymentId)
+            ->where('status', \App\Models\ProsaPendingCheckout::STATUS_PENDING)
+            ->firstOrFail();
+
+        $fakeResult = [
+            'paymentId' => $paymentId,
+            'status' => 'approved',
+            'approved' => true,
+            'pending' => false,
+            'resultCode' => '000.000.000',
+            'resultDescription' => 'Test OXXO confirmation',
+            'registrationId' => null,
+            'brand' => 'OXXO',
+            'last4' => null,
+            'bin' => null,
+            'holder' => null,
+            'amount' => (string) $checkout->amount,
+            'currency' => 'MXN',
+            'redirect' => null,
+            'raw' => [],
+        ];
+
+        app(\App\Services\Prosa\Checkout\CheckoutManager::class)
+            ->finish($checkout, $fakeResult);
+
+        // Also mark the transaction as approved so the history reflects it.
+        \App\Models\ProsaTransaction::where('payment_id', $paymentId)
+            ->update(['status' => 'approved', 'result_code' => '000.000.000']);
+
+        return response()->json([
+            'confirmed' => true,
+            'checkout_id' => $checkout->id,
+            'flow' => $checkout->flow,
+            'new_status' => $checkout->fresh()->status,
+        ]);
+    })->name('test.oxxo.confirm');
+}
+
 Route::get('/contrato/franquicia', fn () => view('pats.contrato_franq'))->name('franq.contrato');
+Route::get('/contrato/franquicia/fisica', fn () => view('pats.contrato_franq_fisica'))->name('franq.contrato.fisica');
+Route::get('/contrato/franquicia/moral', fn () => view('pats.contrato_franq_moral'))->name('franq.contrato.moral');
 Route::get('/contrato/franquicia/en', fn () => view('pats.contrato_dist_en'))->name('franq.contrato.en');
 Route::get('/contrato/distribucion', fn () => view('pats.contrato_dist'))->name('dist.contrato');
+Route::get('/contrato/distribucion/fisica', fn () => view('pats.contrato_dist_fisica'))->name('dist.contrato.fisica');
+Route::get('/contrato/distribucion/moral', fn () => view('pats.contrato_dist_moral'))->name('dist.contrato.moral');

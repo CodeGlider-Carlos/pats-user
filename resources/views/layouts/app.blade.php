@@ -43,6 +43,16 @@
         {{-- TU NAVBAR ORIGINAL --}}
         @include('partials.navbar')
 
+        @if(auth('pasaporte')->check() && auth('pasaporte')->user()->esDemo())
+        <div style="background:#f59e0b;color:#78350f;text-align:center;padding:8px 16px;font-size:13px;font-weight:600;letter-spacing:0.03em;position:sticky;top:0;z-index:999;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="vertical-align:middle;margin-right:6px;"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            MODO DEMOSTRACIÓN &mdash; Vista de solo lectura. Las acciones están deshabilitadas.
+            @if(session('demo_blocked'))
+            &nbsp;|&nbsp;<span style="text-decoration:underline;">{{ session('demo_blocked') }}</span>
+            @endif
+        </div>
+        @endif
+
         <div class="container-fluid page-body-wrapper">
             {{-- Main panel con fondo moderno --}}
             <div class="main-panel">

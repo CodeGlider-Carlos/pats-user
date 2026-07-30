@@ -798,37 +798,56 @@
             }
         }
 
-        /* Stack prices below name on narrow phones */
-        @media (max-width: 430px) {
-            .far-price-header { display: none; }
+        /* ── Precios estilo atencion-medica ─────────── */
+        .digi-procedimiento-card__prices {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+            flex-shrink: 0;
+        }
 
+        .digi-procedimiento-card__price {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--blue);
+            margin: 0;
+        }
+
+        .digi-procedimiento-card__price--original {
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--text-muted);
+            text-decoration: line-through;
+            margin: 0;
+        }
+
+        .digi-price-label {
+            font-size: 0.72rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        .digi-price-label--original { color: var(--text-muted); }
+        .digi-price-label--pats { color: var(--blue); }
+
+        .digi-price-block {
+            display: flex;
+            flex-direction: column;
+            gap: 0.1rem;
+        }
+
+        @media (max-width: 640px) {
             .far-estudio {
                 flex-wrap: wrap;
-                row-gap: 6px;
+                row-gap: 4px;
                 align-items: flex-start;
             }
 
-            /* flex-basis:100% forces info onto its own line so it never collapses to 0 */
-            .far-estudio__info {
-                flex: 0 0 100%;
-                padding-right: 0;
-                min-width: 0;
-            }
-
-            .far-price-cols {
+            .far-estudio .digi-procedimiento-card__prices {
                 width: 100%;
-                padding-left: 50px;
-                justify-content: flex-start;
-            }
-
-            .far-price-tag {
-                flex: 1;
-                width: auto;
-                min-width: 0;
-            }
-
-            .far-price-tag__val {
-                font-size: 13px;
+                padding-left: 50px; /* icon (36px) + gap (14px) */
             }
         }
     </style>
@@ -939,12 +958,6 @@
                                     </div>
                                     @endif
                                     
-                                    <div class="far-price-header">
-                                        <span class="far-price-header__name">Medicamento</span>
-                                        <span class="far-price-header__price">Público</span>
-                                        <span class="far-price-header__price">PATS</span>
-                                    </div>
-
                                     @foreach($meds as $med)
                                         <div class="far-estudio" data-nombre="{{ strtolower($med->descripcion) }}">
                                             <div class="far-estudio__info">
@@ -955,16 +968,26 @@
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div class="far-price-cols">
-                                                <div class="far-price-tag far-price-tag--pub">
-                                                    <span class="far-price-tag__label">Público</span>
-                                                    <span class="far-price-tag__val">${{ number_format($med->precio_nopats, 2) }}</span>
+                                            @if ($med->precio_nopats || $med->precio_pats)
+                                                <div class="digi-procedimiento-card__prices">
+                                                    @if ($med->precio_nopats)
+                                                        <div class="digi-price-block">
+                                                            <span class="digi-price-label digi-price-label--original">Sin descuento</span>
+                                                            <p class="digi-procedimiento-card__price--original">
+                                                                ${{ number_format($med->precio_nopats, 0, '.', ',') }} MXN
+                                                            </p>
+                                                        </div>
+                                                    @endif
+                                                    @if ($med->precio_pats)
+                                                        <div class="digi-price-block">
+                                                            <span class="digi-price-label digi-price-label--pats">Precio PATS</span>
+                                                            <p class="digi-procedimiento-card__price">
+                                                                ${{ number_format($med->precio_pats, 0, '.', ',') }} MXN
+                                                            </p>
+                                                        </div>
+                                                    @endif
                                                 </div>
-                                                <div class="far-price-tag far-price-tag--pats">
-                                                    <span class="far-price-tag__label">PATS</span>
-                                                    <span class="far-price-tag__val">${{ number_format($med->precio_pats, 2) }}</span>
-                                                </div>
-                                            </div>
+                                            @endif
                                         </div>
                                     @endforeach
                                 </div>

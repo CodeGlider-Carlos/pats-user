@@ -58,10 +58,10 @@ return [
             'ignore_exceptions' => false,
         ],
 
-        'feenicia' => [
+        'prosa' => [
             'driver' => 'daily',
-            'path'   => storage_path('logs/feenicia.log'),
-            'level'  => env('FEENICIA_LOG_LEVEL', 'info'),
+            'path'   => storage_path('logs/prosa.log'),
+            'level'  => env('PROSA_LOG_LEVEL', 'info'),
             'days'   => 30,
         ],
 

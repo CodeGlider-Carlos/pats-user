@@ -93,7 +93,7 @@
 
         <div class="passport-card__id">
             <small>N.º de Pasaporte</small>
-            {{ str_pad($pasaporte->id_pasaporte, 8, '0', STR_PAD_LEFT) }}
+            {{ $pasaporte->code_pasaporte ?: str_pad($pasaporte->id_pasaporte, 8, '0', STR_PAD_LEFT) }}
         </div>
 
         <div class="passport-card__footer">

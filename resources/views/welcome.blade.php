@@ -180,8 +180,10 @@
         }
         .brand-headline em {
             background: linear-gradient(90deg, #ffffff 0%, #cfe0ff 20%, #79b5ff 46%, #1fd6c8 76%, #b8f21d 100%);
+            -webkit-background-clip: text;
             background-clip: text;
             -webkit-text-fill-color: transparent;
+            color: transparent;
             font-style: normal;
             
         }

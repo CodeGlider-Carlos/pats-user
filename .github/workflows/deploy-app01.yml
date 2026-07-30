@@ -1,0 +1,235 @@
+name: Deploy to app01 (SSH)
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-app01
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    name: Build & Deploy over SSH
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    env:
+      SSH_HOST: ssh-app01.testdomainconnections.uk
+      SSH_USER: debian
+      REMOTE_APP_DIR: /var/www/laravel
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP 8.2 (matches app01)
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: mbstring, bcmath, xml, curl, zip, pdo, pdo_mysql
+          coverage: none
+
+      - name: Cache Composer packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/composer/files
+          key: composer-${{ hashFiles('composer.lock') }}
+          restore-keys: composer-
+
+      - name: Install Composer dependencies (production)
+        run: composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist --no-progress
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install npm dependencies
+        run: npm ci
+
+      - name: Build frontend assets
+        run: npm run build
+
+      - name: Verify build output exists
+        run: test -d public/build || { echo "::error::public/build was not produced by 'npm run build'"; exit 1; }
+
+      # Runtime data lives inside the deployed tree on app01 (.env, storage/,
+      # public/images/users/, contratos/). None of it is packaged, so unpacking
+      # can never clobber it.
+      - name: Package release tarball
+        run: |
+          tar -czf "$RUNNER_TEMP/release.tar.gz" \
+            --exclude='./.git' \
+            --exclude='./.github' \
+            --exclude='./node_modules' \
+            --exclude='./storage' \
+            --exclude='./bootstrap/cache' \
+            --exclude='./tests' \
+            --exclude='./scripts' \
+            --exclude='./tinker' \
+            --exclude='./public/storage' \
+            --exclude='./public/images/users' \
+            --exclude='./contratos' \
+            --exclude='./.env' \
+            --exclude='./.env.example' \
+            --exclude='./.phpunit.result.cache' \
+            --exclude='./.phpunit.cache' \
+            --exclude='./phpunit.xml' \
+            --exclude='./test_db.php' \
+            --exclude='./CLAUDE.md' \
+            --exclude='./boost.json' \
+            --exclude='./.editorconfig' \
+            --exclude='*.sql' \
+            -C . .
+          ls -lh "$RUNNER_TEMP/release.tar.gz"
+
+      # app01 is only reachable through Cloudflare Access, so the runner needs
+      # cloudflared for the ProxyCommand plus a service token (below) to
+      # authenticate without a browser.
+      - name: Install cloudflared
+        run: |
+          curl -fsSL \
+            https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64 \
+            -o "$RUNNER_TEMP/cloudflared"
+          chmod +x "$RUNNER_TEMP/cloudflared"
+          echo "$RUNNER_TEMP" >> "$GITHUB_PATH"
+
+      - name: Configure SSH
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          SSH_KNOWN_HOSTS: ${{ secrets.SSH_KNOWN_HOSTS }}
+        run: |
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+          printf '%s\n' "$SSH_PRIVATE_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+
+          # Pin the host key when SSH_KNOWN_HOSTS is set; otherwise trust on
+          # first use (a fresh runner has no known_hosts, so this is effectively
+          # unverified — set the secret to harden it).
+          if [ -n "$SSH_KNOWN_HOSTS" ]; then
+            printf '%s\n' "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
+            HOST_KEY_CHECKING=yes
+          else
+            echo "::warning::SSH_KNOWN_HOSTS is not set - host key is accepted unverified."
+            HOST_KEY_CHECKING=accept-new
+          fi
+          chmod 600 ~/.ssh/known_hosts 2>/dev/null || true
+
+          cat > ~/.ssh/config <<EOF
+          Host app01
+            HostName $SSH_HOST
+            User $SSH_USER
+            IdentityFile ~/.ssh/deploy_key
+            IdentitiesOnly yes
+            StrictHostKeyChecking $HOST_KEY_CHECKING
+            UserKnownHostsFile ~/.ssh/known_hosts
+            ServerAliveInterval 30
+            ProxyCommand cloudflared access ssh --hostname %h
+          EOF
+          chmod 600 ~/.ssh/config
+
+      - name: Upload release to app01
+        env:
+          TUNNEL_SERVICE_TOKEN_ID: ${{ secrets.CF_ACCESS_CLIENT_ID }}
+          TUNNEL_SERVICE_TOKEN_SECRET: ${{ secrets.CF_ACCESS_CLIENT_SECRET }}
+        run: scp "$RUNNER_TEMP/release.tar.gz" app01:/tmp/pats-release.tar.gz
+
+      - name: Activate release on app01
+        env:
+          TUNNEL_SERVICE_TOKEN_ID: ${{ secrets.CF_ACCESS_CLIENT_ID }}
+          TUNNEL_SERVICE_TOKEN_SECRET: ${{ secrets.CF_ACCESS_CLIENT_SECRET }}
+        run: |
+          ssh app01 "APP_DIR='$REMOTE_APP_DIR' RELEASE='$GITHUB_SHA' bash -s" <<'REMOTE'
+          set -euo pipefail
+
+          TARBALL=/tmp/pats-release.tar.gz
+          STAGE="$(mktemp -d /tmp/pats-stage.XXXXXX)"
+          BACKUP_DIR="$HOME/deploy-backups"
+
+          cleanup() { rm -rf "$STAGE" "$TARBALL"; }
+          trap cleanup EXIT
+
+          echo "==> Preflight"
+          [ -f "$APP_DIR/artisan" ] || { echo "ERROR: $APP_DIR/artisan not found - wrong target?"; exit 1; }
+          [ -f "$APP_DIR/.env" ]    || { echo "ERROR: $APP_DIR/.env missing - refusing to deploy"; exit 1; }
+          sudo -n true 2>/dev/null  || { echo "ERROR: passwordless sudo required for chown/fpm reload"; exit 1; }
+          sudo -n -u www-data true 2>/dev/null || { echo "ERROR: cannot run artisan as www-data"; exit 1; }
+
+          echo "==> Unpacking release"
+          tar -xzf "$TARBALL" -C "$STAGE"
+          [ -f "$STAGE/artisan" ] && [ -d "$STAGE/vendor" ] || { echo "ERROR: release payload incomplete"; exit 1; }
+
+          echo "==> Backing up current code"
+          mkdir -p "$BACKUP_DIR"
+          tar -czf "$BACKUP_DIR/laravel-$(date +%Y%m%d-%H%M%S).tar.gz" \
+            -C "$APP_DIR" --exclude=./vendor --exclude=./storage . 2>/dev/null || true
+          ls -1t "$BACKUP_DIR"/laravel-*.tar.gz 2>/dev/null | tail -n +4 | xargs -r rm -f
+
+          cd "$APP_DIR"
+
+          # storage/ and bootstrap/cache are owned by www-data:www-data and the
+          # debian user is NOT in that group, so artisan must run as www-data or
+          # every cache write fails with permission denied.
+          artisan() { sudo -n -u www-data php artisan "$@"; }
+
+          echo "==> Maintenance mode on"
+          artisan down --retry=15 >/dev/null 2>&1 || true
+          # From here a failure leaves the site in maintenance mode on purpose -
+          # better than serving a half-swapped tree. Recover with:
+          #   sudo -u www-data php artisan up
+          trap 'artisan up >/dev/null 2>&1 || true; cleanup' EXIT
+
+          echo "==> Syncing files"
+          # Replaced wholesale so removed packages/assets cannot linger.
+          rm -rf "$APP_DIR/vendor" "$APP_DIR/public/build"
+          cp -a "$STAGE/." "$APP_DIR/"
+
+          echo "==> Rebuilding caches"
+          # bootstrap/cache is not shipped in the tarball (www-data owns it), so
+          # the package manifest is regenerated here against the new vendor/.
+          artisan package:discover >/dev/null
+          artisan config:clear >/dev/null
+          artisan config:cache >/dev/null
+          artisan view:clear >/dev/null
+          artisan view:cache >/dev/null
+          # route:cache is deliberately skipped: routes/web.php defines a closure
+          # route ('/servicios'), which Laravel cannot serialize.
+          artisan route:clear >/dev/null
+
+          # Runs as debian, not www-data: the symlink is created in public/,
+          # which debian owns.
+          [ -L public/storage ] || php artisan storage:link >/dev/null
+
+          echo "==> Ownership and permissions"
+          sudo -n chown -R debian:www-data "$APP_DIR"
+          sudo -n chown -R www-data:www-data "$APP_DIR/storage" "$APP_DIR/bootstrap/cache"
+          sudo -n chmod -R 775 "$APP_DIR/storage" "$APP_DIR/bootstrap/cache"
+
+          echo "==> Reloading php8.2-fpm (drops stale opcache)"
+          sudo -n systemctl reload php8.2-fpm
+
+          echo "==> Maintenance mode off"
+          php artisan up
+          trap cleanup EXIT
+
+          echo "==> Deployed ${RELEASE:-unknown}"
+          REMOTE
+
+      - name: Summary
+        if: always()
+        run: |
+          {
+            echo "### Deploy to app01"
+            echo ""
+            echo "- Commit: \`${GITHUB_SHA:0:7}\`"
+            echo "- Target: \`$SSH_USER@$SSH_HOST:$REMOTE_APP_DIR\`"
+            echo "- Result: **${{ job.status }}**"
+          } >> "$GITHUB_STEP_SUMMARY"

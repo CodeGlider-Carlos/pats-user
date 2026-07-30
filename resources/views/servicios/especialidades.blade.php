@@ -481,6 +481,36 @@
             margin: 0;
         }
 
+        /* Inline info row: especialidad · teléfono · ubicación */
+        .med-card__info-row {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 4px 6px;
+            margin-top: 4px;
+        }
+
+        .med-card__info-item {
+            display: inline-flex;
+            align-items: flex-start;
+            gap: 4px;
+            font-size: 12.5px;
+            color: var(--text-muted);
+        }
+
+        .med-card__info-item i {
+            color: var(--blue);
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+
+        .med-card__info-sep {
+            color: var(--text-muted);
+            font-size: 12px;
+            opacity: .4;
+            user-select: none;
+        }
+
         /* Disponibilidad en el modal */
         .med-disp {
             background: var(--white);
@@ -506,6 +536,21 @@
 
         .med-disp--no {
             border-left: 3px solid var(--text-muted);
+        }
+
+        /* Precio badge */
+        .med-card__price {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 13px;
+            font-weight: 700;
+            color: #0e7a5f;
+            background: rgba(14, 122, 95, .09);
+            border: 1px solid rgba(14, 122, 95, .20);
+            border-radius: 100px;
+            padding: 4px 12px;
+            margin-top: 10px;
         }
 
         /* Botones del modal */
@@ -551,6 +596,30 @@
         .med-btn--ghost:hover {
             border-color: rgba(37, 99, 235, .30);
             color: var(--cream);
+        }
+
+        .med-btn--call {
+            background: transparent;
+            color: var(--cream);
+            border-color: var(--border);
+        }
+
+        .med-btn--call:hover {
+            border-color: var(--blue);
+            color: var(--blue);
+            background: rgba(37, 99, 235, .05);
+        }
+
+        .med-btn--maps {
+            background: transparent;
+            color: var(--text-muted);
+            border-color: var(--border);
+        }
+
+        .med-btn--maps:hover {
+            border-color: rgba(37, 99, 235, .30);
+            color: var(--cream);
+            background: rgba(37, 99, 235, .04);
         }
 
         /* ── Toast ───────────────────────────────────── */
@@ -662,7 +731,7 @@
         </div>
 
         {{-- Stats ──────────────────────────────────────── --}}
-        <div class="esp-stats">
+        <!-- <div class="esp-stats">
             <div class="esp-stat">
                 <div class="esp-stat__num">{{ $porEspecialidad->count() }}</div>
                 <div class="esp-stat__label">Especialidades</div>
@@ -679,7 +748,7 @@
                 <div class="esp-stat__num">{{ $citasHoy->count() }}</div>
                 <div class="esp-stat__label">Citas hoy</div>
             </div> --}}
-        </div>
+        </div> -->
 
         {{-- Buscador ────────────────────────────────────── --}}
         <div class="esp-search-wrap">
@@ -699,21 +768,6 @@
                 @php
                     // Contar cuántos bloques disponibles tiene esta especialidad
                     $bloquesEsp = $medicos->sum(fn($m) => $disponibilidad->get($m->id_recurso, 0));
-                    $icons = [
-                        'stethoscope',
-                        'heart-pulse',
-                        'brain',
-                        'eye',
-                        'bone',
-                        'baby',
-                        'lungs',
-                        'stomach',
-                        'needle',
-                        'pill',
-                        'tooth',
-                        'ear-hearing',
-                    ];
-                    $icon = $icons[$loop->index % count($icons)];
                     $slug = \Illuminate\Support\Str::slug($especialidad);
                 @endphp
 
@@ -721,15 +775,15 @@
                     data-bs-target="#modal-{{ $slug }}">
 
                     <div class="esp-card__icon">
-                        <i class="mdi mdi-{{ $icon }}"></i>
+                        <i class="mdi mdi-stethoscope"></i>
                     </div>
 
                     <h3 class="esp-card__esp">{{ $especialidad }}</h3>
-
+<!-- 
                     <div class="esp-card__row">
                         <i class="mdi mdi-doctor"></i>
                         <span>{{ $medicos->count() }} {{ $medicos->count() === 1 ? 'médico' : 'médicos' }}</span>
-                    </div>
+                    </div> -->
 
                     @if ($bloquesEsp > 0)
                         <span class="esp-pill esp-pill--ok">
@@ -739,7 +793,7 @@
                     @else
                         <span class="esp-pill esp-pill--no">
                             <i class="mdi mdi-calendar-remove" style="font-size:13px;"></i>
-                            Sin horarios próximos
+                            Agenda tu cita
                         </span>
                     @endif
                 </div>
@@ -794,13 +848,34 @@
                                     <div class="med-card__avatar">
                                         <i class="mdi mdi-doctor"></i>
                                     </div>
-                                    <div>
+                                    <div style="min-width:0;">
                                         <p class="med-card__nombre">{{ $medico->nombre_recurso }}</p>
-                                        <p class="med-card__esp">
-                                            <i class="mdi mdi-tag-outline" style="font-size:13px;color:var(--blue);"></i>
-                                            {{ $medico->especialidad ?? $especialidad }}
-
-                                        </p>
+                                        <div class="med-card__info-row">
+                                            <span class="med-card__info-item">
+                                                <i class="mdi mdi-tag-outline"></i>
+                                                {{ $medico->especialidad ?? $especialidad }}
+                                            </span>
+                                            @if ($medico->telefono_consultorio)
+                                                <span class="med-card__info-sep">·</span>
+                                                <span class="med-card__info-item">
+                                                    <i class="mdi mdi-phone-outline"></i>
+                                                    {{ $medico->telefono_consultorio }}
+                                                </span>
+                                            @endif
+                                            @if ($medico->unidad || $medico->region)
+                                                <span class="med-card__info-sep">·</span>
+                                                <span class="med-card__info-item">
+                                                    <i class="mdi mdi-map-marker-outline"></i>
+                                                    {{$medico->direccion }}
+                                                </span>
+                                            @endif
+                                        </div>
+                                        @if (!is_null($medico->precio_consulta))
+                                            <span class="med-card__price">
+                                                <i class="mdi mdi-currency-usd" style="font-size:15px;"></i>
+                                                Consulta ${{ number_format($medico->precio_consulta, 0) }}
+                                            </span>
+                                        @endif
                                     </div>
                                 </div>
 
@@ -816,8 +891,11 @@
                                     </div>
                                 @else
                                     <div class="med-disp med-disp--no">
-                                        <i class="mdi mdi-calendar-remove"></i>
-                                        <span>Sin horarios disponibles por el momento</span>
+                                        <i class="mdi mdi-phone-outline"></i>
+                                        <span>
+                                            <strong>Agenda tu cita por teléfono</strong><br>
+                                            Llama y agenda el horario que mas te convenga. Pronto podrás reservar tu cita directo desde la plataforma.
+                                        </span>
                                     </div>
                                 @endif
 
@@ -827,6 +905,19 @@
                                             class="med-btn med-btn--primary">
                                             <i class="mdi mdi-calendar-plus"></i>
                                             Agendar cita
+                                        </a>
+                                    @endif
+                                    @if ($medico->telefono_consultorio)
+                                        <a href="tel:{{ $medico->telefono_consultorio }}" class="med-btn med-btn--call">
+                                            <i class="mdi mdi-phone"></i>
+                                            Llamar
+                                        </a>
+                                    @endif
+                                    @if ($medico->unidad || $medico->region)
+                                        <a href="https://maps.google.com/?q={{ urlencode(implode(' ', array_filter([$medico->direccion, $medico->unidad, $medico->region]))) }}"
+                                            target="_blank" rel="noopener" class="med-btn med-btn--maps">
+                                            <i class="mdi mdi-directions"></i>
+                                            Ubicación
                                         </a>
                                     @endif
                                     <button type="button" class="med-btn med-btn--ghost" data-bs-dismiss="modal">

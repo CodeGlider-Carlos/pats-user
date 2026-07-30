@@ -598,10 +598,11 @@
                 <h1 class="digi-page-title"><i class="mdi mdi-card-account-details-outline"></i> Mi pasaporte</h1>
                 <p class="digi-page-subtitle">Información general del pasaporte y acceso a servicios</p>
             </div>
-            @if ($pasaporte)
-                <button class="digi-btn digi-btn--primary" disabled style="background:#d1d5db;border-color:#d1d5db;color:#9ca3af;cursor:not-allowed;pointer-events:none;">
-                    <i class="mdi mdi-credit-card-outline"></i> Renovar pasaporte
-                </button>
+            @if ($pasaporte && strtoupper($pasaporte->tipo_cliente ?? '') !== 'EMPRESA')
+                <a href="{{ route('pagos') }}" class="digi-btn digi-btn--primary">
+                    <i class="mdi mdi-credit-card-outline"></i>
+                    {{ ($diasVigencia ?? 0) < 0 ? 'Reactivar pasaporte' : 'Renovar pasaporte' }}
+                </a>
             @endif
         </div>
 
@@ -633,15 +634,15 @@
                     </li>
                     @endif
                     <li class="digi-tabs__item">
-                        <button class="digi-tabs__link" data-panel="pasaporteQR" disabled>
+                        <button class="digi-tabs__link" data-panel="pasaporteQR">
                             <i class="mdi mdi-qrcode"></i> Código QR
                         </button>
                     </li>
-                    <li class="digi-tabs__item">
+                    <!-- <li class="digi-tabs__item">
                         <button class="digi-tabs__link" data-panel="beneficios" disabled>
                             <i class="mdi mdi-gift"></i> Beneficios
                         </button>
-                    </li>
+                    </li> -->
                 </ul>
             </div>
 
@@ -663,9 +664,9 @@
                                     </div>
                                 @endif
                                 <div style="text-align:center;">
-                                    <span class="info-pill info-pill--highlight">ID Pasaporte</span>
+                                    <span class="info-pill info-pill--highlight">Código</span>
                                     <span style="display:block;margin-top:.5rem;font-weight:600;color:var(--text);">
-                                        #PATS-{{ str_pad($pasaporte->id_pasaporte, 8, '0', STR_PAD_LEFT) }}
+                                        {{ $pasaporte->code_pasaporte ?: str_pad($pasaporte->id_pasaporte, 8, '0', STR_PAD_LEFT) }}
                                     </span>
                                 </div>
                                 @if ($estadoColor === 'success')
@@ -708,7 +709,7 @@
                                         <span class="digi-info-label">Teléfono</span>
                                         <span class="digi-info-value">{{ $pasaporte->telefono }}</span>
                                     </div>
-                                    <div class="digi-info-item">
+                                    <!-- <div class="digi-info-item">
                                         <span class="digi-info-label">Región / Zona</span>
                                         <span class="digi-info-value">{{ $pasaporte->region }} /
                                             {{ $pasaporte->zona }}</span>
@@ -716,7 +717,7 @@
                                     <div class="digi-info-item">
                                         <span class="digi-info-label">Tipo de cliente</span>
                                         <span class="digi-info-value">{{ ucfirst($pasaporte->tipo_cliente ?? '—') }}</span>
-                                    </div>
+                                    </div> -->
                                     <div class="digi-info-item">
                                         <span class="digi-info-label">Fecha de alta</span>
                                         <span
@@ -760,13 +761,16 @@
                                     </div>
                                 @endif
 
+                                @if (strtoupper($pasaporte->tipo_cliente ?? '') !== 'EMPRESA')
                                 <div style="margin-top:1rem;">
-                                    <button class="digi-btn digi-btn--primary" disabled
-                                        style="width:100%;justify-content:center;background:#d1d5db;border-color:#d1d5db;color:#9ca3af;cursor:not-allowed;pointer-events:none;">
+                                    <a href="{{ route('pagos') }}" class="digi-btn digi-btn--primary"
+                                        style="width:100%;justify-content:center;">
                                         <i class="mdi mdi-credit-card"></i>
-                                        {{ $pasaporte->estatus === 'vencido' ? 'Reactivar' : 'Renovar' }}
-                                    </button>
+                                        {{ ($diasVigencia ?? 0) < 0 ? 'Reactivar' : 'Renovar' }}
+                                    </a>
                                 </div>
+                                @endif
+
                             </div>
 
                         </div>
@@ -824,27 +828,54 @@
             {{-- PANEL: QR --}}
             <div class="digi-panel" id="pasaporteQR">
                 <div class="digi-card">
+                    <div class="digi-card__header">
+                        <h3 class="digi-card__title"><i class="mdi mdi-qrcode-scan"></i> Código QR Médico</h3>
+                    </div>
                     <div class="digi-card__body" style="text-align:center;">
-                        <div style="max-width:440px;margin:0 auto;padding:2rem;">
-                            <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=PATS-{{ $pasaporte->id_pasaporte }}|{{ urlencode($pasaporte->nombres) }}|{{ $pasaporte->curp }}"
-                                style="width:200px;height:200px;border-radius:var(--radius-lg);box-shadow:var(--shadow-md);margin-bottom:1.5rem;"
-                                alt="QR PATS">
-                            <h3
-                                style="font-family:'Syne',sans-serif;font-size:1.4rem;color:var(--text);margin-bottom:.75rem;">
-                                Pasaporte de Salud PATS</h3>
-                            <p style="color:var(--text-muted);margin-bottom:1.5rem;">Presenta este código QR para validar
-                                tu identidad en la red hospitalaria.</p>
-                            <div
-                                style="background:var(--navy);padding:1rem;border-radius:var(--radius-md);margin-bottom:1.5rem;text-align:left;">
-                                <ul style="margin:0;padding-left:1.2rem;color:var(--text);">
-                                    <li>ID: #PATS-{{ str_pad($pasaporte->id_pasaporte, 8, '0', STR_PAD_LEFT) }}</li>
-                                    <li>Nombre: {{ $pasaporte->nombres }} {{ $pasaporte->apellido_pa }}</li>
-                                    <li>CURP: {{ $pasaporte->curp }}</li>
-                                    <li>Vigencia: {{ $vencimiento->format('d/m/Y') }}</li>
-                                </ul>
+                        <div style="max-width:480px;margin:0 auto;padding:1.5rem 0;">
+
+                            <p style="color:var(--text-muted);margin-bottom:1.75rem;font-size:.95rem;line-height:1.6;">
+                                Muestra este código QR al médico o personal de salud para que acceda
+                                a tu expediente clínico completo de forma instantánea.
+                            </p>
+
+                            {{-- QR --}}
+                            <div style="display:inline-block;padding:16px;background:#fff;border-radius:16px;box-shadow:0 4px 24px rgba(0,0,0,.1);border:1px solid var(--border);margin-bottom:1.5rem;">
+                                <div id="pasaporte-qr"></div>
                             </div>
-                            <button class="digi-btn digi-btn--primary"><i class="mdi mdi-download"></i> Descargar
-                                QR</button>
+
+                            {{-- Datos del pasaporte --}}
+                            <div style="background:#f8fafc;border:1px solid var(--border);border-radius:var(--radius-md);padding:1rem 1.25rem;margin-bottom:1.5rem;text-align:left;">
+                                <div style="display:grid;grid-template-columns:1fr 1fr;gap:.6rem;">
+                                    <div>
+                                        <div style="font-size:.7rem;font-weight:600;text-transform:uppercase;letter-spacing:.04em;color:var(--text-muted);">Código</div>
+                                        <div style="font-weight:600;color:var(--text);font-size:.9rem;">{{ $pasaporte->code_pasaporte ?: str_pad($pasaporte->id_pasaporte, 8, '0', STR_PAD_LEFT) }}</div>
+                                    </div>
+                                    <div>
+                                        <div style="font-size:.7rem;font-weight:600;text-transform:uppercase;letter-spacing:.04em;color:var(--text-muted);">Vigencia</div>
+                                        <div style="font-weight:600;color:var(--text);font-size:.9rem;">{{ $vencimiento->format('d/m/Y') }}</div>
+                                    </div>
+                                    <div>
+                                        <div style="font-size:.7rem;font-weight:600;text-transform:uppercase;letter-spacing:.04em;color:var(--text-muted);">Titular</div>
+                                        <div style="font-weight:600;color:var(--text);font-size:.9rem;">{{ $pasaporte->nombres }} {{ $pasaporte->apellido_pa }}</div>
+                                    </div>
+                                    <div>
+                                        <div style="font-size:.7rem;font-weight:600;text-transform:uppercase;letter-spacing:.04em;color:var(--text-muted);">CURP</div>
+                                        <div style="font-weight:600;color:var(--text);font-size:.85rem;word-break:break-all;">{{ $pasaporte->curp }}</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {{-- Acciones --}}
+                            <div style="display:flex;gap:.75rem;justify-content:center;flex-wrap:wrap;">
+                                <a href="{{ $qrUrl }}" target="_blank" class="digi-btn digi-btn--secondary" style="text-decoration:none;">
+                                    <i class="mdi mdi-open-in-new"></i> Ver expediente
+                                </a>
+                                <button class="digi-btn digi-btn--primary" onclick="descargarQR()">
+                                    <i class="mdi mdi-download"></i> Descargar QR
+                                </button>
+                            </div>
+
                         </div>
                     </div>
                 </div>
@@ -1061,5 +1092,28 @@
             });
         });
     </script>
+
+    @if (!empty($qrUrl))
+    <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+    <script>
+        var qrInstance = new QRCode(document.getElementById('pasaporte-qr'), {
+            text: '{{ $qrUrl }}',
+            width: 180,
+            height: 180,
+            colorDark: '#1e3a5f',
+            colorLight: '#ffffff',
+            correctLevel: QRCode.CorrectLevel.M,
+        });
+
+        function descargarQR() {
+            var canvas = document.querySelector('#pasaporte-qr canvas');
+            if (!canvas) return;
+            var link = document.createElement('a');
+            link.download = 'qr-pats-{{ $pasaporte->code_pasaporte ?: $pasaporte->id_pasaporte }}.png';
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        }
+    </script>
+    @endif
 
 @endsection

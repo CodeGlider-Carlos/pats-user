@@ -14,7 +14,6 @@
         href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap"
         rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/@mdi/font@7.4.47/css/materialdesignicons.min.css" rel="stylesheet">
-    <script src="https://js.stripe.com/v3/"></script>
 
     <style>
         
@@ -2576,7 +2575,7 @@
                                         <i class="mdi mdi-calendar-range icon-left"></i>
                                         <select class="select" id="plazo_meses" name="plazo_meses" disabled>
                                             <option value="">Seleccionar...</option>
-                                            @foreach ([3, 6, 9, 12, 18, 24] as $m)
+                                            @foreach ([3, 6, 9, 12] as $m)
                                                 <option value="{{ $m }}">{{ $m }} meses
                                                 </option>
                                             @endforeach
@@ -2729,7 +2728,7 @@
                                         </div>
                                     </div>
 
-                                    {{-- Campos Stripe --}}
+                                    {{-- Campos de tarjeta --}}
                                     <div class="cc-fields">
                                         <div class="field field--full">
                                             <label class="label" for="cc_nombre">Nombre del titular <span
@@ -2743,11 +2742,39 @@
                                             </div>
                                         </div>
                                         <div class="field field--full">
-                                            <label class="label">Datos de tarjeta <span
+                                            <label class="label" for="cc_numero">Número de tarjeta <span
                                                     class="label__req">*</span></label>
-                                            <div id="stripe-card-element" class="stripe-element-wrap"></div>
-                                            <div id="stripe-card-errors"></div>
+                                            <div class="input-wrap">
+                                                <i class="mdi mdi-credit-card-outline icon-left"></i>
+                                                <input class="input" type="text" id="cc_numero" name="cc_numero"
+                                                    inputmode="numeric" maxlength="19" autocomplete="cc-number"
+                                                    placeholder="0000 0000 0000 0000">
+                                                <i class="mdi mdi-check-circle icon-status"></i>
+                                            </div>
                                         </div>
+                                        <div class="field">
+                                            <label class="label" for="cc_exp">Vencimiento (MM/AA) <span
+                                                    class="label__req">*</span></label>
+                                            <div class="input-wrap">
+                                                <i class="mdi mdi-calendar-outline icon-left"></i>
+                                                <input class="input" type="text" id="cc_exp" name="cc_exp"
+                                                    inputmode="numeric" maxlength="5" autocomplete="cc-exp"
+                                                    placeholder="MM/AA">
+                                                <i class="mdi mdi-check-circle icon-status"></i>
+                                            </div>
+                                        </div>
+                                        <div class="field">
+                                            <label class="label" for="cc_cvv">CVV <span
+                                                    class="label__req">*</span></label>
+                                            <div class="input-wrap">
+                                                <i class="mdi mdi-lock-outline icon-left"></i>
+                                                <input class="input" type="password" id="cc_cvv" name="cc_cvv"
+                                                    inputmode="numeric" maxlength="4" autocomplete="cc-csc"
+                                                    placeholder="•••">
+                                                <i class="mdi mdi-check-circle icon-status"></i>
+                                            </div>
+                                        </div>
+                                        <div id="cc-errors" style="color:#dc2626;font-size:.82rem;width:100%;"></div>
                                     </div>
 
                                     <div class="cc-security">
@@ -2803,6 +2830,8 @@
         <span id="toastMsg"></span>
     </div>
 
+    @include('prosa._threeds_js')
+
     <script>
         (function() {
             'use strict';
@@ -2812,8 +2841,6 @@
             let current = 1;
             let goingBack = false;
 
-            const STRIPE_KEY = '{{ config("services.stripe.key") }}';
-            let stripe, stripeCardElement, stripeCardComplete = false;
 
             const STEP_META = [{
                     tag: 'Paso 1 de 6',
@@ -3056,7 +3083,7 @@
                         $('cc_nombre')?.focus();
                         return false;
                     }
-                    if (!stripeCardComplete) {
+                    if (!readCard()) {
                         toast('Ingresa los datos completos de tu tarjeta.', 'error');
                         return false;
                     }
@@ -3228,17 +3255,22 @@
             /* ─── Submit ─────────────────────────────── */
             function bindSubmit() {
                 @php
-                    $intentUrl     = route('franq.stripe.intent');
+                    $chargeUrl     = route('franq.prosa.charge');
                     $submitUrl     = route('franq.publico.guardar');
                     $preValidarUrl = route('franq.publico.pre-validar');
                 @endphp
 
                 // Estado del pago — persiste entre reintentos para no cobrar dos veces
-                let confirmedPaymentId = null;
-                // Clave única por carga de página para idempotencia de red en Stripe
-                const intentKey = (typeof crypto !== 'undefined' && crypto.randomUUID)
-                    ? crypto.randomUUID()
-                    : (Date.now().toString(36) + Math.random().toString(36).slice(2));
+                // Retorno de reto 3DS: si hay ?3ds=ok&prosa_payment_id=xxx, recuperar el ID confirmado.
+                const _urlParams3ds = new URLSearchParams(window.location.search);
+                let confirmedPaymentId = _urlParams3ds.get('prosa_payment_id') || null;
+                if (confirmedPaymentId && _urlParams3ds.get('3ds') === 'ok') {
+                    const btnS = $('btnSubmit');
+                    if (btnS) {
+                        btnS.innerHTML = '<i class="mdi mdi-check-circle" style="color:#10b981;"></i> Pago autorizado — haz clic para finalizar solicitud';
+                    }
+                    toast('✓ Tu pago fue autorizado por 3D Secure. Haz clic en "Finalizar solicitud" para continuar.', 'success', 8000);
+                }
 
                 $('frmDist')?.addEventListener('submit', async e => {
                     e.preventDefault();
@@ -3252,6 +3284,12 @@
                         const plazoMeses = parseInt(document.getElementById('plazo_meses')?.value || '0');
 
                         if (!confirmedPaymentId) {
+                            const card = readCard();
+                            if (!card) {
+                                btn.disabled = false;
+                                return;
+                            }
+
                             // ── Paso 0: Pre-validar antes de cobrar ────────────
                             btn.innerHTML = '<i class="mdi mdi-loading mdi-spin"></i> Verificando datos...';
                             const fdPre = new FormData(e.target);
@@ -3263,76 +3301,38 @@
                             const preData = await preRes.json().catch(() => ({}));
                             if (!preRes.ok || preData.ok === false) throw new Error(preData.error || 'Error en la validación de datos.');
 
-                            // ── Paso 1: Crear PaymentIntent(s) ─────────────────
-                            btn.innerHTML = '<i class="mdi mdi-loading mdi-spin"></i> Iniciando pago...';
-                            const intentRes = await fetch('{{ $intentUrl }}', {
+                            // ── Paso 1: Cobrar con Prosa (server-to-server) ────
+                            btn.innerHTML = '<i class="mdi mdi-loading mdi-spin"></i> Procesando pago...';
+                            const chargeRes = await fetch('{{ $chargeUrl }}', {
                                 method: 'POST',
                                 headers: {
                                     'Content-Type': 'application/json',
                                     'X-CSRF-TOKEN': csrf,
                                     'X-Requested-With': 'XMLHttpRequest',
                                 },
-                                body: JSON.stringify({
-                                    correo:         document.getElementById('correo')?.value || '',
-                                    nombre:         document.getElementById('nombre')?.value || '',
-                                    modalidad_pago: modalidad,
-                                    plazo_meses:    plazoMeses,
-                                    intent_key:     intentKey,
-                                }),
+                                body: JSON.stringify(Object.assign(card, {
+                                    email: document.getElementById('correo')?.value || '',
+                                    browser: window.prosaBrowserData(),
+                                    billing: {
+                                        street1: ((document.getElementById('calle')?.value || '') + ' ' + (document.getElementById('num_ext')?.value || '')).trim(),
+                                        city: document.getElementById('municipio')?.value || '',
+                                        postcode: document.getElementById('cp')?.value || '',
+                                        country: 'MX',
+                                    },
+                                })),
                             });
-                            const intentData = await intentRes.json().catch(() => ({}));
-                            if (!intentData.ok) throw new Error(intentData.error || 'No fue posible iniciar el pago.');
+                            const chargeData = await chargeRes.json().catch(() => ({}));
 
-                            // ── Paso 2: Confirmar pago con Stripe.js ───────────
-                            const confirmOpts = {
-                                payment_method: {
-                                    card: stripeCardElement,
-                                    billing_details: {
-                                        name: document.getElementById('cc_nombre')?.value || '',
-                                    },
-                                },
-                            };
-                            if (modalidad === 'DIFERIDO' && plazoMeses > 0) {
-                                confirmOpts.payment_method_options = {
-                                    card: {
-                                        installments: {
-                                            plan: { count: plazoMeses, interval: 'month', type: 'fixed_count' },
-                                        },
-                                    },
-                                };
+                            // Reto 3DS: redirigir al banco emisor.
+                            if (chargeData.status === 'challenge') {
+                                btn.innerHTML = '<i class="mdi mdi-shield-lock-outline mdi-spin"></i> Redirigiendo a tu banco...';
+                                window.prosaHandleChallenge(chargeData.challenge);
+                                return;
                             }
 
-                            if (intentData.split) {
-                                // ── Cobro dividido en dos transacciones ────────
-                                btn.innerHTML = '<i class="mdi mdi-loading mdi-spin"></i> Procesando cobro 1 de 2...';
-                                const { paymentIntent: pi1, error: err1 } = await stripe.confirmCardPayment(
-                                    intentData.client_secret_1, confirmOpts
-                                );
-                                if (err1) throw new Error(err1.message || 'Primer cobro rechazado por el banco.');
-                                if (pi1.status !== 'succeeded') throw new Error('El primer cobro no fue confirmado.');
+                            if (!chargeData.ok) throw new Error(chargeData.error || 'Pago rechazado por el banco.');
 
-                                btn.innerHTML = '<i class="mdi mdi-loading mdi-spin"></i> Procesando cobro 2 de 2...';
-                                const { paymentIntent: pi2, error: err2 } = await stripe.confirmCardPayment(
-                                    intentData.client_secret_2, confirmOpts
-                                );
-                                if (err2) throw new Error('El primer cobro fue exitoso. ' + (err2.message || 'El segundo cobro falló — contacta a soporte.'));
-                                if (pi2.status !== 'succeeded') throw new Error('El segundo cobro no fue confirmado — contacta a soporte.');
-
-                                confirmedPaymentId = pi1.id + '|' + pi2.id;
-                            } else {
-                                // ── Cobro único ────────────────────────────────
-                                btn.innerHTML = modalidad === 'DIFERIDO'
-                                    ? `<i class="mdi mdi-loading mdi-spin"></i> Procesando ${plazoMeses} MSI...`
-                                    : '<i class="mdi mdi-loading mdi-spin"></i> Procesando pago...';
-
-                                const { paymentIntent, error } = await stripe.confirmCardPayment(
-                                    intentData.client_secret, confirmOpts
-                                );
-                                if (error) throw new Error(error.message || 'Pago rechazado por el banco.');
-                                if (paymentIntent.status !== 'succeeded') throw new Error('El pago no fue confirmado.');
-
-                                confirmedPaymentId = paymentIntent.id;
-                            }
+                            confirmedPaymentId = chargeData.payment_id;
                         } else {
                             // Pago ya confirmado — solo reintentar el envío de datos
                             btn.innerHTML = '<i class="mdi mdi-loading mdi-spin"></i> Reintentando envío...';
@@ -3341,7 +3341,7 @@
                         // ── Paso 3: Guardar solicitud ──────────────────────────
                         btn.innerHTML = '<i class="mdi mdi-loading mdi-spin"></i> Guardando solicitud...';
                         const fd = new FormData(e.target);
-                        fd.append('stripe_payment_intent_id', confirmedPaymentId);
+                        fd.append('prosa_payment_id', confirmedPaymentId);
 
                         const res = await fetch('{{ $submitUrl }}', {
                             method: 'POST',
@@ -3722,7 +3722,7 @@
             });
 
 
-            /* ─── Stripe Elements ────────────────────── */
+            /* ─── Tarjeta (entrada manual) ───────────── */
             function bindCard() {
                 const nomEl = document.getElementById('cc_nombre');
                 const dispNom = document.getElementById('ccDisplayName');
@@ -3733,34 +3733,48 @@
                     if (dispNom) dispNom.textContent = nomEl.value.trim() || 'NOMBRE EN LA TARJETA';
                 });
 
-                if (!window.Stripe) return;
+                const numEl = document.getElementById('cc_numero');
+                numEl?.addEventListener('input', () => {
+                    const v = numEl.value.replace(/\D/g, '').substring(0, 16);
+                    numEl.value = v.replace(/(\d{4})(?=\d)/g, '$1 ');
+                });
 
-                stripe = Stripe(STRIPE_KEY);
-                const elements = stripe.elements({
-                    fonts: [{ cssSrc: 'https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500&display=swap' }],
+                const expEl = document.getElementById('cc_exp');
+                expEl?.addEventListener('input', () => {
+                    let v = expEl.value.replace(/\D/g, '').substring(0, 4);
+                    if (v.length >= 3) v = v.substring(0, 2) + '/' + v.substring(2);
+                    expEl.value = v;
                 });
-                stripeCardElement = elements.create('card', {
-                    style: {
-                        base: {
-                            fontFamily: '"Plus Jakarta Sans", sans-serif',
-                            fontSize: '15px',
-                            color: '#1e293b',
-                            '::placeholder': { color: '#94a3b8' },
-                        },
-                        invalid: { color: '#ef4444', iconColor: '#ef4444' },
-                    },
-                    hidePostalCode: true,
-                });
-                stripeCardElement.mount('#stripe-card-element');
 
-                stripeCardElement.on('change', e => {
-                    stripeCardComplete = e.complete;
-                    const errDiv = document.getElementById('stripe-card-errors');
-                    if (errDiv) {
-                        errDiv.textContent = e.error ? e.error.message : '';
-                        errDiv.style.display = e.error ? '' : 'none';
-                    }
+                const cvvEl = document.getElementById('cc_cvv');
+                cvvEl?.addEventListener('input', () => {
+                    cvvEl.value = cvvEl.value.replace(/\D/g, '').substring(0, 4);
                 });
+            }
+
+            /* Lee y valida los campos de tarjeta. Devuelve null si son inválidos. */
+            function readCard() {
+                const pan = (document.getElementById('cc_numero')?.value || '').replace(/\s/g, '');
+                const exp = (document.getElementById('cc_exp')?.value || '').replace(/\D/g, '');
+                const cvv = document.getElementById('cc_cvv')?.value || '';
+                const holder = document.getElementById('cc_nombre')?.value || '';
+                const errDiv = document.getElementById('cc-errors');
+                const fail = (m) => {
+                    if (errDiv) errDiv.textContent = m;
+                    return null;
+                };
+                if (errDiv) errDiv.textContent = '';
+                if (pan.length < 13) return fail('Número de tarjeta inválido.');
+                if (exp.length !== 4) return fail('Vencimiento inválido (MM/AA).');
+                if (cvv.length < 3) return fail('CVV inválido.');
+                if (!holder.trim()) return fail('Ingresa el nombre del titular.');
+                return {
+                    pan,
+                    cardholderName: holder,
+                    cvv2: cvv,
+                    expMonth: exp.substring(0, 2),
+                    expYear: exp.substring(2, 4),
+                };
             }
 
         })();

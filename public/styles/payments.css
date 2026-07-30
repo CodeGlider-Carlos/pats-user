@@ -457,19 +457,25 @@
 
 .token-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-    gap: 1rem;
-    margin-bottom: 1.5rem;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 1.25rem;
 }
 
 .token-card {
     border: 2px solid var(--border);
-    border-radius: 14px;
-    padding: 1rem;
+    border-radius: 12px;
+    padding: 0.75rem;
     cursor: pointer;
     transition: all 0.15s;
     position: relative;
     background: var(--white);
+}
+
+.token-action-btn {
+    padding: 0.2rem 0.45rem;
+    font-size: 0.78rem;
+    line-height: 1;
 }
 
 .token-card:hover {
@@ -492,8 +498,18 @@
     font-size: 1rem;
 }
 
+.token-alias {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--cream);
+    margin-bottom: 0.15rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
 .token-brand {
-    font-size: 0.75rem;
+    font-size: 0.72rem;
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.04em;
@@ -503,15 +519,14 @@
 
 .token-num {
     font-family: monospace;
-    font-size: 1rem;
+    font-size: 0.92rem;
     color: var(--cream);
     font-weight: 600;
 }
 
 .token-exp {
-    font-size: 0.78rem;
+    font-size: 0.75rem;
     color: var(--text-muted);
-    margin-top: 0.2rem;
 }
 
 .token-default {
@@ -746,6 +761,85 @@
     padding: 1.75rem;
     margin-bottom: 1.75rem;
     box-shadow: var(--shadow-sm);
+}
+
+/* ── OXXO voucher ────────────────────────────────────────────────── */
+.oxxo-voucher {
+    border: 2px solid #e8423a;
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    background: var(--white);
+}
+
+.oxxo-voucher__header {
+    background: #fff5f5;
+    border-bottom: 2px solid #fecaca;
+    padding: 1.1rem 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.oxxo-voucher__amount {
+    padding: 1.25rem 1.25rem .5rem;
+    border-bottom: 1px dashed var(--border);
+    margin-bottom: 1rem;
+}
+
+.oxxo-voucher__ref-label {
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-muted);
+    padding: 0 1.25rem;
+    margin-bottom: .35rem;
+}
+
+.oxxo-voucher__reference {
+    font-family: monospace;
+    font-size: 1.6rem;
+    font-weight: 700;
+    letter-spacing: 3px;
+    color: var(--cream);
+    padding: .5rem 1.25rem .75rem;
+    background: var(--navy);
+    margin: 0 1.25rem .75rem;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    word-break: break-all;
+}
+
+.oxxo-voucher__steps {
+    padding: .75rem 1.25rem 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: .6rem;
+    border-top: 1px dashed var(--border);
+    margin-top: .5rem;
+}
+
+.oxxo-step {
+    display: flex;
+    align-items: flex-start;
+    gap: .65rem;
+    font-size: .83rem;
+    color: var(--text-muted);
+}
+
+.oxxo-step__num {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #e8423a;
+    color: #fff;
+    font-size: .7rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-top: .05rem;
 }
 
 @media (max-width: 640px) {

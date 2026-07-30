@@ -19,9 +19,19 @@ class DatabaseSeeder extends Seeder
         //     'email' => 'test@example.com',
         // ]);
 
+        // $this->call([
+        //     PreviewDistSeeder::class,
+        // ]);
+
         $this->call([
-            PreviewDistSeeder::class,
+            UsuarioPruebaSeeder::class,
+            // PreviewDistSeeder::class,
             PatsChatbotSeeder::class,
+            MedicosDemoSeeder::class,
+            PatsCatCxSeeder::class,
+            HospitalesDemoSeeder::class,
+            EstudiosDemoSeeder::class,
+            FarmaciaDemoSeeder::class,
         ]);
     }
 }
